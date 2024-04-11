@@ -2,16 +2,10 @@
 -- i.e. a durability of 0.75 means only 25% is left
 -- You can loop and check for any that are below (above a number) threshold durability and stop the reactor. Then simply dump out and in old and new condensators.
 
-local function tryRequire(moduleName, paths)
+local function tryRequire(paths)
 	local errorMsgs = {}
 	for _, path in ipairs(paths) do
-		local tryPath = ""
-		if path == "" then
-			tryPath = moduleName
-		else
-			tryPath = path .. "." .. moduleName
-		end
-		local success, module = pcall(require, tryPath)
+		local success, module = pcall(require, path)
 		if success then
 			return module
 		else
@@ -21,7 +15,7 @@ local function tryRequire(moduleName, paths)
 	error(table.concat(errorMsgs, "\n"))
 end
 
-local inv = tryRequire("inventory", { "", "KA_CC_Programs", "../" })
+local inv = tryRequire({ "inventory", "KA_CC_Programs/inventory", "../inventory" })
 
 -- Store modules
 local reactor = {}
