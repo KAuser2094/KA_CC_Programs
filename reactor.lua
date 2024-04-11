@@ -16,5 +16,5 @@
 -- Remove errors
 
 local chamber = peripheral.wrap("back")
-local docString = chamber.getDocs()
+local docString = textutils.serialize(chamber.getDocs())
 textutils.pagedPrint(docString)
