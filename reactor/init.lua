@@ -1,10 +1,42 @@
--- LZH Condensators use "Durability" nbt which is a number from 0-1 (won't actually show 0) where it represents the % lost.
--- i.e. a durability of 0.75 means only 25% is left (10k*25% is 2.5k)
+-- IC2 uses "Durability" nbt which is a number from 0-1 (won't actually show 0) where it represents the % lost.
+-- i.e. a durability of 0.75 means only 25% is left
 -- You can loop and check for any that are below (above a number) threshold durability and stop the reactor. Then simply dump out and in old and new condensators.
 
-local inv = require("KA_CC_Programs/inventory/inventory")
-local chamber = peripheral.wrap("back")
-local reactor = chamber.getReactorCore()
+local inv = require("KA_CC_Programs/inventory")
+-- Store modules
+local reactor = {}
 
-print("Press any key to finish")
-local event, key = os.pullEvent("key")
+reactor.core = nil
+
+-- Takes In: String of Chamber's side or network name
+function reactor.wrapCoreUsingChamber(reactorChamberNameOrSide)
+	reactor.core = peripheral.wrap(reactorChamberNameOrSide).getReactorCore()
+end
+
+-- Take In: String of Core's side or network name
+function reactor.wrapCoreDirectly(reactorCoreNameOrSide)
+	reactor.core = peripheral.wrap(reactorCoreNameOrSide)
+end
+
+-- Takes in: Decimal form of percentage of durability
+-- Returns: A list of slots with durabilities below the percentage
+function reactor.findAllComponentsWithDurabilityBelow(decimalPercentage)
+	local lowerFunction = function(inputItemMeta)
+		durabilityTaken = inputItemMeta["Durability"] or 0
+		return (1 - durabilityTaken) < decimalPercentage
+	end
+	return inv.findItemsInInvThatFulfilsFunction(reactor.core, lowerFunction)
+end
+
+-- Takes in: Decimal form of percentage of durability, the display name of the item
+-- Returns: A list of slots with durabilities below the percentage
+function reactor.findAllComponentsWithDurabilityBelowAndDisplayName(decimalPercentage, displayName)
+	local lowerFunction = function(inputItemMeta)
+		durabilityTaken = inputItemMeta["Durability"] or 0
+		itemDisplayName = inputItemMeta["display_name"] or nil
+		return ((1 - durabilityTaken) < decimalPercentage) and (itemDisplayName == display_name)
+	end
+	return inv.findItemsInInvThatFulfilsFunction(reactor.core, lowerFunction)
+end
+
+return reactor

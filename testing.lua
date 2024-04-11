@@ -1,0 +1,5 @@
+local reactor = require("KA_CC_Programs/reactor")
+reactor.wrapCoreUsingChamber("back")
+local itemData = reactor.core.getItemMeta(1)
+local str = textutils.serialise(itemData)
+textutils.pagedPrint(str)

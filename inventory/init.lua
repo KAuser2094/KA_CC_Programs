@@ -25,17 +25,11 @@ function inventory.getValueAtInv_Slot_MetaKey(invTable, slot, metakey)
 	return val_or_nil
 end
 
--- Takes in: Inventory Block Table, Metakey of value, function that takes in value and return true or false
+-- Takes in: Inventory Block Table, function that takes in an item metadata and return true or false
 -- Optional: Start Range, End Range
 -- Returns: List with slots of items that fulfil the criteria
 
-function inventory.findItemsInInvWith_MetaKeyValue_ThatFulfilsFunction(
-	invTable,
-	metaKey,
-	lowerFunction,
-	startRange,
-	endRange
-)
+function inventory.findItemsInInvThatFulfilsFunction(invTable, lowerFunction, startRange, endRange)
 	if not checkIfInv(invTable) then
 		return
 	end
@@ -43,8 +37,8 @@ function inventory.findItemsInInvWith_MetaKeyValue_ThatFulfilsFunction(
 	endRange = endRange or invTable.size()
 	local indexList = {}
 	for slot = startRange, endRange do
-		value = inventory.getValueAtInv_Slot_MetaKey(invTable, slot, metaKey)
-		if lowerFunction(value) then
+		local itemMeta = invTable.getItemMeta(slot)
+		if lowerFunction(itemMeta) then
 			table.insert(indexList, slot)
 		end
 	end
@@ -59,18 +53,12 @@ function inventory.findItemsInInvWith_Value_AtMetaKey(invTable, value, metaKey, 
 	if not checkIfInv(invTable) then
 		return
 	end
-	local lowerFunction = function(inputVal)
-		return value == inputVal
+	local lowerFunction = function(inputItemMeta)
+		return value == itemMeta[metakey]
 	end
 	startRange = startRange or 1
 	endRange = endRange or invTable.size()
-	return inventory.findItemsInInvWith_MetaKeyValue_ThatFulfilsFunction(
-		invTable,
-		metaKey,
-		lowerFunction,
-		startRange,
-		endRange
-	)
+	return inventory.findItemsInInvThatFulfilsFunction(invTable, lowerFunction, startRange, endRange)
 end
 
 return inventory
