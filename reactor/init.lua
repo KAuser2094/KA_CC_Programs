@@ -9,7 +9,7 @@ local function tryRequire(paths)
 		if success then
 			return module
 		else
-			table.insert(errorMsgs, "Failed to require '" .. moduleName .. "' from '" .. path .. "': " .. module)
+			table.insert(errorMsgs, "Failed to require from '" .. path .. "': " .. module)
 		end
 	end
 	error(table.concat(errorMsgs, "\n"))
