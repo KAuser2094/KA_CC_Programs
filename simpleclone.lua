@@ -1,4 +1,5 @@
 local http = require("http")
+local fs = require("fs")x
 
 local function downloadFile(url, path)
 	local response = http.get(url)
@@ -39,7 +40,6 @@ local function main(...)
 	end
 end
 
-if not pcall(debug.getlocal, 4, 1) then
-	-- This script is being executed directly, not loaded as a module
-	main(...)
+if debug.getinfo(4) not nil then
+  main(...)
 end
