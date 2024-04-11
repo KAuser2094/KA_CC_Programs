@@ -28,8 +28,9 @@ local function cloneRepository(owner, repo)
 		for _, content in ipairs(contents) do
 			if content.type == "file" then
 				-- Create directories if necessary
+				local filePath = fs.combine(folderName, content.path)
 				-- Download files into the repository folder
-				downloadFile(content.download_url, content.name)
+				downloadFile(content.download_url, filePath)
 			end
 		end
 		response.close()
