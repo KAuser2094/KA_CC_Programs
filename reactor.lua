@@ -13,7 +13,6 @@
 	getItem(slot): gets item in slot
 	size: size of inv
 ]]
--- Remove errors
 
 local chamber = peripheral.wrap("back")
 local docString = textutils.serialize(chamber.getDocs())
