@@ -2,7 +2,7 @@
 -- i.e. a durability of 0.75 means only 25% is left
 -- You can loop and check for any that are below (above a number) threshold durability and stop the reactor. Then simply dump out and in old and new condensators.
 
-local inv = require("KA_CC_Programs/inventory")
+local inv = require("../inventory")
 -- Store modules
 local reactor = {}
 
