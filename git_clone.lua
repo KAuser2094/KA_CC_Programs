@@ -1,7 +1,7 @@
 -- Define a table to store the module functions
 local gitClone = {}
 
-local function gitClone.downloadFile(url, path)
+function gitClone.downloadFile(url, path)
 	local response = http.get(url)
 	if response then
 		local file = fs.open(path, "w")
@@ -14,7 +14,7 @@ local function gitClone.downloadFile(url, path)
 	end
 end
 
-local function gitClone.cloneRepoFolder(owner, repo, path)
+function gitClone.cloneRepoFolder(owner, repo, path)
 	path = path or ""
 	local currentFolderPath = fs.combine(repo, path)
 	local apiUrl = "https://api.github.com/repos/" .. owner .. "/" .. repo .. "/contents/" .. path
@@ -41,7 +41,7 @@ local function gitClone.cloneRepoFolder(owner, repo, path)
 	end
 end
 
-local function gitClone.cloneRepository(owner, repo)
+function gitClone.cloneRepository(owner, repo)
 	print("Cloning github repository: " .. owner .. "/" .. repo)
 	local folderName = repo
 	if fs.exists(folderName) then
