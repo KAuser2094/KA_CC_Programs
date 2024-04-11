@@ -49,4 +49,19 @@ local function cloneRepository(owner, repo)
 	cloneRepoFolder(owner, repo)
 end
 
-cloneRepository("KAuser2094", "KA_CC_Programs")
+-- Will clone this repo
+-- cloneRepository("KAuser2094", "KA_CC_Programs")
+
+local function main(...)
+	local args = { ... }
+	if #args == 2 then
+		local owner, repo = args[1], args[2]
+		cloneRepository(owner, repo)
+	else
+		print("Usage: lua git_clone.lua <owner> <repo>")
+	end
+end
+
+if pcall(debug.getlocal, 4, 1) then
+	main(...)
+end
