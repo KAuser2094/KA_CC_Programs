@@ -12,7 +12,7 @@ You can run `pastebin run UMDCamCR` which will just run a shell command to the l
 
 You can also just run the wget command directly with `wget run https://raw.githubusercontent.com/KAuser2094/KA_CC_Programs/master/clone_this_repo.lua`
 
-## Usages:
+## Usage in terminal:
 
 ### clone_this_repo
 
@@ -27,3 +27,6 @@ This allows you to clone git repos into your CC computer. Just type `git_clone (
 
 This is self explanatory, just here to be a file you know should work.
 
+## Usage in code:
+
+This is more of a general CC tip, but given this is in a module folder, simply type `local *var_name* = KA_CC_Programs.*path to lua file*` to use the functions in your code.
