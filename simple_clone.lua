@@ -11,24 +11,6 @@ local function downloadFile(url, path)
 	end
 end
 
-local function createDirectories(path)
-	-- Create all directories in the given path if they don't exist
-	print("Need to make path: " .. path)
-	local parts = {}
-	for part in path:gmatch("[^/]+") do
-		table.insert(parts, part)
-	end
-
-	local currentPath = ""
-	for _, part in ipairs(parts) do
-		currentPath = fs.combine(currentPath, part)
-		if not fs.exists(currentPath) then
-			fs.makeDir(currentPath)
-			print("Made directory: " .. currentPath)
-		end
-	end
-end
-
 local function cloneRepository(owner, repo)
 	-- Fetch repository contents
 	local apiUrl = "https://api.github.com/repos/" .. owner .. "/" .. repo .. "/contents/"
@@ -46,11 +28,8 @@ local function cloneRepository(owner, repo)
 		for _, content in ipairs(contents) do
 			if content.type == "file" then
 				-- Create directories if necessary
-				local filePath = fs.combine(folderName, content.path)
-				local directoryPath = fs.getDir(filePath)
-				createDirectories(directoryPath)
 				-- Download files into the repository folder
-				downloadFile(content.download_url, filePath)
+				downloadFile(content.download_url, content.name)
 			end
 		end
 		response.close()
