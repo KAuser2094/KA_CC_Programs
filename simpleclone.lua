@@ -1,5 +1,6 @@
 local http = require("http")
-local fs = require("fs")x
+local fs = require("fs")
+local textutils = require("textutils")
 
 local function downloadFile(url, path)
 	local response = http.get(url)
@@ -40,6 +41,6 @@ local function main(...)
 	end
 end
 
-if debug.getinfo(4) not nil then
-  main(...)
+if pcall(debug.getlocal, 4, 1) then
+	main(...)
 end
