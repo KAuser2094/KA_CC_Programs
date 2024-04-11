@@ -27,6 +27,6 @@ This allows you to clone git repos into your CC computer. Just type `git_clone (
 
 This is self explanatory, just here to be a file you know should work.
 
-## Usage in code:
+## Usage in code
 
 This is more of a general CC tip, but given this is in a module folder, simply type `local *var_name* = KA_CC_Programs.*path to lua file*` to use the functions in your code.
