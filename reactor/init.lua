@@ -5,7 +5,13 @@
 local function tryRequire(moduleName, paths)
 	local errorMsgs = {}
 	for _, path in ipairs(paths) do
-		local success, module = pcall(require, path .. "." .. moduleName)
+		local tryPath = ""
+		if path == "" then
+			tryPath = moduleName
+		else
+			tryPath = path .. "." .. moduleName
+		end
+		local success, module = pcall(require, tryPath)
 		if success then
 			return module
 		else
@@ -15,7 +21,7 @@ local function tryRequire(moduleName, paths)
 	error(table.concat(errorMsgs, "\n"))
 end
 
-local inv = tryRequire("inventory", { "", "KA_CC_Programs" })
+local inv = tryRequire("inventory", { "", "KA_CC_Programs", "../" })
 
 -- Store modules
 local reactor = {}
