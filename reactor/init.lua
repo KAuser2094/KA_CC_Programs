@@ -52,9 +52,9 @@ end
 -- Returns: A list of slots with durabilities below the percentage
 function reactor.findAllComponentsWithDurabilityBelowAndDisplayName(decimalPercentage, displayName)
 	local lowerFunction = function(inputItemMeta)
-		durabilityTaken = inputItemMeta["Durability"] or 0
-		itemDisplayName = inputItemMeta["display_name"] or nil
-		return ((1 - durabilityTaken) < decimalPercentage) and (itemDisplayName == display_name)
+		durabilityTaken = inputItemMeta["durability"] or 0
+		itemDisplayName = inputItemMeta["displayName"] or nil
+		return ((1 - durabilityTaken) < decimalPercentage) and (itemDisplayName == displayName)
 	end
 	return inv.findItemsInInvThatFulfilsFunction(reactor.core, lowerFunction)
 end
