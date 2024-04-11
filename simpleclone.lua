@@ -28,3 +28,18 @@ local function cloneRepository(owner, repo)
 		print("Failed to access repository: " .. owner .. "/" .. repo)
 	end
 end
+
+local function main(...)
+	local args = { ... }
+	if #args == 2 then
+		local owner, repo = args[1], args[2]
+		cloneRepository(owner, repo)
+	else
+		print("Usage: lua simpleclone.lua <owner> <repo>")
+	end
+end
+
+if not pcall(debug.getlocal, 4, 1) then
+	-- This script is being executed directly, not loaded as a module
+	main(...)
+end
