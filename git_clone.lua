@@ -1,7 +1,7 @@
 -- Define a table to store the module functions
 local gitClone = {}
 
-function gitClone.downloadFile(url, path)
+local function downloadFile(url, path)
 	local response = http.get(url)
 	if response then
 		local file = fs.open(path, "w")
@@ -14,7 +14,7 @@ function gitClone.downloadFile(url, path)
 	end
 end
 
-function gitClone.cloneRepoFolder(owner, repo, path)
+local function cloneRepoFolder(owner, repo, path)
 	path = path or ""
 	local currentFolderPath = fs.combine(repo, path)
 	local apiUrl = "https://api.github.com/repos/" .. owner .. "/" .. repo .. "/contents/" .. path
@@ -25,12 +25,12 @@ function gitClone.cloneRepoFolder(owner, repo, path)
 		for _, content in ipairs(contents) do
 			if content.type == "file" then
 				local filePath = fs.combine(currentFolderPath, content.name)
-				gitClone.downloadFile(content.download_url, filePath)
+				downloadFile(content.download_url, filePath)
 			elseif content.type == "dir" then
 				local newFolderPath = fs.combine(currentFolderPath, content.name)
 				fs.makeDir(newFolderPath)
 				print("Made new directory: " .. newFolderPath)
-				gitClone.cloneRepoFolder(owner, repo, content.name)
+				cloneRepoFolder(owner, repo, content.name)
 			else
 				print(content.name .. " is a " .. content.type .. " type which was not expected")
 			end
@@ -49,7 +49,7 @@ function gitClone.cloneRepository(owner, repo)
 		print("Deleted old copy of repo")
 	end
 	fs.makeDir(folderName)
-	gitClone.cloneRepoFolder(owner, repo)
+	cloneRepoFolder(owner, repo)
 end
 
 local function main(...)
