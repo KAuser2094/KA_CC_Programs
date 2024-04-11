@@ -1,0 +1,8 @@
+-- LZH Reactor allows you to make a reactor that is just fuel and LZH condensors to stop explosions.
+-- It will constantly monitor the durability of the LZH condensors and fuel cells and control the reactor and machine buffers to manage it.
+-- According to the settings, it will stop the reactor and replace the condensors when durabilties reach a certain threshold percent.
+-- Machines:
+-- Reactor (with 6 chambers)
+-- 4 Machine Buffers (Near-Depleted Cells Out, Full Cells In, Near Broken LZH out, Full LZH in)
+-- Run the LZH_Reactor_set_settings.lua file to change the settings of the reactor.
+-- Run this file to start the program.
