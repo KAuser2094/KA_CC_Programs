@@ -23,6 +23,7 @@ local function createDirectories(path)
 		currentPath = fs.combine(currentPath, part)
 		if not fs.exists(currentPath) then
 			fs.makeDir(currentPath)
+			print("Made directory: " .. currentPath)
 		end
 	end
 end
@@ -36,6 +37,7 @@ local function cloneRepository(owner, repo)
 		local folderName = repo
 		if fs.exists(folderName) then
 			fs.delete(folderName) -- Delete preexisting folder with the same name
+			print("Deleted old copy of repo")
 		end
 		fs.makeDir(folderName)
 		-- Actually download the git repo
