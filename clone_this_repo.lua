@@ -50,3 +50,9 @@ local function cloneRepository(owner, repo)
 end
 
 cloneRepository("KAuser2094", "KA_CC_Programs")
+
+-- You can also run :
+-- pastebin run UMDCamCR`
+-- which will just call:
+-- shell.run("wget run https://raw.githubusercontent.com/KAuser2094/KA_CC_Programs/master/clone_this_repo.lua")
+-- or you know...run the wget command directly.

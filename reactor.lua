@@ -1,21 +1,20 @@
--- Wrap the block at the back of the computer in a peripheral
-local peripheralName = "back" -- Change this to match the side where the peripheral is located
-local peripheralObj = peripheral.wrap(peripheralName)
+--[[
+	Reactor Chamber:
+	suck: Suck item from ground
+	getReactorCore: gets table refrence of reactor core
+	getDocs: ....
+	getItemMeta(slotNum): gets meta data, 1 index.
+	getMetaData: gets meta data of the chamber.
+	pullItems(string,int): pulls item from another inv, returns amount pulled.
+	getTransferLocations: list of all available objects that can transfer to or from
+	drop(slot,direction*): drop to floor, returns how many dropped
+	pushItems(stringName,Slot): pushes item to another inv reutnr amount
+	list: list all items in inv.
+	getItem(slot): gets item in slot
+	size: size of inv
+]]
+-- Remove errors
 
--- Check if the peripheral has an inventory
-if peripheralObj and peripheralObj.list then
-	-- Iterate through each inventory slot
-	local inventorySize = peripheralObj.size()
-	for slot = 1, inventorySize do
-		local itemDetail = peripheralObj.getItemDetail(slot)
-		if itemDetail then
-			-- Item exists in the slot, print its details
-			print("Slot " .. slot .. ": " .. itemDetail.name .. " x" .. itemDetail.count)
-		else
-			-- No item in the slot
-			print("Slot " .. slot .. ": Empty")
-		end
-	end
-else
-	print("Peripheral not found or does not have an inventory.")
-end
+local chamber = peripheral.wrap("back")
+local docString = chamber.getDocs()
+textutils.pagedPrint(docString)
