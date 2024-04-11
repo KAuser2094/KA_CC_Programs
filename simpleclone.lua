@@ -1,7 +1,3 @@
-local http = require("http")
-local fs = require("fs")
-local textutils = require("textutils")
-
 local function downloadFile(url, path)
 	local response = http.get(url)
 	if response then
