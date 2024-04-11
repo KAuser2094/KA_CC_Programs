@@ -13,7 +13,11 @@ end
 
 local function createDirectories(path)
 	-- Create all directories in the given path if they don't exist
-	local parts = string.split(path, "/")
+	local parts = {}
+	for part in path:gmatch("[^/]+") do
+		table.insert(parts, part)
+	end
+
 	local currentPath = ""
 	for _, part in ipairs(parts) do
 		currentPath = fs.combine(currentPath, part)
