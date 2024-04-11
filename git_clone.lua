@@ -17,7 +17,7 @@ local function cloneRepoFolder(owner, repo, path)
 	local apiUrl = "https://api.github.com/repos/" .. owner .. "/" .. repo .. "/contents/" .. path
 	local response = http.get(apiUrl)
 	if response then
-		local contents = textutils.unserializeJSON(response.readAll())
+		local contents = textutils.unserialiseJSON(response.readAll())
 		response.close()
 		for _, content in ipairs(contents) do
 			if content.type == "file" then
