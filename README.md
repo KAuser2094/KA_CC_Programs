@@ -6,27 +6,26 @@ A collection of programs I use for CC whether to just help me code (like how to 
 
 ### Pastebin
 
-You can run `pastebin run UMDCamCR` which will just run a shell command to the lua file.
+You can run `pastebin run UMDCamCR` which will just run a shell command to run the `install.lua` file.
 
 ### Wget directly
 
-You can also just run the wget command directly with `wget run https://raw.githubusercontent.com/KAuser2094/KA_CC_Programs/master/clone_this_repo.lua`
+You can also just run the wget command directly with `wget run https://raw.githubusercontent.com/KAuser2094/KA_CC_Programs/master/install.lua"`
 
-## Usage in terminal:
+## Basic Usage in terminal:
 
-### clone_this_repo
+### install
 
-Is actually just a copy of `git_clone` but instead of accepting command line arguments it directly calls the function with this repo.
-Note that because this will delete the old folder before cloning it essentially also works as a pull (although the github api takes a bit to update)
+Will delete and clone this repo into the home directory.
 
-### git_clone
+### git
 
-This allows you to clone git repos into your CC computer. Just type `git_clone (Username) (RepoName)` and it will clone to the home directory.
+Allows for limited git operations. (Currently just clone)
 
-### hello_world
+#### clone
 
-This is self explanatory, just here to be a file you know should work.
+`git.clone <owner> <repo> (optional <targetFolder>)
 
-## Usage in code
+### get_info
 
-This is more of a general CC tip, but given this is in a module folder, simply type `local *var_name* = KA_CC_Programs.*path to lua file*` to use the functions in your code.
+Will get the documentation and list of methods of a peripheral at the `local networkName` variable in the file and save it to `info`
