@@ -32,3 +32,34 @@ local reactor = tryRequire({
   "../reactor" -- from here
 	"init.lua", -- also from here but cursed
 })
+
+local commands = {}
+
+local function commands.start()
+  -- TODO
+end
+
+local function commands.settings()
+  -- TODO
+end
+
+local function main(...)
+	local args = { ... }
+	if #args == 1 then
+		local command = args[1]
+    if commands[command] then
+      commands[command]()
+    else
+      print("Invalid command: " .. command)
+      print("Usage: LZH_Reactor <command>")
+      print("Commands: `start`, `settings`")
+    end
+	else
+		print("Usage: LZH_Reactor <command>")
+    print("Commands: `start`, `settings`")
+	end
+end
+
+if pcall(debug.getlocal, 4, 1) then
+	main(...)
+end
