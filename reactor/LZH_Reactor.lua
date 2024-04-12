@@ -6,3 +6,29 @@
 -- 4 Machine Buffers (Near-Depleted Cells Out, Full Cells In, Near Broken LZH out, Full LZH in)
 -- Run the LZH_Reactor_set_settings.lua file to change the settings of the reactor.
 -- Run this file to start the program.
+
+local function tryRequire(paths)
+	local errorMsgs = {}
+	for _, path in ipairs(paths) do
+		local success, module = pcall(require, path)
+		if success then
+			return module
+		else
+			table.insert(errorMsgs, "Failed to require from '" .. path .. "': " .. module)
+		end
+	end
+	error(table.concat(errorMsgs, "\n"))
+end
+-- Table with setting info
+local settings = tryRequire({
+	"KA_CC_Programs/reactor/LZH_Reactor_settings", -- from home
+	"reactor/LZH_Reactor_settings", -- from KA_CC_Programs
+	"LZH_Reactor_settings", -- from here
+})
+-- Helper Function
+local reactor = tryRequire({
+	"KA_CC_Programs/reactor", -- from home
+	"reactor", -- from KA_CC_Programs
+  "../reactor" -- from here
+	"init.lua", -- also from here but cursed
+})
