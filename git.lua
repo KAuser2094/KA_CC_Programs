@@ -53,7 +53,7 @@ local function cloneRepository(owner, repo, targetRootFolder)
 end
 
 local git_usage_text = {
-	help = "git.lua help (optiona <command>)"
+	help = "git.lua help (optional <command>)"
 	clone = "git.lua clone <owner> <repo> (optional <targetFolder>)",
 }
 
