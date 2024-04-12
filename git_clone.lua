@@ -30,7 +30,7 @@ local function cloneRepoFolder(owner, repo, path)
 				local newFolderPath = fs.combine(currentFolderPath, content.name)
 				fs.makeDir(newFolderPath)
 				print("Made new directory: " .. newFolderPath)
-				cloneRepoFolder(owner, repo, content.name)
+				cloneRepoFolder(owner, repo, path .. content.name)
 			else
 				print(content.name .. " is a " .. content.type .. " type which was not expected")
 			end
