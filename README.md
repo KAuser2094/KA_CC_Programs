@@ -7,7 +7,7 @@ A collection of programs I use for CC whether to just help me code (like how to 
 ### Pastebin
 
 You can run `pastebin run UMDCamCR` which will just run a shell command to run the `install.lua` file.
-You can also run `pastebin get UMDCamCR install` which will download the `install.lua` file.
+You can also run `pastebin get UMDCamCR install` which will download the file to run `install.lua` later.
 
 ### Wget directly
 
