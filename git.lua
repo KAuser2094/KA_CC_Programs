@@ -52,6 +52,11 @@ local function cloneRepository(owner, repo, targetRootFolder)
 	cloneRepoFolder(owner, repo, targetRootFolder)
 end
 
+local git_usage_text = {
+	help = "git.lua help (optiona <command>)"
+	clone = "git.lua clone <owner> <repo> (optional <targetFolder>)",
+}
+
 function git.clone(...)
 	local args = { ... }
 	if #args == 2 then
@@ -61,8 +66,23 @@ function git.clone(...)
 		local owner, repo, target = args[1], args[2], args[3]
 		cloneRepository(owner, repo, target)
 	else
-		print("Usage: git.clone <owner> <repo> (optional <targetFolder>)")
+		print("Usage: " .. git_usage_text["clone"])
 	end
+end
+
+function git.help(...)
+	local args = { ... }
+	if #args == 0 then
+		print("KA's git.lua usage:")
+		print("Clone: git.lua clone <owner> <repo> (optional <targetFolder>)")
+		return
+	end
+	local command = args[1]
+	if not git[command] then
+		return
+	end
+	print(command .. " usage:")
+	print(git_usage_text[command])
 end
 
 local function main(...)
