@@ -95,7 +95,7 @@ function git.clone(...)
 	if #args == 2 or #args == 3 then
 		local owner, repo = args[1], args[2]
 		local target = args[3] or repo
-		local savedHash = loadSavedCommitHash(targetRootFolder)
+		local savedHash = loadSavedCommitHash(target)
 		local currentHash = getCommitHash(owner, repo)
 		if savedHash and savedHash == currentHash then
 			print("Repository already up to date. Aborting clone.")
