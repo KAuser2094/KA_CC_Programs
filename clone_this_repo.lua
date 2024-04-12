@@ -1,6 +1,3 @@
--- Define a table to store the module functions
-local gitClone = {}
-
 local function downloadFile(url, path)
 	local response = http.get(url)
 	if response then
@@ -14,9 +11,9 @@ local function downloadFile(url, path)
 	end
 end
 
-local function cloneRepoFolder(owner, repo, path)
+local function cloneRepoFolder(owner, repo, targetRootFolder, path)
 	path = path or ""
-	local currentFolderPath = fs.combine(repo, path)
+	local currentFolderPath = fs.combine(targetRootFolder, path)
 	local apiUrl = "https://api.github.com/repos/" .. owner .. "/" .. repo .. "/contents/" .. path
 	local response = http.get(apiUrl)
 	if response then
@@ -30,7 +27,7 @@ local function cloneRepoFolder(owner, repo, path)
 				local newFolderPath = fs.combine(currentFolderPath, content.name)
 				fs.makeDir(newFolderPath)
 				print("Made new directory: " .. newFolderPath)
-				cloneRepoFolder(owner, repo, path .. "/" .. content.name)
+				cloneRepoFolder(owner, repo, targetRootFolder, path .. "/" .. content.name)
 			else
 				print(content.name .. " is a " .. content.type .. " type which was not expected")
 			end
@@ -41,15 +38,15 @@ local function cloneRepoFolder(owner, repo, path)
 	end
 end
 
-function gitClone.cloneRepository(owner, repo)
+local function cloneRepository(owner, repo, targetRootFolder)
 	print("Cloning github repository: " .. owner .. "/" .. repo)
-	local folderName = repo
-	if fs.exists(folderName) then
-		fs.delete(folderName) -- Delete preexisting folder with the same name
+	targetRootFolder = targetRootFolder or repo
+	if fs.exists(targetRootFolder) then
+		fs.delete(targetRootFolder) -- Delete preexisting folder with the same name
 		print("Deleted old copy of repo")
 	end
-	fs.makeDir(folderName)
-	cloneRepoFolder(owner, repo)
+	fs.makeDir(targetRootFolder)
+	cloneRepoFolder(owner, repo, targetRootFolder)
 end
 
-gitClone.cloneRepository("KAuser2094", "KA_CC_Programs")
+cloneRepository("KAuser2094", "KA_CC_Programs")
