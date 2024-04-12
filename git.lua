@@ -74,7 +74,7 @@ local function main(...)
 		print("Invalid Command")
 		return
 	end
-	func(args)
+	func(unpack(args))
 end
 
 if pcall(debug.getlocal, 4, 1) then
