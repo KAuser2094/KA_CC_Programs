@@ -74,7 +74,11 @@ function git.help(...)
 	local args = { ... }
 	if #args == 0 then
 		print("KA's git.lua usage:")
-		print("Clone: git.lua clone <owner> <repo> (optional <targetFolder>)")
+		print("---")
+		print("Help: " .. git_usage_text["help"])
+		print("---")
+		print("Clone: " .. git_usage_text["clone"])
+		print("---")
 		return
 	end
 	local command = args[1]
