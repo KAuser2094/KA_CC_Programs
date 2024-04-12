@@ -6,13 +6,11 @@ A collection of programs I use for CC whether to just help me code (like how to 
 
 ### Pastebin
 
-You can run `pastebin run UMDCamCR` which will just run a shell command to run the `install.lua` file.
-You can also run `pastebin get UMDCamCR install` which will download the file to run `install.lua` later.
+You can run `pastebin run UMDCamCR` which is a copy of `install.lua` which downloads `git.lua` and runs the clone command on this repo.
 
-### Wget directly
+### Manually
 
-You can also just run the wget command directly with `wget run https://raw.githubusercontent.com/KAuser2094/KA_CC_Programs/master/install.lua"`
-Oce again, replace run with get if you want to just install the file so you can run later.
+You can also just manually copy/download the `install.lua` to do the same thing.
 
 ## Basic Usage in terminal:
 
