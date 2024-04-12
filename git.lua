@@ -52,6 +52,39 @@ local function cloneRepository(owner, repo, targetRootFolder)
 	cloneRepoFolder(owner, repo, targetRootFolder)
 end
 
+local function getCommitHashFromAPI(owner, repo)
+	local apiUrl = "https://api.github.com/repos/" .. owner .. "/" .. repo .. "/commits/master"
+	local response = http.get(apiUrl)
+	if response then
+		local data = response.readAll()
+		response.close()
+		local commitInfo = textutils.unserialiseJSON(data)
+		if commitInfo and commitInfo.sha then
+			return commitInfo.sha
+		end
+	end
+	return nil
+end
+
+local function saveCommitHash(owner, repo, targetRootFolder)
+	local commitHash = getCommitHashFromAPI(owner, repo)
+	if commitHash then
+		local filePath = fs.combine(targetRootFolder, "hash.lua")
+		local file = fs.open(filePath, "w")
+		file.write('return "' .. commitHash .. '"')
+		file.close()
+	end
+end
+
+local function loadSavedCommitHash(targetRootFolder)
+	local hashFilePath = fs.combine(targetRootFolder, "hash.lua")
+	if fs.exists(hashFilePath) then
+		local hash = require(hashFilePath:gsub(".lua", ""))
+		return hash
+	end
+	return nil
+end
+
 local git_usage_text = {
 	help = "git.lua help (optional <command>)",
 	clone = "git.lua clone <owner> <repo> (optional <targetFolder>)",
@@ -59,12 +92,17 @@ local git_usage_text = {
 
 function git.clone(...)
 	local args = { ... }
-	if #args == 2 then
+	if #args == 2 or #args == 3 then
 		local owner, repo = args[1], args[2]
-		cloneRepository(owner, repo)
-	elseif #args == 3 then
-		local owner, repo, target = args[1], args[2], args[3]
+		local target = args[3] or repo
+		local savedHash = loadSavedCommitHash(targetRootFolder)
+		local currentHash = getCommitHash(owner, repo)
+		if savedHash and savedHash == currentHash then
+			print("Repository already up to date. Aborting clone.")
+			return
+		end
 		cloneRepository(owner, repo, target)
+		saveCommitHash(owner, repo, target)
 	else
 		print("Usage: " .. git_usage_text["clone"])
 	end
