@@ -1,0 +1,10 @@
+-- Just saves the docs of whatever is at the back to "docs" so you can `pastebin put docs` later
+local back = peripheral.wrap("back")
+local docTable = back.getDocs()
+local docString = textutils.serialise(docTable)
+local docFile = fs.open("docs", "w")
+docFile.write(docString)
+docFile.close()
+print("Wrote docs of: " .. back.getMetaData()["name"])
+print("Press key to exit")
+local event, key = os.pullEvent("key")
