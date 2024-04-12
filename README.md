@@ -24,7 +24,7 @@ Allows for limited git operations. (Currently just clone)
 
 #### clone
 
-`git.clone <owner> <repo> (optional <targetFolder>)
+`git.clone <owner> <repo> (optional <targetFolder>)`
 
 ### get_info
 
