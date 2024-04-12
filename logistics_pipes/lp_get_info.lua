@@ -25,5 +25,7 @@ local infoFile = fs.open("lp_info", "w")
 infoFile.write("return " .. textutils.serialise(info))
 infoFile.close()
 
-print("Press key to exit")
+print("Press key to start edit file")
 local event, key = os.pullEvent("key")
+
+shell.run("edit lp_info")
