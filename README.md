@@ -16,15 +16,23 @@ You can also just manually copy/download the `install.lua` to do the same thing.
 
 ### install
 
-Will delete and clone this repo into the home directory.
+Will download the `git.lua` file and clone this repo.
 
 ### git
 
-Allows for limited git operations. (Currently just clone)
+Allows for limited git operations. (Currently just clone and help)
+
+### help
+
+`git help (optional <command>)`
 
 #### clone
 
-`git.lua clone <owner> <repo> (optional <targetFolder>)`
+`git clone <owner> <repo> (optional <targetFolder>)` 
+
+Note that this stores a `hash.lua` file after cloning. When you clone again it will check this file and abort if it detects it is the same as what is up on the api. (It can take a while for the api to update, this should save some api requests).
+
+Also note that this will delete previous cloned repository at that directory and replace it with the most up to date according to api.
 
 ### get_info
 
