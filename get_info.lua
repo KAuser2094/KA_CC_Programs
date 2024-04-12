@@ -1,10 +1,10 @@
 -- Just saves the docs of whatever is at the `networkname` to `info` so you can `pastebin put docs` later
 local networkName = "back"
-local back = peripheral.wrap(networkName)
+local wrapped = peripheral.wrap(networkName)
 local info = {}
 
 -- Docs
-info.docs = back.getDocs()
+info.docs = wrapped.getDocs()
 -- Methods (May not appear in docs)
 info.methods = peripheral.getMethods(networkName)
 
