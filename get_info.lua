@@ -3,11 +3,9 @@ local networkName = "back"
 local back = peripheral.wrap(networkName)
 local info = {}
 -- Docs
-local docTable = back.getDocs()
-info.docs = textutils.serialise(docTable)
+info.docs = back.getDocs()
 -- Methods (May not appear in docs)
-local methods = peripheral.getMethods(networkName)
-info.methods = textutils.serialise(methods)
+info.methods = peripheral.getMethods(networkName)
 
 -- Print to file
 local infoFile = fs.open("Info", "w")
