@@ -91,7 +91,10 @@ end
 local function loadSavedCommitHash(targetRootFolder)
 	local hashFilePath = fs.combine(targetRootFolder .. "/.git", "hash.lua")
 	if fs.exists(hashFilePath) then
-		local hash = require(hashFilePath:gsub(".lua", ""))
+		local success, hash = pcall(require, hashFilePath:gsub(".lua", ""))
+		if not success then
+			return nil
+		end
 		return hash
 	end
 	return nil
