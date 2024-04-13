@@ -2,7 +2,6 @@
 local git = {}
 
 local function downloadFile(url, path)
-	print(url)
 	local response = http.get(url)
 	if response then
 		local file = fs.open(path, "w")
