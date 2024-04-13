@@ -14,7 +14,7 @@ local function downloadFile(url, path)
 	end
 end
 
-local function cloneRepoFolder(owner, repo, targetRootFolder, path)
+local function cloneRepoFolder(gitRedoCloneTree, owner, repo, targetRootFolder, path)
 	path = path or ""
 	local currentFolderPath = fs.combine(targetRootFolder, path)
 	local apiUrl = "https://api.github.com/repos/" .. owner .. "/" .. repo .. "/contents/" .. path
@@ -26,6 +26,12 @@ local function cloneRepoFolder(owner, repo, targetRootFolder, path)
 			if content.type == "file" then
 				local filePath = fs.combine(currentFolderPath, content.name)
 				downloadFile(content.download_url, filePath)
+				-- Here so you can redo this clone without calling api again (so if file structure hasn't changed).
+				table.insert(gitRedoCloneTree, {
+					content = content,
+					filePath = filePath,
+				})
+				--
 			elseif content.type == "dir" then
 				local newFolderPath = fs.combine(currentFolderPath, content.name)
 				fs.makeDir(newFolderPath)
@@ -49,7 +55,13 @@ local function cloneRepository(owner, repo, targetRootFolder)
 		print("Deleted old copy of repo")
 	end
 	fs.makeDir(targetRootFolder)
-	cloneRepoFolder(owner, repo, targetRootFolder)
+	local gitRedoCloneTree = {}
+	cloneRepoFolder(gitRedoCloneTree, owner, repo, targetRootFolder)
+	-- TODO: save that gitRedoCloneTree to another file. in `targetRootFolder/.git`
+	local filePath = fs.combine(targetRootFolder .. "/.git", "cloneRedoTree.lua")
+	local file = fs.open(filePath, "w")
+	file.write("return " .. textutils.serialise(gitRedoCloneTree))
+	file.close()
 end
 
 local function getCommitHashFromAPI(owner, repo)
@@ -69,7 +81,7 @@ end
 local function saveCommitHash(owner, repo, targetRootFolder)
 	local commitHash = getCommitHashFromAPI(owner, repo)
 	if commitHash then
-		local filePath = fs.combine(targetRootFolder, "hash.lua")
+		local filePath = fs.combine(targetRootFolder .. "/.git", "hash.lua")
 		local file = fs.open(filePath, "w")
 		file.write('return "' .. commitHash .. '"')
 		file.close()
@@ -77,7 +89,7 @@ local function saveCommitHash(owner, repo, targetRootFolder)
 end
 
 local function loadSavedCommitHash(targetRootFolder)
-	local hashFilePath = fs.combine(targetRootFolder, "hash.lua")
+	local hashFilePath = fs.combine(targetRootFolder .. "/.git", "hash.lua")
 	if fs.exists(hashFilePath) then
 		local hash = require(hashFilePath:gsub(".lua", ""))
 		return hash
