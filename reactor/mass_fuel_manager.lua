@@ -6,6 +6,9 @@ local ender_chest = peripheral.wrap("minecraft:ender chest_0")
 -- Reactors
 local reactors = { peripheral.find("ic2:reactor chamber") }
 
+local count = 1
 for _, reactor in pairs(reactors) do
 	print(peripheral.getName(reactor))
+	ender_chest.pushItems(peripheral.getName(reactor), count, nil, 22)
+	count = count + 1
 end
