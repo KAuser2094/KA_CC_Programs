@@ -114,7 +114,7 @@ end
 local git_usage_text = {
 	help = "git.lua help (optional <command>)",
 	clone = "git.lua clone <owner> <repo> (optional <targetFolder>)",
-	reclone = "git.lua reclone <folder_of_repo>, NOTE: must have used `clone` which saves `.git/redoCloneTree.lua`"
+	reclone = "git.lua reclone <folder_of_repo>, NOTE: must have used `clone` which saves `.git/redoCloneTree.lua`",
 }
 
 function git.reclone(...)
@@ -131,7 +131,7 @@ function git.reclone(...)
 			fs.delete(repoFolder .. "/.git/hash.lua")
 			print("Deleted saved hash as it may be out of date")
 		end
-		
+
 		for _, file in ipairs(redoTree) do
 			if fs.exists(file.filePath) then
 				fs.delete(file.filePath)
@@ -140,10 +140,9 @@ function git.reclone(...)
 		end
 		print("Done re-downloading all files cloned from previous clone")
 	else
-		print"Usage: " .. git_usage_text["reclone"]
-	end 
+		print("Usage: " .. git_usage_text["reclone"])
+	end
 end
-
 
 function git.clone(...)
 	local args = { ... }
