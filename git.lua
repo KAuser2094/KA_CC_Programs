@@ -36,7 +36,7 @@ local function cloneRepoFolder(gitRedoCloneTree, owner, repo, targetRootFolder, 
 				local newFolderPath = fs.combine(currentFolderPath, content.name)
 				fs.makeDir(newFolderPath)
 				print("Made new directory: " .. newFolderPath)
-				cloneRepoFolder(owner, repo, targetRootFolder, path .. "/" .. content.name)
+				cloneRepoFolder(gitRedoCloneTree, owner, repo, targetRootFolder, path .. "/" .. content.name)
 			else
 				print(content.name .. " is a " .. content.type .. " type which was not expected")
 			end
