@@ -88,27 +88,26 @@ local function saveCommitHash(owner, repo, targetRootFolder)
 end
 
 local function loadSavedCommitHash(targetRootFolder)
-	local hashFilePath = fs.combine(targetRootFolder, ".git")
-	local hashFilePath = fs.combine(targetRootFolder, "hash.lua")
-	if fs.exists(hashFilePath) then
-		local success, hash = pcall(require, hashFilePath:gsub(".lua", ""))
+	local filePath = targetRootFolder .. "/.git/hash"
+	if fs.exists(filePath .. ".lua") then
+		local success, value = pcall(require, filePath)
 		if not success then
 			return nil
 		end
-		return hash
+		return value
 	end
 	return nil
 end
 
 local function loadSavedRedoCloneTree(targetRootFolder)
-	local filePath = fs.combine(targetRootFolder, ".git")
-	local filePath = fs.combine(targetRootFolder, "redoCloneTree.lua")
-	if fs.exists(filePath) then
-		local success, hash = pcall(require, filePath:gsub(".lua", ""))
+	local filePath = targetRootFolder .. "/.git/redoCloneTree"
+	print("Looking at " .. filePath)
+	if fs.exists(filePath .. ".lua") then
+		local success, value = pcall(require, filePath)
 		if not success then
 			return nil
 		end
-		return hash
+		return value
 	end
 	return nil
 end
