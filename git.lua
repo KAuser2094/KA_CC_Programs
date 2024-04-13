@@ -139,7 +139,7 @@ function git.reclone(...)
 			if fs.exists(file.filePath) then
 				fs.delete(file.filePath)
 			end
-			downloadFile(file.content.download_url, filePath)
+			downloadFile(file.content.download_url, file.filePath)
 		end
 		print("Done re-downloading all files cloned from previous clone")
 	else
