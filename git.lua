@@ -58,7 +58,7 @@ local function cloneRepository(owner, repo, targetRootFolder)
 	local gitRedoCloneTree = {}
 	cloneRepoFolder(gitRedoCloneTree, owner, repo, targetRootFolder)
 	-- TODO: save that gitRedoCloneTree to another file. in `targetRootFolder/.git`
-	local filePath = fs.combine(targetRootFolder .. "/.git", "cloneRedoTree.lua")
+	local filePath = fs.combine(targetRootFolder .. "/.git", "redoCloneTree.lua")
 	local file = fs.open(filePath, "w")
 	file.write("return " .. textutils.serialise(gitRedoCloneTree))
 	file.close()
@@ -100,10 +100,51 @@ local function loadSavedCommitHash(targetRootFolder)
 	return nil
 end
 
+local function loadSavedRedoCloneTree(targetRootFolder)
+	local filePath = fs.combine(targetRootFolder .. "/.git", "redoCloneTree.lua")
+	if fs.exists(filePath) then
+		local success, hash = pcall(require, filePath:gsub(".lua", ""))
+		if not success then
+			return nil
+		end
+		return hash
+	end
+	return nil
+end
+
 local git_usage_text = {
 	help = "git.lua help (optional <command>)",
 	clone = "git.lua clone <owner> <repo> (optional <targetFolder>)",
+	reclone = "git.lua reclone <folder_of_repo>, NOTE: must have used `clone` which saves `.git/redoCloneTree.lua`"
 }
+
+function git.reclone(...)
+	local args = { ... }
+	if #args == 1 then
+		local repoFolder = args[1]
+		local redoTree = loadSavedRedoCloneTree(repoFolder)
+		if not redoTree then
+			print("Could not find: " .. repoFolder .. "/.git/redoCloneTree.lua")
+			print("Aborting...")
+			return
+		end
+		if fs.exists(repoFolder .. "/.git/hash.lua") then
+			fs.delete(repoFolder .. "/.git/hash.lua")
+			print("Deleted saved hash as it may be out of date")
+		end
+		
+		for _, file in ipairs(redoTree) do
+			if fs.exists(file.filePath) then
+				fs.delete(file.filePath)
+			end
+			shell.run("wget " .. file.content.download_url)
+		end
+		print("Done re-downloading all files cloned from previous clone")
+	else
+		print"Usage: " .. git_usage_text["reclone"]
+	end 
+end
+
 
 function git.clone(...)
 	local args = { ... }
