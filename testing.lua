@@ -1,5 +1,5 @@
-local reactor = require("reactor")
-reactor.wrapCoreUsingChamber("back")
-local itemData = reactor.core.getItemMeta(1)
-local str = textutils.serialise(itemData)
-textutils.pagedPrint(str)
+local netNameOrSide = "back"
+local requester = peripheral.wrap("back")
+local available = requester.getAvailableItems()
+local serialised = textutils.serialise(available)
+textutils.pagedPrint(serialised)
