@@ -12,3 +12,5 @@ for _, reactor in pairs(reactors) do
 	reactor.pullItems(peripheral.getName(ender_chest), count)
 	count = count + 1
 end
+
+ender_chest.pushItems(peripheral.getName(void_chest), 1)
