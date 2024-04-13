@@ -140,6 +140,7 @@ function git.reclone(...)
 				fs.delete(file.filePath)
 			end
 			shell.run("wget " .. file.content.download_url)
+			downloadFile(file.content.download_url, filePath)
 		end
 		print("Done re-downloading all files cloned from previous clone")
 	else
