@@ -57,7 +57,6 @@ local function cloneRepository(owner, repo, targetRootFolder)
 	fs.makeDir(targetRootFolder)
 	local gitRedoCloneTree = {}
 	cloneRepoFolder(gitRedoCloneTree, owner, repo, targetRootFolder)
-	-- TODO: save that gitRedoCloneTree to another file. in `targetRootFolder/.git`
 	local filePath = fs.combine(targetRootFolder .. "/.git", "redoCloneTree.lua")
 	local file = fs.open(filePath, "w")
 	file.write("return " .. textutils.serialise(gitRedoCloneTree))
