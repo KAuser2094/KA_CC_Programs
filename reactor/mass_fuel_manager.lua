@@ -9,6 +9,6 @@ local reactors = { peripheral.find("ic2:reactor chamber") }
 local count = 1
 for _, reactor in pairs(reactors) do
 	print(peripheral.getName(reactor))
-	ender_chest.pushItems(peripheral.getName(reactor), count, nil, 22)
+	reactor.pullItems(peripheral.getName(ender_chest), count)
 	count = count + 1
 end
