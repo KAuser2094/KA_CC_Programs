@@ -1,6 +1,7 @@
 -- Just some random functions that I often use
 
 -- TRY REQUIRE (will keep trying different paths and only fail after trying all)
+-- Usage: `local inv = tryRequire({ "inventory", "KA_CC_Programs/inventory", "../inventory" })`
 local function tryRequire(paths)
 	local errorMsgs = {}
 	for _, path in ipairs(paths) do

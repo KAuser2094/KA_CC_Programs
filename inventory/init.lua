@@ -155,6 +155,18 @@ function module.createBetterInventory(networkName)
 
 	return instance
 end
+
+function module.convertInventoryToBetterInventory(inventoryApi)
+	return module.createBetterInventory(peripheral.getName(inventoryApi))
+end
+
+function module.convertInventoryListToBetterInventoryList(inventoryApiList)
+	local newList = {}
+	for i, inventoryApi in ipairs(inventoryApiList) do
+		newList[i] = module.convertInventoryToBetterInventory(inventoryApi)
+	end
+	return newList
+end
 -- END OF BETTER INVENTORY
 
 return module
