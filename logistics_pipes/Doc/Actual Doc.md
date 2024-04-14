@@ -2,7 +2,7 @@
 
 ## Requesters
 
-You are going to want to connect to a requester type pipe as this will give you the best methods to work with.
+You are going to want to connect to a requester type pipe as this will give you the best methods to work with. (Nevermind they are broken)
 
 ### getAvailableItems()
 
