@@ -123,11 +123,12 @@ function betterInventory:pullItems(fromName_or_other, fromSlot, limit, toSlot)
 end
 -- End of original inventory API
 
+-- @return "KA_betterInventory"
 function betterInventory.getType()
 	return "KA_betterInventory"
 end
 
--- The known insides of the inventory are only updated when this is called. Most functions use the api directly, however.
+-- The known insides of the inventory are only updated when this is called. Most functions use the api directly, however so you can mostly ignore this.
 -- @return nil.
 function betterInventory:refreshContent()
 	self.content = self.api.list()
@@ -137,6 +138,9 @@ function betterInventory:needsConnectionSideSpecified()
 	local modList = { "ic2" }
 	return isInList(modList, self.mod)
 end
+
+-- TODO: Uses another inventory (that doesn't need a connectionSide) and tries to push an item in from different directions, whatever works is the correct direction
+function betterInventory:calculateConnectionSide(otherName_or_other, fromSlot, toSlot) end
 
 -- Sets the internal connectionSide for use in push/pull if this inventory needs it.
 -- @param direction - The direction the inventory is connected to the network to. (So if the machine is west of the modem block, then west.
@@ -184,6 +188,20 @@ end
 function betterInventory:findItemsWithMetaDataValueAtKey(value, metaKey, startRange, endRange)
 	local lowerFunction = function(inputItemMeta)
 		return value == itemMeta[metakey]
+	end
+	startRange = startRange or 1
+	endRange = endRange or self.api.size()
+	return self:findItemsThatFulfilsFunction(lowerFunction, startRange, endRange)
+end
+
+-- @param name - the minecraft name of the item (eg. `minecraft:stone`)
+-- @param damage - the damage in the meta data (usually used for variants of similar/same items)
+-- @param (opt.) startRange - At what slot in inventory to start search. (Default is 1)
+-- @param (opt.) endRange - At what slot in inventory to end search. (Default is `.size()` of api)
+-- @return A list of the inventory slots where the name and damage match.
+function betterInventory:findItemsWithNameAndDamage(name, damage, startRange, endRange)
+	local lowerFunction = function(inputItemMeta)
+		return (name == itemMeta["name"] and damage == itemMeta["damage"])
 	end
 	startRange = startRange or 1
 	endRange = endRange or self.api.size()
