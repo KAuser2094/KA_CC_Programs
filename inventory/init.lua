@@ -1,10 +1,18 @@
 -- Define a table to store the module functions
 local module = {}
 
+-- Generic Functions
+local function isInList(list, value)
+	for _, v in ipairs(list) do
+		if v == value then
+			return true
+		end
+	end
+	return false
+end
+
 -- BETTER INVENTORY: Basically a different api when working with inventory peripherals, wraps around the normal stuff and gives extra functionality
 local betterInventory = {}
-
-betterInventory.needsSideSpecified = { "ic2" }
 
 -- Original Inventory API functions:
 -- Look at original api wiki
@@ -27,13 +35,23 @@ function betterInventory:getItemLimit(slot)
 	return self.api.getItemDetail(slot)
 end
 
--- Look at original api wiki
+-- Look at original api wiki for most inventories.
+-- For certain mods that need you to wrap the connection side as well you must have used `:setConnectionSide(direction)`
 function betterInventory:pushItems(toName, fromSlot, limit, toSlot)
 	-- Yes these seem a bit redundant
 	limit = limit or nil
 	toSlot = toSlot or nil
-	return self.api.pushItems(toName, fromSlot, limit, toSlot)
-	-- TODO: Add check for mod type and fix for ic2
+	if self:needsConnectionSideSpecified() then
+		local other = module.createBetterInventory(fromName)
+		if other:needsConnectionSideSpecified() then
+			print(
+				"Cannot push/pull between 2 inventories that require a connectionSide specifed, use a relay inventory in the middle."
+			)
+			return 0
+		end
+		return other.api.pullItems(self.name .. "." .. self.connectionSide .. "_side", fromSlot, limit, toSlot)
+	end
+	return self.api.pushItems(fromName, fromSlot, limit, toSlot)
 end
 
 -- Look at original api wiki
@@ -41,14 +59,41 @@ function betterInventory:pullItems(fromName, fromSlot, limit, toSlot)
 	-- Yes these seem a bit redundant
 	limit = limit or nil
 	toSlot = toSlot or nil
+	if self:needsConnectionSideSpecified() then
+		local other = module.createBetterInventory(fromName)
+		if other:needsConnectionSideSpecified() then
+			print(
+				"Cannot push/pull between 2 inventories that require a connectionSide specifed, use a relay inventory in the middle."
+			)
+			return 0
+		end
+		return other.api.pushItems(self.name .. "." .. self.connectionSide .. "_side", fromSlot, limit, toSlot)
+	end
 	return self.api.pullItems(fromName, fromSlot, limit, toSlot)
-	-- TODO: Add check for mod type and fix for ic2
 end
 -- End of original inventory API
 
 -- The known insides of the inventory are only updated when this is called. Most functions use the api directly, however.
+-- @return nil.
 function betterInventory:refreshContent()
 	self.content = self.api.list()
+end
+
+function betterInventory:needsConnectionSideSpecified()
+	local modList = { "ic2" }
+	return isInList(modList, self.mod)
+end
+
+-- Sets the internal connectionSide for use in push/pull if this inventory needs it.
+-- @param direction - The direction the inventory is connected to the network to. (So if the machine is west of the modem block, then west.
+-- Should be from {"up","down","north","east","south","west"}.
+-- @return nil.
+function betterInventory:setConnectionSide(direction)
+	if not isInList({ "up", "down", "north", "east", "south", "west" }, direction) then
+		print(direction .. " is not a valid connection direction (cardinals + up + down)")
+		return
+	end
+	self.connectionSide = direction
 end
 
 -- @param key - what key in the item meta whose value you want to retrieve.
