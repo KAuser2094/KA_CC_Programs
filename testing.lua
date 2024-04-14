@@ -18,15 +18,15 @@ local o = invModule.createBetterInventory(oN)
 
 local reactors = { peripheral.find("ic2:nuclear reactor") }
 local reactors = invModule.convertInventoryListToBetterInventoryList(reactors)
-for _, reactor in ipairs(reactors) do
+for i, reactor in ipairs(reactors) do
 	print(reactor.name)
 	reactor:setConnectionSide("up")
 
 	-- Tests:
-	-- reactor:pullItems(o, 1)
+	-- reactor:pullItems(o, i)
 	-- reactor:pushItems(o, 1)
 	-- o:pullItems(reactor, 1)
-	-- o:pushItems(reactor, 1)
+	-- o:pushItems(reactor, i)
 end
 
 print("Press a key to end program ")
