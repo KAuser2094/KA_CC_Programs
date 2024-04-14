@@ -18,37 +18,6 @@ end
 local inv = tryRequire({ "inventory", "KA_CC_Programs/inventory", "../inventory" })
 
 -- Store modules
-local reactor = {}
+local module = {}
 
--- Takes In: String of Chamber's side or network name
-function reactor.wrapCoreUsingChamber(reactorChamberNameOrSide)
-	return peripheral.wrap(reactorChamberNameOrSide).getReactorCore()
-end
-
--- Take In: String of Core's side or network name
-function reactor.wrapCoreDirectly(reactorCoreNameOrSide)
-	return = peripheral.wrap(reactorCoreNameOrSide)
-end
-
--- Takes in: Decimal form of percentage of durability
--- Returns: A list of slots with durabilities below the percentage
-function reactor.findAllComponentsWithDurabilityBelow(reactorCore, decimalPercentage)
-	local lowerFunction = function(inputItemMeta)
-		durabilityTaken = inputItemMeta["Durability"] or 0
-		return (1 - durabilityTaken) < decimalPercentage
-	end
-	return inv.findItemsInInvThatFulfilsFunction(reactorCore, lowerFunction)
-end
-
--- Takes in: Decimal form of percentage of durability, the display name of the item
--- Returns: A list of slots with durabilities below the percentage
-function reactor.findAllComponentsWithDurabilityBelowAndDisplayName(reactorCore, decimalPercentage, displayName)
-	local lowerFunction = function(inputItemMeta)
-		durabilityTaken = inputItemMeta["durability"] or 0
-		itemDisplayName = inputItemMeta["displayName"] or nil
-		return ((1 - durabilityTaken) < decimalPercentage) and (itemDisplayName == displayName)
-	end
-	return inv.findItemsInInvThatFulfilsFunction(reactorCore, lowerFunction)
-end
-
-return reactor
+return module
