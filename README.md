@@ -22,7 +22,7 @@ Will download the `git.lua` file and clone this repo.
 
 Allows for limited git operations. (Currently just clone and help)
 
-### help
+#### help
 
 `git help (optional <command>)`
 
@@ -34,6 +34,18 @@ Note that this stores a `hash.lua` file after cloning. When you clone again it w
 
 Also note that this will delete previous cloned repository at that directory and replace it with the most up to date according to api.
 
-### get_info
+#### reclone
+
+`git reclone <folder_of_repo>`
+
+When `git clone` is ran, it will form a `redoCloneTree.lua` at `<folder_of_repo>/_git`. If your overall file structure hasn't changed (so no deletion, creation or renaming) then you should use this instead of clone to not waste api calls. (Or if you simply don't care about the deleted, created, or renamed files to clone them)
+
+#### get_info
 
 Will get the documentation and list of methods of a peripheral at the `local networkName` variable in the file and save it to `info`
+
+### inventory
+
+#### Better Inventory
+
+This is a wrapper around the normal peripheral/inventory api. It is a superset (so you can simply treat it as normal, using `:` instead of `.` to call functions) that adds functionality like searching and certain mod support (looking at you IC2). Also instead of using peripheral api, you can just grab the name and type using dot notation with `name` and `type`.
