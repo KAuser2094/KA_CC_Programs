@@ -38,12 +38,14 @@ end
 -- Look at original api wiki for most inventories.
 -- For certain mods that need you to wrap the connection side as well you must have used `:setConnectionSide(direction)`
 function betterInventory:pushItems(toName_or_other, fromSlot, limit, toSlot)
+	local fromName = nil
+	local other = nil
 	if toName_or_other.getType and toName_or_other.getType() == "KA_betterInventory" then
-		local toName = toName_or_other.name
-		local other = toName_or_other
+		toName = toName_or_other.name
+		other = toName_or_other
 	else
-		local toName = toName_or_other
-		local other = module.createBetterInventory(toName)
+		toName = toName_or_other
+		other = module.createBetterInventory(toName)
 	end
 	-- Yes these seem a bit redundant
 	limit = limit or nil
@@ -79,12 +81,14 @@ end
 
 -- Look at original api wiki
 function betterInventory:pullItems(fromName_or_other, fromSlot, limit, toSlot)
+	local fromName = nil
+	local other = nil
 	if fromName_or_other.getType and fromName_or_other.getType() == "KA_betterInventory" then
-		local fromName = fromName_or_other.name
-		local other = fromName_or_other
+		fromName = fromName_or_other.name
+		other = fromName_or_other
 	else
-		local fromName = fromName_or_other
-		local other = module.createBetterInventory(fromName)
+		fromName = fromName_or_other
+		other = module.createBetterInventory(fromName)
 	end
 	-- Yes these seem a bit redundant
 	limit = limit or nil
