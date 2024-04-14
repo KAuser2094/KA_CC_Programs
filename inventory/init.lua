@@ -37,41 +37,91 @@ end
 
 -- Look at original api wiki for most inventories.
 -- For certain mods that need you to wrap the connection side as well you must have used `:setConnectionSide(direction)`
-function betterInventory:pushItems(toName, fromSlot, limit, toSlot)
+function betterInventory:pushItems(toName_or_other, fromSlot, limit, toSlot)
+	if toName_or_other.getType and toName_or_other.getType() == "KA_betterInventory" then
+		local toName = toName_or_other.name
+		local other = toName_or_other
+	else
+		local toName = toName_or_other
+		local other = module.createBetterInventory(toName)
+	end
 	-- Yes these seem a bit redundant
 	limit = limit or nil
 	toSlot = toSlot or nil
+	if self:needsConnectionSideSpecified() and other:needsConnectionSideSpecified() then
+		print(
+			"Cannot push/pull between 2 inventories that require a connectionSide specifed, use a relay inventory in the middle."
+		)
+		return 0
+	end
 	if self:needsConnectionSideSpecified() then
-		local other = module.createBetterInventory(fromName)
-		if other:needsConnectionSideSpecified() then
+		if not self.connectionSide then
 			print(
-				"Cannot push/pull between 2 inventories that require a connectionSide specifed, use a relay inventory in the middle."
+				self.name
+					.. " needs a connection side specified, you must run `<betterInventory>:setConnectionSide(side) before any push/pull"
 			)
 			return 0
 		end
 		return other.api.pullItems(self.name .. "." .. self.connectionSide .. "_side", fromSlot, limit, toSlot)
 	end
-	return self.api.pushItems(fromName, fromSlot, limit, toSlot)
+	if other:needsConnectionSideSpecified() then
+		if not other.connectionSide then
+			print(
+				other.name
+					.. " needs a connection side specified, you must run `<betterInventory>:setConnectionSide(side) before any push/pull"
+			)
+			return 0
+		end
+		return self.api.pushItems(toName .. "." .. other.connectionSide .. "_side", fromSlot, limit, toSlot)
+	end
+	return self.api.pushItems(toName, fromSlot, limit, toSlot)
 end
 
 -- Look at original api wiki
-function betterInventory:pullItems(fromName, fromSlot, limit, toSlot)
+function betterInventory:pullItems(fromName_or_other, fromSlot, limit, toSlot)
+	if fromName_or_other.getType and fromName_or_other.getType() == "KA_betterInventory" then
+		local fromName = fromName_or_other.name
+		local other = fromName_or_other
+	else
+		local fromName = fromName_or_other
+		local other = module.createBetterInventory(fromName)
+	end
 	-- Yes these seem a bit redundant
 	limit = limit or nil
 	toSlot = toSlot or nil
+	if self:needsConnectionSideSpecified() and other:needsConnectionSideSpecified() then
+		print(
+			"Cannot push/pull between 2 inventories that require a connectionSide specifed, use a relay inventory in the middle."
+		)
+		return 0
+	end
 	if self:needsConnectionSideSpecified() then
-		local other = module.createBetterInventory(fromName)
-		if other:needsConnectionSideSpecified() then
+		if not self.connectionSide then
 			print(
-				"Cannot push/pull between 2 inventories that require a connectionSide specifed, use a relay inventory in the middle."
+				self.name
+					.. " needs a connection side specified, you must run `<betterInventory>:setConnectionSide(side) before any push/pull"
 			)
 			return 0
 		end
 		return other.api.pushItems(self.name .. "." .. self.connectionSide .. "_side", fromSlot, limit, toSlot)
 	end
+	if other:needsConnectionSideSpecified() then
+		if not other.connectionSide then
+			print(
+				other.name
+					.. " needs a connection side specified, you must run `<betterInventory>:setConnectionSide(side) before any push/pull"
+			)
+			return 0
+		end
+		return self.api.pullItems(fromName .. "." .. other.connectionSide .. "_side", fromSlot, limit, toSlot)
+	end
 	return self.api.pullItems(fromName, fromSlot, limit, toSlot)
 end
 -- End of original inventory API
+
+function betterInventory.getType()
+	return "KA_betterInventory"
+end
 
 -- The known insides of the inventory are only updated when this is called. Most functions use the api directly, however.
 -- @return nil.
