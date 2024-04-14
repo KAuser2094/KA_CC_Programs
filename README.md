@@ -12,7 +12,7 @@ You can run `pastebin run UMDCamCR` which is a copy of `install.lua` which downl
 
 You can also just manually copy/download the `install.lua` to do the same thing.
 
-## Basic Usage in terminal:
+## Basic Usage in terminal
 
 ### install
 
@@ -28,7 +28,7 @@ Allows for limited git operations. (Currently just clone and help)
 
 #### clone
 
-`git clone <owner> <repo> (optional <targetFolder>)` 
+`git clone <owner> <repo> (optional <targetFolder>)`
 
 Note that this stores a `hash.lua` file after cloning. When you clone again it will check this file and abort if it detects it is the same as what is up on the api. (It can take a while for the api to update, this should save some api requests).
 
