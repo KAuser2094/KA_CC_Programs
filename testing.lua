@@ -29,5 +29,5 @@ for i, reactor in ipairs(reactors) do
 	-- o:pushItems(reactor, i)
 end
 
-print("Press a key to end program ")
+print("Press Enter to end program ")
 io.read()
