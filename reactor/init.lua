@@ -20,4 +20,11 @@ local inv = tryRequire({ "inventory", "KA_CC_Programs/inventory", "../inventory"
 -- Store modules
 local module = {}
 
+local betterReactor = inv.getCopyOfBetterInventoryDefinitionTable() -- "Inherits" fields and methods
+
+-- @return { "KA_betterReactor", "KA_betterInventory" }
+function KA_betterReactor.getClassTypes()
+	return { "KA_betterReactor", "KA_betterInventory" }
+end
+
 return module
