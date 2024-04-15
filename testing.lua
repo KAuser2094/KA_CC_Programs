@@ -50,5 +50,10 @@ r2.verbosity = 1
 print("Testing Emptying")
 io.read()
 
+local success, transferred = o:emptyThisIntoOther(r1)
+-- local success, transferred = r1:emptyThisIntoOther(o)
+-- local success, transferred = o:emptyOtherIntoThis(r1)
+-- local success, transferred = r1:emptyOtherIntoThis(o)
+
 print("Press Enter to end program ")
 io.read()
