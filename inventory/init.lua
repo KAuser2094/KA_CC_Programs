@@ -11,6 +11,14 @@ local function isInList(list, value)
 	return false
 end
 
+function shallowCopy(original)
+	local copy = {}
+	for key, value in pairs(original) do
+		copy[key] = value
+	end
+	return copy
+end
+
 -- BETTER INVENTORY: Basically a different api when working with inventory peripherals, wraps around the normal stuff and gives extra functionality
 local betterInventory = {}
 
@@ -238,6 +246,10 @@ function module.convertInventoryListToBetterInventoryList(inventoryApiList)
 		newList[i] = module.convertInventoryToBetterInventory(inventoryApi)
 	end
 	return newList
+end
+
+function module.getCopyOfBetterInventoryDefinitionTable()
+	return shallowCopy(betterInventory)
 end
 -- END OF BETTER INVENTORY
 
