@@ -38,7 +38,7 @@ r2:setConnectionSide("up")
 r2.verbosity = 1
 
 print("Chest")
-c:printDocs()
+-- c:printDocs()
 
 print("Obsidian")
 -- o:printDocs()
