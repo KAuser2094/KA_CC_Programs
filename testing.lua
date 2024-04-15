@@ -18,7 +18,7 @@ local oN = "minecraft:ironchest_obsidian_1"
 local o = invModule.createBetterInventory(oN)
 
 local reactors = { peripheral.find("ic2:nuclear reactor") }
-local reactors = invModule.convertReactorListToBetterReactorList(reactors)
+local reactors = ic2Module.convertReactorListToBetterReactorList(reactors)
 for i, reactor in ipairs(reactors) do
 	print(reactor.name)
 	reactor:setConnectionSide("up")
