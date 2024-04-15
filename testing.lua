@@ -35,6 +35,8 @@ for i, reactor in ipairs(reactors) do
 	-- Tests:
 	-- print(reactor:size())
 
+	-- reactor:printDocs()
+
 	-- reactor:pullItems(o, i)
 	-- reactor:pushItems(o, 1)
 	-- o:pushItems(reactor, i)
