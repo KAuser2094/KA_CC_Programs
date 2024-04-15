@@ -158,7 +158,7 @@ function betterInventory:debugPrint(string)
 end
 
 function betterInventory:printDocs()
-	printTableItemByItem(betterInventory:getDocs())
+	printTableItemByItem(self:getDocs())
 end
 
 -- @return { "KA_betterInventory" }
