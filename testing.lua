@@ -28,8 +28,7 @@ local o = invModule.createBetterInventory(oN)
 local cN = "minecraft:chest_0"
 local c = invModule.createBetterInventory(cN)
 
-local reactors = { peripheral.find("ic2:nuclear reactor") }
-local reactors = ic2Module.convertReactorListToBetterReactorList(reactors)
+local reactors = ic2Module.getAllReactorsInNetwork()
 local r1 = reactors[1]
 r1:setConnectionSide("up")
 r1.verbosity = 1
@@ -44,7 +43,8 @@ print("Obsidian")
 -- o:printDocs()
 
 print("Reactor")
--- r1:printDocs()
+r1:printDocs()
+r2:printDocs()
 
 print("Press Enter to end program ")
 io.read()

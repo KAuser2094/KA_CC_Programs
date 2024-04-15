@@ -64,6 +64,7 @@ function module.createBetterReactor(networkName)
 		print(instance.name .. " is not a reactor block, cannot create a betterReactor instance with it")
 		return nil
 	end
+	instance.core = (instance.type == "ic2:nuclear reactor") and instance.api or instance.api.getReactorCore()
 	instance.content = instance.api.list()
 	instance.verbosity = 0
 	setmetatable(instance, { __index = betterReactor })
@@ -82,6 +83,12 @@ function module.convertReactorListToBetterReactorList(inventoryApiList)
 		newList[i] = module.convertReactorToBetterReactor(inventoryApi)
 	end
 	return newList
+end
+
+function module.getAllReactorsInNetwork()
+	local reactors = { peripheral.find("ic2:reactor chamber"), peripheral.find("ic2:nuclear reactor") }
+	reactors = module.convertReactorListToBetterReactorList(reactors)
+	return reactors
 end
 
 function module.getCopyOfBetterReactorDefinitionTable()
