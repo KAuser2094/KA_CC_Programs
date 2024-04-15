@@ -42,12 +42,16 @@ local r2 = reactors[2]
 r2:setConnectionSide("up")
 r2.verbosity = 1
 
-print("Testing bh")
-print(bh:size())
-print(bhc:size())
+print("Testing bh 2")
+io.read()
 
--- bh:printDocs()
--- bhc:printDocs()
+ic2Module.giveAnotherBetterInventoryFindReactorComponentFunctions(bh)
+ic2Module.giveAnotherBetterInventoryFindReactorComponentFunctions(bhc)
+local slotTable = bhc:findLZH()
+print(#slotTable)
+if #slotTable > 0 then
+	print(slotTable[1])
+end
 
 print("Press Enter to end program ")
 io.read()

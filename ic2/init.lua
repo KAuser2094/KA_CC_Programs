@@ -41,19 +41,18 @@ local module = {}
 -- BETTER REACTOR: Basically betterInventory but with some extra stuff that is more specific.
 local betterReactor = inv.getCopyOfBetterInventoryDefinitionTable() -- "Inherits" fields and methods
 
-betterReactor.itemDatas = tryRequire({
-	"reactor_component_data",
-	"ic2/reactor_component_data",
-	"KA_CC_Programs/ic2/reactor_component_data",
-})
-
 -- @return { "KA_betterReactor", "KA_betterInventory" }
 function betterReactor.getClassTypes()
 	return { "KA_betterReactor", "KA_betterInventory" }
 end
 
 -- I refuse to make all these methods manually.
-function betterReactor:getFindComponentFunctions()
+function betterReactor:getFindReactorComponentFunctions()
+	itemDatas = tryRequire({
+		"reactor_component_data",
+		"ic2/reactor_component_data",
+		"KA_CC_Programs/ic2/reactor_component_data",
+	})
 	local function lower1()
 		return function(itemMeta)
 			itemDurability = itemMeta["durability"] and (1 - itemMeta["durability"]) or 1
@@ -66,7 +65,7 @@ function betterReactor:getFindComponentFunctions()
 			return name == itemMeta["name"] and damage == itemMeta["damage"] and itemDurability > durabilityDecimal
 		end
 	end
-	for _, itemData in ipairs(self.itemDatas) do
+	for _, itemData in ipairs(itemDatas) do
 		self["find" .. itemData.funcName] = function(self, startRange, endRange)
 			return self:findItemsWithNameAndDamage(itemData.name, itemData.damage, startRange, endRange)
 		end
@@ -102,7 +101,7 @@ function module.createBetterReactor(networkName)
 	instance.verbosity = 0
 	setmetatable(instance, { __index = betterReactor })
 	instance:getAPIFunctions()
-	instance:getFindComponentFunctions()
+	instance:getFindReactorComponentFunctions()
 
 	return instance
 end
@@ -127,6 +126,10 @@ end
 
 function module.getCopyOfBetterReactorDefinitionTable()
 	return shallowCopy(betterReactor)
+end
+
+function module.giveAnotherBetterInventoryFindReactorComponentFunctions(betterInventory)
+	betterReactor.getFindReactorComponentFunctions(betterInventory)
 end
 -- END OF BETTER REACTOR
 
