@@ -224,8 +224,7 @@ function betterInventory:findItemsThatFulfilsFunction(lowerFunction, startRange,
 	endRange = endRange or self.api.size()
 	local indexList = {}
 	for slot = startRange, endRange do
-		local itemMeta = self.api.getItemMeta(slot)
-		if lowerFunction(itemMeta) then
+		if lowerFunction(self.api.getItemMeta(slot)) then
 			table.insert(indexList, slot)
 		end
 	end
