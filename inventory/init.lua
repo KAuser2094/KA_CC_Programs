@@ -116,7 +116,11 @@ end
 -- For certain mods that need you to wrap the connection side as well you must have used `:setConnectionSide(direction)`.
 function betterInventory:pullItems(otherName_or_other, fromSlot, limit, toSlot)
 	local other = self:getInstanceOrCreate(otherName_or_other)
-	return other:pushItems(self, fromSlot, limit, toSlot)
+	local otherVerbosity = other.verbosity
+	other.verbosity = self.verbosity
+	local result = other:pushItems(self, fromSlot, limit, toSlot)
+	other.verbosity = otherVerbosity
+	return result
 end
 
 -- Will search through inventory for an item that fulfils the lowerFunction and push it into the other inventory
@@ -131,7 +135,11 @@ end
 -- Will search through inventory for an item that fulfils the lowerFunction and pull it from the other inventory
 function betterInventory:findAndPull(otherName_or_other, lowerFunction, startRange, endRange, limit, toSlot)
 	local other = self:getInstanceOrCreate(otherName_or_other)
-	return other:findAndPush(self, lowerFunction, startRange, endRange, limit, toSlot)
+	local otherVerbosity = other.verbosity
+	other.verbosity = self.verbosity
+	local result = other:findAndPush(self, lowerFunction, startRange, endRange, limit, toSlot)
+	other.verbosity = otherVerbosity
+	return result
 end
 
 -- Same as original api, but adds extra methods and usages.
