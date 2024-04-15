@@ -34,6 +34,11 @@ local bh = invModule.createBetterInventory(bhN)
 local bhcN = "industrialforegoing:black_hole_controller_reworked_tile_0"
 local bhc = invModule.createBetterInventory(bhcN)
 
+ic2Module.giveAnotherBetterInventoryFindReactorComponentFunctions(c)
+ic2Module.giveAnotherBetterInventoryFindReactorComponentFunctions(o)
+ic2Module.giveAnotherBetterInventoryFindReactorComponentFunctions(bh)
+ic2Module.giveAnotherBetterInventoryFindReactorComponentFunctions(bhc)
+
 local reactors = { ic2Module.findAllReactorsInNetwork() }
 local r1 = reactors[1]
 r1:setConnectionSide("up")
@@ -42,16 +47,8 @@ local r2 = reactors[2]
 r2:setConnectionSide("up")
 r2.verbosity = 1
 
-print("Testing bh 2")
+print("Testing Emptying")
 io.read()
-
-ic2Module.giveAnotherBetterInventoryFindReactorComponentFunctions(bh)
-ic2Module.giveAnotherBetterInventoryFindReactorComponentFunctions(bhc)
-local slotTable = bhc:findLZH()
-print(#slotTable)
-if #slotTable > 0 then
-	print(slotTable[1])
-end
 
 print("Press Enter to end program ")
 io.read()

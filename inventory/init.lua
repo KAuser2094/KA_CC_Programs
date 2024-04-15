@@ -77,6 +77,31 @@ function betterInventory:getAPIFunctions()
 	end
 end
 
+function betterInventory:checkValidPushPull(otherName_or_other)
+	local other = self:getInstanceOrCreate(otherName_or_other)
+	if self:needsConnectionSideSpecified() and other:needsConnectionSideSpecified() then
+		print(
+			"Cannot push/pull between 2 inventories that require a connectionSide specifed, use a relay inventory in the middle."
+		)
+		return false
+	end
+	if self:needsConnectionSideSpecified() and not self.connectionSide then
+		print(
+			self.name
+				.. " needs a connection side specified, you must run `<betterInventory>:setConnectionSide(side) before any push/pull"
+		)
+		return false
+	end
+	if other:needsConnectionSideSpecified() and not other.connectionSide then
+		print(
+			other.name
+				.. " needs a connection side specified, you must run `<betterInventory>:setConnectionSide(side) before any push/pull"
+		)
+		return false
+	end
+	return true
+end
+
 -- For certain mods that need you to wrap the connection side as well you must have used `:setConnectionSide(direction)`.
 function betterInventory:pushItems(otherName_or_other, fromSlot, limit, toSlot)
 	local other = self:getInstanceOrCreate(otherName_or_other)
@@ -92,31 +117,14 @@ function betterInventory:pushItems(otherName_or_other, fromSlot, limit, toSlot)
 			.. " at slot "
 			.. (toSlot or "any")
 	)
-	if self:needsConnectionSideSpecified() and other:needsConnectionSideSpecified() then
-		print(
-			"Cannot push/pull between 2 inventories that require a connectionSide specifed, use a relay inventory in the middle."
-		)
+	if not self:checkValidPushPull(other) then
 		return 0
 	end
 	if self:needsConnectionSideSpecified() then
-		if not self.connectionSide then
-			print(
-				self.name
-					.. " needs a connection side specified, you must run `<betterInventory>:setConnectionSide(side) before any push/pull"
-			)
-			return 0
-		end
 		self:debugPrint(other.name .. " pulls from " .. self.name .. "." .. self.connectionSide .. "_side")
 		return other.api.pullItems(self.name .. "." .. self.connectionSide .. "_side", fromSlot, limit, toSlot)
 	end
 	if other:needsConnectionSideSpecified() then
-		if not other.connectionSide then
-			print(
-				other.name
-					.. " needs a connection side specified, you must run `<betterInventory>:setConnectionSide(side) before any push/pull"
-			)
-			return 0
-		end
 		self:debugPrint(other.name .. " pushes into " .. other.name .. "." .. other.connectionSide .. "_side")
 		return self.api.pushItems(other.name .. "." .. other.connectionSide .. "_side", fromSlot, limit, toSlot)
 	end
@@ -262,6 +270,46 @@ function betterInventory:findItemsWithNameAndDamage(name, damage, startRange, en
 	startRange = startRange or 1
 	endRange = endRange or self.api.size()
 	return self:findItemsThatFulfilsFunction(lower(), startRange, endRange)
+end
+
+--! Note that this isn't about whether the inventory is full, just whether the slots are.
+function betterInventory:slotsFull()
+	return self:slotsFilled() == self:size()
+end
+
+function betterInventory:isEmpty()
+	return self:slotsFilled() == 0
+end
+
+function betterInventory:slotsFilled()
+	return #(self.api.list())
+end
+
+-- @return success, transferredAmount
+function betterInventory:emptyThisIntoOther(otherName_or_other)
+	local other = self:getInstanceOrCreate(otherName_or_other)
+	local countTransferred = 0
+	if self:isEmpty() then
+		return false, 0
+	end
+	if not self:checkValidPushPull(other) then
+		return false, 0
+	end
+	for slot = 1, self:size() do
+		if self:getItem(slot) then
+			countTransferred = countTransferred + self:pushItems(other, slot)
+			if self:isEmpty() then
+				return true, countTransferred
+			end
+		end
+	end
+	-- Not empty at this point, would have returned already
+	return false, countTransferred
+end
+
+function betterInventory:emptyOtherIntoThis(otherName_or_other)
+	local other = self:getInstanceOrCreate(otherName_or_other)
+	return other:emptyThisIntoOther(self)
 end
 
 function module.createBetterInventory(networkName)
