@@ -29,6 +29,7 @@ local reactors = { peripheral.find("ic2:nuclear reactor") }
 local reactors = ic2Module.convertReactorListToBetterReactorList(reactors)
 for i, reactor in ipairs(reactors) do
 	print(reactor.name)
+	print(reactor.type)
 	reactor:setConnectionSide("up")
 	reactor.verbosity = 1
 

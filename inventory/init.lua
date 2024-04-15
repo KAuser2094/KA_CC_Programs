@@ -258,6 +258,7 @@ function module.createBetterInventory(networkName)
 	}
 	if not instance.api then
 		print(instance.name .. " is not an available peripheral, cannot create a betterInventory instance with it")
+		return nil
 	end
 	if not instance.api.list then
 		print(instance.name .. " is not an inventory, cannot create a betterInventory instance with it")

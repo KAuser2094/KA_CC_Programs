@@ -65,7 +65,6 @@ end
 function module.getCopyOfBetterReactorDefinitionTable()
 	return shallowCopy(betterReactor)
 end
-
 -- END OF BETTER REACTOR
 
 return module
