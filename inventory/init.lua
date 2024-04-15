@@ -19,29 +19,52 @@ function shallowCopy(original)
 	return copy
 end
 
+local function gatherFunctions(tbl)
+	local functions = {}
+	for key, value in pairs(tbl) do
+		if type(value) == "function" then
+			functions[key] = value
+		end
+	end
+	return functions
+end
+
 -- BETTER INVENTORY: Basically a different api when working with inventory peripherals, wraps around the normal stuff and gives extra functionality
 local betterInventory = {}
 
+-- Allows you to use ALL functions in inventory api in betterInventory using colon notation over dot notation.
+-- (You can still use dot notation but remember `self` is the first argument, so pass in the table. ie `betterInventory.size(betterInventory)`)
+-- @return nil
+function betterInventory:getAPIFunctions()
+	for funcName, funcObj in pairs(gatherFunctions(self.api)) do
+		if not self[funcName] then -- Don't override my overrides with original
+			self[funcName] = function(self, ...)
+				return self.api[funcName](...)
+			end
+		end
+	end
+end
+
 -- Original Inventory API functions:
--- Look at original api wiki
-function betterInventory:size()
-	return self.api.size()
-end
+-- -- Look at original api wiki
+-- function betterInventory:size()
+-- 	return self.api.size()
+-- end
 
--- Look at original api wiki
-function betterInventory:list()
-	return self.api.list()
-end
+-- -- Look at original api wiki
+-- function betterInventory:list()
+-- 	return self.api.list()
+-- end
 
--- Look at original api wiki
-function betterInventory:getItemDetail(slot)
-	return self.api.getItemDetail(slot)
-end
+-- -- Look at original api wiki
+-- function betterInventory:getItemDetail(slot)
+-- 	return self.api.getItemDetail(slot)
+-- end
 
--- Look at original api wiki
-function betterInventory:getItemLimit(slot)
-	return self.api.getItemDetail(slot)
-end
+-- -- Look at original api wiki
+-- function betterInventory:getItemLimit(slot)
+-- 	return self.api.getItemDetail(slot)
+-- end
 
 -- Look at original api wiki for most inventories.
 -- For certain mods that need you to wrap the connection side as well you must have used `:setConnectionSide(direction)`
@@ -232,6 +255,7 @@ function module.createBetterInventory(networkName)
 	end
 	instance.content = instance.api.list()
 	setmetatable(instance, { __index = betterInventory })
+	instance:getAPIFunctions()
 
 	instance._self = instance -- To preserve dot notation of original api
 

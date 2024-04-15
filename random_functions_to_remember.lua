@@ -31,3 +31,13 @@ function shallowCopy(original)
 	end
 	return copy
 end
+
+local function gatherFunctions(tbl)
+	local functions = {}
+	for key, value in pairs(tbl) do
+		if type(value) == "function" then
+			functions[key] = value
+		end
+	end
+	return functions
+end
