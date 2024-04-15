@@ -46,6 +46,8 @@ print("Reactor")
 -- r1:printDocs()
 -- r2:printDocs()
 
+print(1)
+
 local t1 = r1:findLZH()
 print(textutils.serialise(t1))
 
