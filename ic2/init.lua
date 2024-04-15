@@ -68,14 +68,13 @@ function betterReactor:getFindComponentFunctions()
 				endRange)
 		end
 		self["find" .. itemData.funcName .. "DurabilityAbove"] = function(self, durabilityDecimal, startRange, endRange)
-			return self:findItemsThatFulfilsFunction(function(itemMeta)
-				itemDurability = itemMeta["durability"] and (1 - itemMeta["durability"]) or 1
-				return (
-					name == itemMeta["name"]
-					and damage == itemMeta["damage"]
-					and itemDurability > durabilityDecimal
-				)
-			end, startRange endRange)
+			return self:findItemsThatFulfilsFunction(
+				function(itemMeta)
+					itemDurability = itemMeta["durability"] and (1 - itemMeta["durability"]) or 1
+					return name == itemMeta["name"] and damage == itemMeta["damage"] and itemDurability > durabilityDecimal
+				end, 
+				startRange 
+				endRange)
 		end
 	end
 end
