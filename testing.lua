@@ -28,16 +28,8 @@ local o = invModule.createBetterInventory(oN)
 local cN = "minecraft:chest_0"
 local c = invModule.createBetterInventory(cN)
 
-local bhN = "industrialforegoing:black_hole_unit_tile_0"
-local bh = invModule.createBetterInventory(bhN)
-
-local bhcN = "industrialforegoing:black_hole_controller_reworked_tile_0"
-local bhc = invModule.createBetterInventory(bhcN)
-
 ic2Module.giveAnotherBetterInventoryFindReactorComponentFunctions(c)
 ic2Module.giveAnotherBetterInventoryFindReactorComponentFunctions(o)
-ic2Module.giveAnotherBetterInventoryFindReactorComponentFunctions(bh)
-ic2Module.giveAnotherBetterInventoryFindReactorComponentFunctions(bhc)
 
 local reactors = { ic2Module.findAllReactorsInNetwork() }
 local r1 = reactors[1]
