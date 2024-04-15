@@ -237,11 +237,14 @@ end
 -- @param (opt.) endRange - At what slot in inventory to end search. (Default is `.size()` of api)
 -- @return A list of the inventory slots where the `value` was found at the `metakey` key in the item metadata.
 function betterInventory:findItemsWithMetaDataValueAtKey(value, metaKey, startRange, endRange)
+	local function lower()
+		return function(itemMeta)
+			return value == itemMeta[metaKey]
+		end
+	end
 	startRange = startRange or 1
 	endRange = endRange or self.api.size()
-	return self:findItemsThatFulfilsFunction(function(itemMeta)
-		return value == itemMeta[metaKey]
-	end, startRange, endRange)
+	return self:findItemsThatFulfilsFunction(lower(), startRange, endRange)
 end
 
 -- @param name - the minecraft name of the item (eg. `minecraft:stone`)
@@ -250,11 +253,14 @@ end
 -- @param (opt.) endRange - At what slot in inventory to end search. (Default is `.size()` of api)
 -- @return A list of the inventory slots where the name and damage match.
 function betterInventory:findItemsWithNameAndDamage(name, damage, startRange, endRange)
+	local function lower()
+		return function(itemMeta)
+			return (name == itemMeta["name"] and damage == itemMeta["damage"])
+		end
+	end
 	startRange = startRange or 1
 	endRange = endRange or self.api.size()
-	return self:findItemsThatFulfilsFunction(function(itemMeta)
-		return (name == itemMeta["name"] and damage == itemMeta["damage"])
-	end, startRange, endRange)
+	return self:findItemsThatFulfilsFunction(lower(), startRange, endRange)
 end
 
 function module.createBetterInventory(networkName)

@@ -54,21 +54,27 @@ end
 
 -- I refuse to make all these methods manually.
 function betterReactor:getFindComponentFunctions()
+	local function lower1()
+		return function(itemMeta)
+			itemDurability = itemMeta["durability"] and (1 - itemMeta["durability"]) or 1
+			return name == itemMeta["name"] and damage == itemMeta["damage"] and itemDurability < durabilityDecimal
+		end
+	end
+	local function lower2()
+		return function(itemMeta)
+			itemDurability = itemMeta["durability"] and (1 - itemMeta["durability"]) or 1
+			return name == itemMeta["name"] and damage == itemMeta["damage"] and itemDurability > durabilityDecimal
+		end
+	end
 	for _, itemData in ipairs(self.itemDatas) do
 		self["find" .. itemData.funcName] = function(self, startRange, endRange)
 			return self:findItemsWithNameAndDamage(itemData.name, itemData.damage, startRange, endRange)
 		end
 		self["find" .. itemData.funcName .. "DurabilityBelow"] = function(self, durabilityDecimal, startRange, endRange)
-			return self:findItemsThatFulfilsFunction(function(itemMeta)
-				itemDurability = itemMeta["durability"] and (1 - itemMeta["durability"]) or 1
-				return name == itemMeta["name"] and damage == itemMeta["damage"] and itemDurability < durabilityDecimal
-			end, startRange, endRange)
+			return self:findItemsThatFulfilsFunction(lower1(), startRange, endRange)
 		end
 		self["find" .. itemData.funcName .. "DurabilityAbove"] = function(self, durabilityDecimal, startRange, endRange)
-			return self:findItemsThatFulfilsFunction(function(itemMeta)
-				itemDurability = itemMeta["durability"] and (1 - itemMeta["durability"]) or 1
-				return name == itemMeta["name"] and damage == itemMeta["damage"] and itemDurability > durabilityDecimal
-			end, startRange, endRange)
+			return self:findItemsThatFulfilsFunction(lower2(), startRange, endRange)
 		end
 	end
 end
