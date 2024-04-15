@@ -32,11 +32,10 @@ end
 -- BETTER INVENTORY: Basically a different api when working with inventory peripherals, wraps around the normal stuff and gives extra functionality
 local betterInventory = {}
 
+-- Original Inventory API functions:
 -- Allows you to use ALL functions in inventory api in betterInventory using colon notation over dot notation.
 -- (You can still use dot notation but remember `self` is the first argument, so pass in the table. ie `betterInventory.size(betterInventory)`)
 -- @return nil
-
--- Original Inventory API functions:
 function betterInventory:getAPIFunctions()
 	for funcName, funcObj in pairs(gatherFunctions(self.api)) do
 		if not self[funcName] then -- Don't override my overrides with original
@@ -58,6 +57,7 @@ function betterInventory:pushItems(toName_or_other, fromSlot, limit, toSlot)
 		toName = toName_or_other
 		other = module.createBetterInventory(toName)
 	end
+	self:debugPrint("Goal: " .. self.name .. " pushes into " .. toName)
 	-- Yes these seem a bit redundant
 	limit = limit or nil
 	toSlot = toSlot or nil
@@ -75,6 +75,7 @@ function betterInventory:pushItems(toName_or_other, fromSlot, limit, toSlot)
 			)
 			return 0
 		end
+		self:debugPrint(toName .. " pulls from " .. self.name .. "." .. self.connectionSide .. "_side")
 		return other.api.pullItems(self.name .. "." .. self.connectionSide .. "_side", fromSlot, limit, toSlot)
 	end
 	if other:needsConnectionSideSpecified() then
@@ -85,8 +86,10 @@ function betterInventory:pushItems(toName_or_other, fromSlot, limit, toSlot)
 			)
 			return 0
 		end
+		self:debugPrint(other.name .. " pushes into " .. toName .. "." .. other.connectionSide .. "_side")
 		return self.api.pushItems(toName .. "." .. other.connectionSide .. "_side", fromSlot, limit, toSlot)
 	end
+	self:debugPrint(self.name .. " pushes into " .. toName)
 	return self.api.pushItems(toName, fromSlot, limit, toSlot)
 end
 
@@ -94,13 +97,14 @@ end
 function betterInventory:pullItems(fromName_or_other, fromSlot, limit, toSlot)
 	local fromName = nil
 	local other = nil
-	if fromName_or_other.getClassTypes and isInList(toName_or_other.getClassTypes(), "KA_betterInventory") then
+	if fromName_or_other.getClassTypes and isInList(fromName_or_other.getClassTypes(), "KA_betterInventory") then
 		fromName = fromName_or_other.name
 		other = fromName_or_other
 	else
 		fromName = fromName_or_other
 		other = module.createBetterInventory(fromName)
 	end
+	self:debugPrint("Goal: " .. self.name .. " pulls from " .. fromName)
 	-- Yes these seem a bit redundant
 	limit = limit or nil
 	toSlot = toSlot or nil
@@ -118,6 +122,7 @@ function betterInventory:pullItems(fromName_or_other, fromSlot, limit, toSlot)
 			)
 			return 0
 		end
+		self:debugPrint(fromName .. " pushes into " .. self.name .. "." .. self.connectionSide .. "_side")
 		return other.api.pushItems(self.name .. "." .. self.connectionSide .. "_side", fromSlot, limit, toSlot)
 	end
 	if other:needsConnectionSideSpecified() then
@@ -128,11 +133,22 @@ function betterInventory:pullItems(fromName_or_other, fromSlot, limit, toSlot)
 			)
 			return 0
 		end
+		self:debugPrint(self.name .. " pulls from " .. fromName .. "." .. other.connectionSide .. "_side")
 		return self.api.pullItems(fromName .. "." .. other.connectionSide .. "_side", fromSlot, limit, toSlot)
 	end
+	self:debugPrint(self.name .. " pulls from " .. fromName)
 	return self.api.pullItems(fromName, fromSlot, limit, toSlot)
 end
 -- End of original inventory API
+
+-- slowPrints if verbosity is set > 0.
+-- @return nil
+function betterInventory:debugPrint(string)
+	if verbosity < 1 then
+		return nil
+	end
+	textutils.slowPrint(string)
+end
 
 -- @return { "KA_betterInventory" }
 function betterInventory.getClassTypes()
@@ -234,6 +250,7 @@ function module.createBetterInventory(networkName)
 		return nil
 	end
 	instance.content = instance.api.list()
+	instance.verbosity = 0
 	setmetatable(instance, { __index = betterInventory })
 	instance:getAPIFunctions()
 
