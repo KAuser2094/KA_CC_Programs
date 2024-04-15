@@ -1,36 +1,30 @@
 return {
 	-- Near Depleted Cells
 	-- TODO: Insert the rest of the near depleted cells here
-	{
-		funcName = "NearDepletedNetherStar",
+	NearDepletedNetherStar = {
 		name = "ic2:itemmisc",
 		damage = 504,
 	},
 	-- Enriched Uranium Cells
 	-- TODO: Insert the rest of the enriched uranium cells here
-	{
-		funcName = "NetherStarEnriched",
+	NetherStarEnriched = {
 		name = "ic2:itemreactorrods",
 		damage = 12,
 	},
-	{
-		funcName = "NetherStarEnrichedDual",
+	NetherStarEnrichedDual = {
 		name = "ic2:itemreactorrods",
 		damage = 13,
 	},
-	{
-		funcName = "NetherStarEnrichedQuad",
+	NetherStarEnrichedQuad = {
 		name = "ic2:itemreactorrods",
 		damage = 14,
 	},
 	-- Condensators
-	{
-		funcName = "RSH",
+	RSH = {
 		name = "ic2:itemcondensators",
 		damage = 0,
 	},
-	{
-		funcName = "LZH",
+	LZH = {
 		name = "ic2:itemcondensators",
 		damage = 1,
 	},

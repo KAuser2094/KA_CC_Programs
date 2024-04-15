@@ -65,14 +65,14 @@ function betterReactor:getFindReactorComponentFunctions()
 			return name == itemMeta["name"] and damage == itemMeta["damage"] and itemDurability > durabilityDecimal
 		end
 	end
-	for _, itemData in ipairs(itemDatas) do
-		self["find" .. itemData.funcName] = function(self, startRange, endRange)
+	for key, itemData in pairs(itemDatas) do
+		self["find" .. key] = function(self, startRange, endRange)
 			return self:findItemsWithNameAndDamage(itemData.name, itemData.damage, startRange, endRange)
 		end
-		self["find" .. itemData.funcName .. "DurabilityBelow"] = function(self, durabilityDecimal, startRange, endRange)
+		self["find" .. key .. "DurabilityBelow"] = function(self, durabilityDecimal, startRange, endRange)
 			return self:findItemsThatFulfilsFunction(lower1(), startRange, endRange)
 		end
-		self["find" .. itemData.funcName .. "DurabilityAbove"] = function(self, durabilityDecimal, startRange, endRange)
+		self["find" .. key .. "DurabilityAbove"] = function(self, durabilityDecimal, startRange, endRange)
 			return self:findItemsThatFulfilsFunction(lower2(), startRange, endRange)
 		end
 	end
