@@ -28,7 +28,7 @@ local o = invModule.createBetterInventory(oN)
 local cN = "minecraft:chest_0"
 local c = invModule.createBetterInventory(cN)
 
-local reactors = ic2Module.getAllReactorsInNetwork()
+local reactors = { ic2Module.findAllReactorsInNetwork() }
 local r1 = reactors[1]
 r1:setConnectionSide("up")
 r1.verbosity = 1
@@ -43,8 +43,11 @@ print("Obsidian")
 -- o:printDocs()
 
 print("Reactor")
-r1:printDocs()
-r2:printDocs()
+-- r1:printDocs()
+-- r2:printDocs()
+
+local t1 = r1:findLZH()
+print(textutils.serialise(t1))
 
 print("Press Enter to end program ")
 io.read()

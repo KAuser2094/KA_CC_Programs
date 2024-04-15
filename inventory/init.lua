@@ -29,6 +29,16 @@ local function gatherFunctions(tbl)
 	return functions
 end
 
+local function filter(list, filterFunc)
+	local filteredList = {}
+	for _, item in ipairs(list) do
+		if filterFunc(item) then
+			table.insert(filteredList, item)
+		end
+	end
+	return filteredList
+end
+
 local function printTableItemByItem(tbl)
 	for index, value in pairs(tbl) do
 		print("Index:", index, "\nValue:", value)
@@ -272,11 +282,31 @@ function module.createBetterInventory(networkName)
 	return instance
 end
 
+function module.findAllInventoriesInNetwork(filterFunc)
+	local allPeripheralNames = peripheral.getNames()
+	local inventoryNames = filter(allPeripheralNames, function(item)
+		local per = peripheral.wrap(allPeripheralNames)
+		return per.list
+	end)
+	local inventories = module.convertInventoryNameListToBetterInventoryList(inventoryNames)
+	if filterFunc then
+		inventories = filter(inventories, filterFunc)
+	end
+	return table.unpack(inventories)
+end
+
 function module.convertInventoryToBetterInventory(inventoryApi)
 	return module.createBetterInventory(peripheral.getName(inventoryApi))
 end
 
-function module.convertInventoryListToBetterInventoryList(inventoryApiList)
+function module.convertInventoryNameListToBetterInventoryList(inventoryNameList)
+	local newList = {}
+	for i, inventoryName in ipairs(inventoryNameList) do
+		newList[i] = module.createBetterInventory(inventoryName)
+	end
+	return newList
+end
+function module.convertInventoryApiListToBetterInventoryList(inventoryApiList)
 	local newList = {}
 	for i, inventoryApi in ipairs(inventoryApiList) do
 		newList[i] = module.convertInventoryToBetterInventory(inventoryApi)
