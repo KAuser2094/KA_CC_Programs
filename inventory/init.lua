@@ -145,7 +145,7 @@ end
 -- @return nil
 function betterInventory:debugPrint(string)
 	if self.verbosity and self.verbosity > 0 then
-		textutils.slowPrint(string)
+		textutils.pagedPrint(string)
 	end
 end
 
