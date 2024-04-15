@@ -40,6 +40,7 @@ end
 -- BETTER INVENTORY: Basically a different api when working with inventory peripherals, wraps around the normal stuff and gives extra functionality
 local betterInventory = {}
 
+-- Takes in either a string or betterInventory and returns the betterInventory, or creates one and returns that.
 function betterInventory:getInstanceOrCreate(otherName_or_other)
 	local otherName = nil
 	local other = nil
@@ -199,7 +200,7 @@ end
 -- @param slot - What slot in the inventory to get value from.
 -- @return The value, or nil if not found.
 function betterInventory:getMetaDataValueAtKeyAtSlot(key, slot)
-	local itemMeta = self.api.getItemDetail(slot)
+	local itemMeta = self.api.getItemMeta(slot)
 	local val_or_nil = itemMeta[key]
 	return val_or_nil
 end
@@ -213,7 +214,7 @@ function betterInventory:findItemsThatFulfilsFunction(lowerFunction, startRange,
 	endRange = endRange or self.api.size()
 	local indexList = {}
 	for slot = startRange, endRange do
-		local itemMeta = self.api.getItemDetail(slot)
+		local itemMeta = self.api.getItemMeta(slot)
 		if lowerFunction(itemMeta) then
 			table.insert(indexList, slot)
 		end
