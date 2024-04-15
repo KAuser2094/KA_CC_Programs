@@ -14,3 +14,20 @@ local function tryRequire(paths)
 	end
 	error(table.concat(errorMsgs, "\n"))
 end
+
+local function isInList(list, value)
+	for _, v in ipairs(list) do
+		if v == value then
+			return true
+		end
+	end
+	return false
+end
+
+function shallowCopy(original)
+	local copy = {}
+	for key, value in pairs(original) do
+		copy[key] = value
+	end
+	return copy
+end
