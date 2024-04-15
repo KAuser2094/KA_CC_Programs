@@ -28,6 +28,12 @@ local o = invModule.createBetterInventory(oN)
 local cN = "minecraft:chest_0"
 local c = invModule.createBetterInventory(cN)
 
+local bhN = "industrialforegoing:black_hole_unit_tile_0"
+local bh = invModule.createBetterInventory(bh)
+
+local bhcN = "industrialforegoing:black_hole_controller_reworked_tile_0"
+local bhc = invModule.createBetterInventory(bhc)
+
 local reactors = { ic2Module.findAllReactorsInNetwork() }
 local r1 = reactors[1]
 r1:setConnectionSide("up")
@@ -36,20 +42,12 @@ local r2 = reactors[2]
 r2:setConnectionSide("up")
 r2.verbosity = 1
 
-print("Chest")
--- c:printDocs()
+print("Testing bh")
+print(bh:size())
+print(bhc:size())
 
-print("Obsidian")
--- o:printDocs()
-
-print("Reactor")
--- r1:printDocs()
--- r2:printDocs()
-
-print(1)
-
-local t1 = r1:findLZH()
-print(textutils.serialise(t1))
+-- bh:printDocs()
+-- bhc:printDocs()
 
 print("Press Enter to end program ")
 io.read()
