@@ -40,7 +40,19 @@ end
 -- BETTER INVENTORY: Basically a different api when working with inventory peripherals, wraps around the normal stuff and gives extra functionality
 local betterInventory = {}
 
--- Original Inventory API functions:
+function betterInventory:getInstanceOrCreate(otherName_or_other)
+	local otherName = nil
+	local other = nil
+	if otherName_or_other.getClassTypes and isInList(otherName_or_other.getClassTypes(), "KA_betterInventory") then
+		otherName = otherName_or_other.name
+		other = otherName_or_other
+	else
+		otherName = otherName_or_other
+		other = module.createBetterInventory(otherName)
+	end
+	return other
+end
+
 -- Allows you to use ALL functions in inventory api in betterInventory using colon notation over dot notation.
 -- (You can still use dot notation but remember `self` is the first argument, so pass in the table. ie `betterInventory.size(betterInventory)`)
 -- @return nil
@@ -53,22 +65,22 @@ function betterInventory:getAPIFunctions()
 		end
 	end
 end
--- Overrides:
--- For certain mods that need you to wrap the connection side as well you must have used `:setConnectionSide(direction)`
-function betterInventory:pushItems(toName_or_other, fromSlot, limit, toSlot)
-	local toName = nil
-	local other = nil
-	if toName_or_other.getClassTypes and isInList(toName_or_other.getClassTypes(), "KA_betterInventory") then
-		toName = toName_or_other.name
-		other = toName_or_other
-	else
-		toName = toName_or_other
-		other = module.createBetterInventory(toName)
-	end
-	self:debugPrint("Goal: " .. self.name .. " pushes into " .. toName)
-	-- Yes these seem a bit redundant
-	limit = limit or nil
-	toSlot = toSlot or nil
+
+-- For certain mods that need you to wrap the connection side as well you must have used `:setConnectionSide(direction)`.
+function betterInventory:pushItems(otherName_or_other, fromSlot, limit, toSlot)
+	local other = self:getInstanceOrCreate(otherName_or_other)
+	self:debugPrint(
+		"Goal: "
+			.. (limit or "max")
+			.. " from "
+			.. self.name
+			.. " at slot "
+			.. fromSlot
+			.. " to "
+			.. other.name
+			.. " at slot "
+			.. toSlot
+	)
 	if self:needsConnectionSideSpecified() and other:needsConnectionSideSpecified() then
 		print(
 			"Cannot push/pull between 2 inventories that require a connectionSide specifed, use a relay inventory in the middle."
@@ -83,7 +95,7 @@ function betterInventory:pushItems(toName_or_other, fromSlot, limit, toSlot)
 			)
 			return 0
 		end
-		self:debugPrint(toName .. " pulls from " .. self.name .. "." .. self.connectionSide .. "_side")
+		self:debugPrint(other.name .. " pulls from " .. self.name .. "." .. self.connectionSide .. "_side")
 		return other.api.pullItems(self.name .. "." .. self.connectionSide .. "_side", fromSlot, limit, toSlot)
 	end
 	if other:needsConnectionSideSpecified() then
@@ -94,62 +106,43 @@ function betterInventory:pushItems(toName_or_other, fromSlot, limit, toSlot)
 			)
 			return 0
 		end
-		self:debugPrint(other.name .. " pushes into " .. toName .. "." .. other.connectionSide .. "_side")
-		return self.api.pushItems(toName .. "." .. other.connectionSide .. "_side", fromSlot, limit, toSlot)
+		self:debugPrint(other.name .. " pushes into " .. other.name .. "." .. other.connectionSide .. "_side")
+		return self.api.pushItems(other.name .. "." .. other.connectionSide .. "_side", fromSlot, limit, toSlot)
 	end
-	self:debugPrint(self.name .. " pushes into " .. toName)
-	return self.api.pushItems(toName, fromSlot, limit, toSlot)
+	self:debugPrint(self.name .. " pushes into " .. other.name)
+	return self.api.pushItems(other.name, fromSlot, limit, toSlot)
 end
 
--- For certain mods that need you to wrap the connection side as well you must have used `:setConnectionSide(direction)`
-function betterInventory:pullItems(fromName_or_other, fromSlot, limit, toSlot)
-	local fromName = nil
-	local other = nil
-	if fromName_or_other.getClassTypes and isInList(fromName_or_other.getClassTypes(), "KA_betterInventory") then
-		fromName = fromName_or_other.name
-		other = fromName_or_other
-	else
-		fromName = fromName_or_other
-		other = module.createBetterInventory(fromName)
-	end
-	self:debugPrint("Goal: " .. self.name .. " pulls from " .. fromName)
-	-- Yes these seem a bit redundant
-	limit = limit or nil
-	toSlot = toSlot or nil
-	if self:needsConnectionSideSpecified() and other:needsConnectionSideSpecified() then
-		print(
-			"Cannot push/pull between 2 inventories that require a connectionSide specifed, use a relay inventory in the middle."
-		)
-		return 0
-	end
-	if self:needsConnectionSideSpecified() then
-		if not self.connectionSide then
-			print(
-				self.name
-					.. " needs a connection side specified, you must run `<betterInventory>:setConnectionSide(side) before any push/pull"
-			)
-			return 0
-		end
-		self:debugPrint(fromName .. " pushes into " .. self.name .. "." .. self.connectionSide .. "_side")
-		return other.api.pushItems(self.name .. "." .. self.connectionSide .. "_side", fromSlot, limit, toSlot)
-	end
-	if other:needsConnectionSideSpecified() then
-		if not other.connectionSide then
-			print(
-				other.name
-					.. " needs a connection side specified, you must run `<betterInventory>:setConnectionSide(side) before any push/pull"
-			)
-			return 0
-		end
-		self:debugPrint(self.name .. " pulls from " .. fromName .. "." .. other.connectionSide .. "_side")
-		return self.api.pullItems(fromName .. "." .. other.connectionSide .. "_side", fromSlot, limit, toSlot)
-	end
-	self:debugPrint(self.name .. " pulls from " .. fromName)
-	return self.api.pullItems(fromName, fromSlot, limit, toSlot)
+-- For certain mods that need you to wrap the connection side as well you must have used `:setConnectionSide(direction)`.
+function betterInventory:pullItems(otherName_or_other, fromSlot, limit, toSlot)
+	local other = self:getInstanceOrCreate(otherName_or_other)
+	return other:pushItems(self, fromSlot, limit, toSlot)
 end
--- End of original inventory API
 
--- slowPrints if verbosity is set > 0.
+-- Will search through inventory for an item that fulfils the lowerFunction and push it into the other inventory
+function betterInventory:findAndPush(otherName_or_other, lowerFunction, startRange, endRange, limit, toSlot)
+	local slots = self:findItemsThatFulfilsFunction(lowerFunction, startRange, endRange)
+	if #slots > 0 then
+		return self:pushItems(otherName_or_other, slots[1], limit, toSlot)
+	end
+	return 0
+end
+
+-- Will search through inventory for an item that fulfils the lowerFunction and pull it from the other inventory
+function betterInventory:findAndPull(otherName_or_other, lowerFunction, startRange, endRange, limit, toSlot)
+	local other = self:getInstanceOrCreate(otherName_or_other)
+	return other:findAndPush(self, lowerFunction, startRange, endRange, limit, toSlot)
+end
+
+-- Same as original api, but adds extra methods and usages.
+function betterInventory:getDocs()
+	local docs = self.api.getDocs()
+	-- TODO: Add an "Introduction" to start of table that explains the object.
+	-- TODO: Add/Overide fields to explain new/overridden methods.
+	return docs
+end
+
+-- pagePrint if verbosity is set > 0.
 -- @return nil
 function betterInventory:debugPrint(string)
 	if self.verbosity and self.verbosity > 0 then
@@ -157,6 +150,8 @@ function betterInventory:debugPrint(string)
 	end
 end
 
+-- prints item by item whatever is at `self:getDocs()`
+-- @return nil
 function betterInventory:printDocs()
 	printTableItemByItem(self:getDocs())
 end
@@ -166,7 +161,7 @@ function betterInventory.getClassTypes()
 	return { "KA_betterInventory" }
 end
 
--- The known insides of the inventory are only updated when this is called. Most functions use the api directly, however so you can mostly ignore this.
+-- The known insides of the inventory are only updated when this is called. Most functions use the api directly, however, so you can mostly ignore this.
 -- @return nil.
 function betterInventory:refreshContent()
 	self.content = self.api.list()
@@ -177,7 +172,7 @@ function betterInventory:needsConnectionSideSpecified()
 	return isInList(modList, self.mod)
 end
 
--- TODO: Uses another inventory (that doesn't need a connectionSide) and tries to push an item in from different directions, whatever works is the correct direction
+-- TODO: Uses another inventory (that doesn't need a connectionSide) and tries to push an item in from different directions, whatever works is the correct direction.
 function betterInventory:calculateConnectionSide(otherName_or_other, fromSlot, toSlot) end
 
 -- Sets the internal connectionSide for use in push/pull if this inventory needs it.
@@ -261,7 +256,6 @@ function module.createBetterInventory(networkName)
 		return nil
 	end
 	instance.content = instance.api.list()
-	instance.verbosity = 0
 	setmetatable(instance, { __index = betterInventory })
 	instance:getAPIFunctions()
 
