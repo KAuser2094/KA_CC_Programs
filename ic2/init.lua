@@ -2,6 +2,24 @@
 -- i.e. a durability of 0.75 means only 25% is left
 -- You can loop and check for any that are below (above a number) threshold durability and stop the reactor. Then simply dump out and in old and new condensators.
 
+-- Generic Functions
+local function isInList(list, value)
+	for _, v in ipairs(list) do
+		if v == value then
+			return true
+		end
+	end
+	return false
+end
+
+function shallowCopy(original)
+	local copy = {}
+	for key, value in pairs(original) do
+		copy[key] = value
+	end
+	return copy
+end
+
 local function tryRequire(paths)
 	local errorMsgs = {}
 	for _, path in ipairs(paths) do
@@ -36,10 +54,14 @@ function module.createBetterReactor(networkName)
 		mod = networkName:match("([^:_]+)"),
 	}
 	if not instance.api then
-		print(instance.name .. " is not an available peripheral, cannot create a betterInventory instance with it")
+		print(instance.name .. " is not an available peripheral, cannot create a betterReactor instance with it")
 	end
 	if not instance.api.list then
-		print(instance.name .. " is not an inventory, cannot create a betterInventory instance with it")
+		print(instance.name .. " is not an inventory, cannot create a betterReactor instance with it")
+		return nil
+	end
+	if not isInList({ "ic2:reactor chamber", "ic2:nuclear reactor" }, instance.type) then
+		print(instance.name .. " is not a reactor block, cannot create a betterReactor instance with it")
 		return nil
 	end
 	instance.content = instance.api.list()
