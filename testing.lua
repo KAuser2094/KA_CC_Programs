@@ -25,24 +25,26 @@ local ic2Module = tryRequire({
 local oN = "minecraft:ironchest_obsidian_1"
 local o = invModule.createBetterInventory(oN)
 
+local cN = "minecraft:chest_0"
+local c = invModule.createBetterInventory(cN)
+
 local reactors = { peripheral.find("ic2:nuclear reactor") }
 local reactors = ic2Module.convertReactorListToBetterReactorList(reactors)
-for i, reactor in ipairs(reactors) do
-	print(reactor.name)
-	print(reactor.type)
-	reactor:setConnectionSide("up")
-	reactor.verbosity = 1
+local r1 = reactors[1]
+r1:setConnectionSide("up")
+r1.verbosity = 1
+local r2 = reactors[2]
+r2:setConnectionSide("up")
+r2.verbosity = 1
 
-	-- Tests:
-	-- print(reactor:size())
+print("Chest")
+c:getDocs()
 
-	-- reactor:printDocs()
+print("Obsidian")
+-- o:getDocs()
 
-	-- reactor:pullItems(o, i)
-	-- reactor:pushItems(o, 1)
-	-- o:pushItems(reactor, i)
-	-- o:pullItems(reactor, 1)
-end
+print("Reactor")
+-- r1:getDocs()
 
 print("Press Enter to end program ")
 io.read()
