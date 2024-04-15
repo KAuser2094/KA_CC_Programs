@@ -19,33 +19,10 @@ function shallowCopy(original)
 	return copy
 end
 
-local function createDotNotationFunc(func)
-	return function(self, ...)
-		return func(self, ...)
-	end
-end
-
 -- BETTER INVENTORY: Basically a different api when working with inventory peripherals, wraps around the normal stuff and gives extra functionality
 local betterInventory = {}
 
 -- Original Inventory API functions:
-
-local dotNotation_mt = {
-	__index = function(tbl, key)
-		local colonFunc = tbl[key]
-		if type(colonFunc) == "function" then
-			return function(self, ...)
-				return colonFunc(self, ...)
-			end
-		else
-			return nil
-		end
-	end,
-}
-
--- Set dot notation metatable
-setmetatable(betterInventory, dotNotation_mt)
-
 -- Look at original api wiki
 function betterInventory:size()
 	return self.api.size()
