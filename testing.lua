@@ -38,13 +38,13 @@ r2:setConnectionSide("up")
 r2.verbosity = 1
 
 print("Chest")
-c:getDocs()
+c:printDocs()
 
 print("Obsidian")
--- o:getDocs()
+-- o:printDocs()
 
 print("Reactor")
--- r1:getDocs()
+-- r1:printDocs()
 
 print("Press Enter to end program ")
 io.read()
