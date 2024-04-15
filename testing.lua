@@ -11,8 +11,16 @@ local function tryRequire(paths)
 	end
 	error(table.concat(errorMsgs, "\n"))
 end
-local invModule = tryRequire({ "inventory", "KA_CC_Programs/inventory", "../inventory" })
-local ic2Module = tryRequire({ "ic2", "KA_CC_Programs/ic2", "../ic2" })
+local invModule = tryRequire({
+	-- "inventory",
+	"KA_CC_Programs/inventory",
+	-- "../inventory",
+})
+local ic2Module = tryRequire({
+	-- "ic2",
+	"KA_CC_Programs/ic2",
+	-- "../ic2",
+})
 
 local oN = "minecraft:ironchest_obsidian_1"
 local o = invModule.createBetterInventory(oN)
