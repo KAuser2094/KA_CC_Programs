@@ -32,7 +32,9 @@ When `git clone` is ran, it will form a `redoCloneTree.lua` at `<folder_of_repo>
 
 ### Better Inventory
 
-This is a wrapper around the normal peripheral/inventory api. It is a superset (so you can simply treat it as normal, using `:` instead of `.` to call functions) that adds functionality like searching and better mod support (looking at you IC2). Also instead of using peripheral api, you can just grab the name and type using dot notation with `name` and `type`. If you really need the original api still call the `.api` field to get it.
+This is a wrapper around the normal peripheral/inventory api. It is a superset (so you can simply treat it as normal, using `:` instead of `.` to call functions) that adds functionality like searching and better mod support (looking at you IC2). You also don't need to grab the name for push/pull as you may pass in the Better Inventory object directly (and you are encouraged to do so as it adds extra functionality).
+
+The original inventory api is stored at the `.api` field. If you really need it.
 
 To start:
 
