@@ -35,6 +35,8 @@ local betterInventory = {}
 -- Allows you to use ALL functions in inventory api in betterInventory using colon notation over dot notation.
 -- (You can still use dot notation but remember `self` is the first argument, so pass in the table. ie `betterInventory.size(betterInventory)`)
 -- @return nil
+
+-- Original Inventory API functions:
 function betterInventory:getAPIFunctions()
 	for funcName, funcObj in pairs(gatherFunctions(self.api)) do
 		if not self[funcName] then -- Don't override my overrides with original
@@ -44,32 +46,10 @@ function betterInventory:getAPIFunctions()
 		end
 	end
 end
-
--- Original Inventory API functions:
--- -- Look at original api wiki
--- function betterInventory:size()
--- 	return self.api.size()
--- end
-
--- -- Look at original api wiki
--- function betterInventory:list()
--- 	return self.api.list()
--- end
-
--- -- Look at original api wiki
--- function betterInventory:getItemDetail(slot)
--- 	return self.api.getItemDetail(slot)
--- end
-
--- -- Look at original api wiki
--- function betterInventory:getItemLimit(slot)
--- 	return self.api.getItemDetail(slot)
--- end
-
--- Look at original api wiki for most inventories.
+-- Overrides:
 -- For certain mods that need you to wrap the connection side as well you must have used `:setConnectionSide(direction)`
 function betterInventory:pushItems(toName_or_other, fromSlot, limit, toSlot)
-	local fromName = nil
+	local toName = nil
 	local other = nil
 	if toName_or_other.getClassTypes and isInList(toName_or_other.getClassTypes(), "KA_betterInventory") then
 		toName = toName_or_other.name
@@ -110,7 +90,7 @@ function betterInventory:pushItems(toName_or_other, fromSlot, limit, toSlot)
 	return self.api.pushItems(toName, fromSlot, limit, toSlot)
 end
 
--- Look at original api wiki
+-- For certain mods that need you to wrap the connection side as well you must have used `:setConnectionSide(direction)`
 function betterInventory:pullItems(fromName_or_other, fromSlot, limit, toSlot)
 	local fromName = nil
 	local other = nil
