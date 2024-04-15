@@ -19,6 +19,12 @@ function shallowCopy(original)
 	return copy
 end
 
+local function createDotNotationFunc(func)
+	return function(self, ...)
+		return func(self, ...)
+	end
+end
+
 -- BETTER INVENTORY: Basically a different api when working with inventory peripherals, wraps around the normal stuff and gives extra functionality
 local betterInventory = {}
 
@@ -48,7 +54,7 @@ end
 function betterInventory:pushItems(toName_or_other, fromSlot, limit, toSlot)
 	local fromName = nil
 	local other = nil
-	if toName_or_other.getType and toName_or_other.getType() == "KA_betterInventory" then
+	if toName_or_other.getClassTypes and isInList(toName_or_other.getClassTypes(), "KA_betterInventory") then
 		toName = toName_or_other.name
 		other = toName_or_other
 	else
@@ -91,7 +97,7 @@ end
 function betterInventory:pullItems(fromName_or_other, fromSlot, limit, toSlot)
 	local fromName = nil
 	local other = nil
-	if fromName_or_other.getType and fromName_or_other.getType() == "KA_betterInventory" then
+	if fromName_or_other.getClassTypes and isInList(toName_or_other.getClassTypes(), "KA_betterInventory") then
 		fromName = fromName_or_other.name
 		other = fromName_or_other
 	else
@@ -129,11 +135,22 @@ function betterInventory:pullItems(fromName_or_other, fromSlot, limit, toSlot)
 	end
 	return self.api.pullItems(fromName, fromSlot, limit, toSlot)
 end
+
+local betterInventoryMeta = getmetatable(betterInventory) or {}
+
+betterInventoryMeta.size = createDotNotationFunc(betterInventory:size)
+betterInventoryMeta.list = createDotNotationFunc(betterInventory:list)
+betterInventoryMeta.getItemDetail = createDotNotationFunc(betterInventory:getItemDetail)
+betterInventoryMeta.getItemLimit = createDotNotationFunc(betterInventory:getItemLimit)
+betterInventoryMeta.pushItems = createDotNotationFunc(betterInventory:pushItems)
+betterInventoryMeta.pullItems = createDotNotationFunc(betterInventory:pullItems)
+
+setmetatable(betterInventory, { __index = betterInventoryMeta })
 -- End of original inventory API
 
--- @return "KA_betterInventory"
-function betterInventory.getType()
-	return "KA_betterInventory"
+-- @return { "KA_betterInventory" }
+function betterInventory.getClassTypes()
+	return { "KA_betterInventory" }
 end
 
 -- The known insides of the inventory are only updated when this is called. Most functions use the api directly, however so you can mostly ignore this.
