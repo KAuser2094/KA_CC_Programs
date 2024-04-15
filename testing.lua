@@ -21,13 +21,15 @@ local reactors = invModule.convertInventoryListToBetterInventoryList(reactors)
 for i, reactor in ipairs(reactors) do
 	print(reactor.name)
 	reactor:setConnectionSide("up")
-	print(reactor:size())
+	reactor.verbosity = 1
 
 	-- Tests:
+	-- print(reactor:size())
+
 	-- reactor:pullItems(o, i)
 	-- reactor:pushItems(o, 1)
-	-- o:pullItems(reactor, 1)
 	-- o:pushItems(reactor, i)
+	-- o:pullItems(reactor, 1)
 end
 
 print("Press Enter to end program ")
