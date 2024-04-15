@@ -24,7 +24,7 @@ local module = {}
 local betterReactor = inv.getCopyOfBetterInventoryDefinitionTable() -- "Inherits" fields and methods
 
 -- @return { "KA_betterReactor", "KA_betterInventory" }
-function KA_betterReactor.getClassTypes()
+function betterReactor.getClassTypes()
 	return { "KA_betterReactor", "KA_betterInventory" }
 end
 
