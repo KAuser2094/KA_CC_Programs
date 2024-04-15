@@ -254,7 +254,7 @@ function module.createBetterInventory(networkName)
 		name = networkName,
 		api = peripheral.wrap(networkName),
 		type = peripheral.getType(networkName),
-		mod = networkName:match("([^:_]+)"),
+		mod = type:match("([^:_]+)"),
 	}
 	if not instance.api then
 		print(instance.name .. " is not an available peripheral, cannot create a betterInventory instance with it")
