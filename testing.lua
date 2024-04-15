@@ -21,6 +21,9 @@ local reactors = invModule.convertInventoryListToBetterInventoryList(reactors)
 for i, reactor in ipairs(reactors) do
 	print(reactor.name)
 	reactor:setConnectionSide("up")
+	print(reactor.size())
+	-- print(reactor.size(reactor))
+	print(reactor:size())
 
 	-- Tests:
 	-- reactor:pullItems(o, i)

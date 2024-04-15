@@ -29,6 +29,23 @@ end
 local betterInventory = {}
 
 -- Original Inventory API functions:
+
+local dotNotation_mt = {
+	__index = function(tbl, key)
+		local colonFunc = tbl[key]
+		if type(colonFunc) == "function" then
+			return function(self, ...)
+				return colonFunc(self, ...)
+			end
+		else
+			return nil
+		end
+	end,
+}
+
+-- Set dot notation metatable
+setmetatable(betterInventory, dotNotation_mt)
+
 -- Look at original api wiki
 function betterInventory:size()
 	return self.api.size()
@@ -135,17 +152,6 @@ function betterInventory:pullItems(fromName_or_other, fromSlot, limit, toSlot)
 	end
 	return self.api.pullItems(fromName, fromSlot, limit, toSlot)
 end
-
-local betterInventoryMeta = getmetatable(betterInventory) or {}
-
-betterInventoryMeta.size = createDotNotationFunc(betterInventory:size)
-betterInventoryMeta.list = createDotNotationFunc(betterInventory:list)
-betterInventoryMeta.getItemDetail = createDotNotationFunc(betterInventory:getItemDetail)
-betterInventoryMeta.getItemLimit = createDotNotationFunc(betterInventory:getItemLimit)
-betterInventoryMeta.pushItems = createDotNotationFunc(betterInventory:pushItems)
-betterInventoryMeta.pullItems = createDotNotationFunc(betterInventory:pullItems)
-
-setmetatable(betterInventory, { __index = betterInventoryMeta })
 -- End of original inventory API
 
 -- @return { "KA_betterInventory" }
@@ -249,6 +255,8 @@ function module.createBetterInventory(networkName)
 	end
 	instance.content = instance.api.list()
 	setmetatable(instance, { __index = betterInventory })
+
+	instance._self = instance -- To preserve dot notation of original api
 
 	return instance
 end
