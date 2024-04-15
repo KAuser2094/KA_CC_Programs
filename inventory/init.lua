@@ -29,7 +29,7 @@ local function gatherFunctions(tbl)
 	return functions
 end
 
-local printTableItemByItem(tbl)
+local function printTableItemByItem(tbl)
 	for index, value in pairs(tbl) do
 		print("Index:", index, "\nValue:", value)
 		print("Press Enter to print next item")
