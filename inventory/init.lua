@@ -252,7 +252,7 @@ end
 -- @param (opt.) endRange - At what slot in inventory to end search. (Default is `.size()` of api)
 -- @return A list of the inventory slots where the name and damage match.
 function betterInventory:findItemsWithNameAndDamage(name, damage, startRange, endRange)
-	local lowerFunction = function(inputItemMeta)
+	local lowerFunction = function(itemMeta)
 		return (name == itemMeta["name"] and damage == itemMeta["damage"])
 	end
 	startRange = startRange or 1
