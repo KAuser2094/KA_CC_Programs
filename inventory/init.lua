@@ -253,8 +253,6 @@ function module.createBetterInventory(networkName)
 	setmetatable(instance, { __index = betterInventory })
 	instance:getAPIFunctions()
 
-	instance._self = instance -- To preserve dot notation of original api
-
 	return instance
 end
 
