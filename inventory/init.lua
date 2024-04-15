@@ -144,10 +144,9 @@ end
 -- slowPrints if verbosity is set > 0.
 -- @return nil
 function betterInventory:debugPrint(string)
-	if verbosity < 1 then
-		return nil
+	if self.verbosity and self.verbosity > 0 then
+		textutils.slowPrint(string)
 	end
-	textutils.slowPrint(string)
 end
 
 -- @return { "KA_betterInventory" }
