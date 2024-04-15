@@ -12,12 +12,12 @@ local function tryRequire(paths)
 	error(table.concat(errorMsgs, "\n"))
 end
 local invModule = tryRequire({
-	-- "inventory",
+	"inventory",
 	"KA_CC_Programs/inventory",
 	-- "../inventory",
 })
 local ic2Module = tryRequire({
-	-- "ic2",
+	"ic2",
 	"KA_CC_Programs/ic2",
 	-- "../ic2",
 })
