@@ -79,7 +79,7 @@ function betterInventory:pushItems(otherName_or_other, fromSlot, limit, toSlot)
 			.. " to "
 			.. other.name
 			.. " at slot "
-			.. toSlot
+			.. (toSlot or "any")
 	)
 	if self:needsConnectionSideSpecified() and other:needsConnectionSideSpecified() then
 		print(
