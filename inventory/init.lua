@@ -29,6 +29,14 @@ local function gatherFunctions(tbl)
 	return functions
 end
 
+local printTableItemByItem(tbl)
+	for index, value in pairs(tbl) do
+		print("Index:", index, "\nValue:", value)
+		print("Press Enter to print next item")
+		io.read()
+	end
+end
+
 -- BETTER INVENTORY: Basically a different api when working with inventory peripherals, wraps around the normal stuff and gives extra functionality
 local betterInventory = {}
 
@@ -147,6 +155,10 @@ function betterInventory:debugPrint(string)
 	if self.verbosity and self.verbosity > 0 then
 		textutils.pagedPrint(string)
 	end
+end
+
+function betterInventory:printDocs()
+	printTableItemByItem(betterInventory:getDocs())
 end
 
 -- @return { "KA_betterInventory" }
