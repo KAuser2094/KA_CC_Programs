@@ -54,7 +54,7 @@ end
 
 -- I refuse to make all these methods manually.
 function betterReactor:getFindComponentFunctions()
-	for _, itemData in ipairs(itemDatas) do
+	for _, itemData in ipairs(self.itemDatas) do
 		self["find" .. itemData.funcName] = function(self, startRange, endRange)
 			return self:findItemsWithNameAndDamage(itemData.name, itemData.damage, startRange, endRange)
 		end
