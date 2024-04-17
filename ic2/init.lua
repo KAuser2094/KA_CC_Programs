@@ -54,7 +54,7 @@ function betterReactor:getFindReactorComponentFunctions()
 	-- 	"ic2/reactor_component_data",
 	-- 	"KA_CC_Programs/ic2/reactor_component_data",
 	-- })
-	itemDatas = doFile("KA_CC_Programs/ic2/reactor_component_data.lua")
+	itemDatas = dofile("KA_CC_Programs/ic2/reactor_component_data.lua")
 	local function lower0()
 		return function(itemMeta)
 			return (name == itemMeta["name"] and damage == itemMeta["damage"])
