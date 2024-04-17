@@ -1,14 +1,14 @@
 return {
 	providers = {
-		{ 
+		{
 			name = "industrialforegoing:black_hole_unit_tile_201",
 			content = "LZH",
 		},
-		{ 
+		{
 			name = "industrialforegoing:black_hole_unit_tile_199",
 			content = "AdvancedHeatExchanger",
 		},
-		{ 
+		{
 			name = "industrialforegoing:black_hole_unit_tile_200",
 			content = "NetherStarEnrichedQuad",
 		},
@@ -16,7 +16,7 @@ return {
 	reactor = {
 		name = "ic2:reactor chamber_411",
 		connectionSide = "up",
-	}
+	},
 	plan = {
 		-- Row 1
 		"LZH",
