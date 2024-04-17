@@ -1,15 +1,15 @@
 return {
 	providers = {
 		{ 
-			name = "industrialforegoing:black_hole_unit_tile_201" 
+			name = "industrialforegoing:black_hole_unit_tile_201",
 			content = "LZH",
 		},
 		{ 
-			name = "industrialforegoing:black_hole_unit_tile_199" 
+			name = "industrialforegoing:black_hole_unit_tile_199",
 			content = "AdvancedHeatExchanger",
 		},
 		{ 
-			name = "industrialforegoing:black_hole_unit_tile_200" 
+			name = "industrialforegoing:black_hole_unit_tile_200",
 			content = "NetherStarEnrichedQuad",
 		},
 	},
