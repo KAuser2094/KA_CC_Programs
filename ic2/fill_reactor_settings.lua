@@ -1,11 +1,22 @@
 return {
-	providerNames = {
-		"industrialforegoing:black_hole_unit_tile_2",
-		"industrialforegoing:black_hole_unit_tile_3",
-		"industrialforegoing:black_hole_unit_tile_4",
+	providers = {
+		{ 
+			name = "industrialforegoing:black_hole_unit_tile_" 
+			content = "LZH",
+		},
+		{ 
+			name = "industrialforegoing:black_hole_unit_tile_" 
+			content = "AdvancedHeatExchanger",
+		},
+		{ 
+			name = "industrialforegoing:black_hole_unit_tile_" 
+			content = "NetherStarEnrichedQuad",
+		},
 	},
-	reactorName = "ic2:reactor chamber_13",
-	reactorConnectionSide = "up",
+	reactor = {
+		name = "ic2:reactor chamber_",
+		connectionSide = "up",
+	}
 	plan = {
 		-- Row 1
 		"LZH",

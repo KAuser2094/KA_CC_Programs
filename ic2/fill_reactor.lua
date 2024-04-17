@@ -20,34 +20,27 @@ end
 local invMod = dofile("KA_CC_Programs/inventory/init.lua")
 local ic2Mod = dofile("KA_CC_Programs/ic2/init.lua")
 local settings = dofile("KA_CC_Programs/ic2/fill_reactor_settings.lua")
-local data = dofile("KA_CC_Programs/ic2/reactor_component_data.lua")
 
 -- Index based list where each index is a slot and the value is the component at that slot
 -- Looks at `reactor_component_data` to find what you need to put in the strings (you need to put the key value)
 local plan = settings.plan
-local providers = {}
-for _, providerName in ipairs(settings.providerNames) do
-	table.insert(providers, invMod.createBetterInventory(providerName))
+local providers = settings.providers
+for _, provider in ipairs(providers) do
+	provider.api = invMod.createBetterInventory(provider.name)
 end
-local reactor = ic2Mod.createBetterReactor(settings.reactorName)
-reactor:setConnectionSide(settings.reactorConnectionSide)
+local reactor = ic2Mod.createBetterReactor(settings.reactor.name)
+reactor:setConnectionSide(settings.reactor.connectionSide)
 
 if #plan ~= reactor:size() then
 	error("Plan does not fit reactor (use nil for slots that are unused)")
 end
 
-local countTransferred = 0
-local tryProvider = 1
-for slot, compFuncName in ipairs(plan) do
-	if compFuncName and data.compFuncName then
-		countTransferred = 0
-		while countTransferred == 0 and tryProvider < (#providers + 1) do
-			local provider = providers[tryProvider]
-			countTransferred = countTransferred
-				+ reactor["find" .. compFuncName .. "AndPull"](reactor, provider, nil, nil, 1, slot)
-		end -- while countTransferred == 0 and tryProvider < (#providers + 1) do
-		if countTransferred == 0 then
-			print("Failed to put " .. compFuncName .. " into slot " .. slot)
-		end
-	end -- if compFuncName then
-end -- for slot, compFuncName in pairs(plan) do
+for slot, compName in ipairs(plan) do
+	if compName and reactor["find" .. compName] then
+		for _, provider in ipairs(providers) do
+			if provider.content == compName then
+				provider.api:pushItems(reactor, 1, 1, slot)
+			end
+		end -- for _, provider in ipairs(providers) do
+	end -- if compName then
+end -- for slot, compName in pairs(plan) do
