@@ -3,7 +3,7 @@ return {
 	AdvancedHeatExchanger = {
 		name = "ic2:itemheatswitches",
 		damage = 3,
-	}
+	},
 	-- Near Depleted Cells
 	-- TODO: Insert the rest of the near depleted cells here
 	NearDepletedNetherStar = {

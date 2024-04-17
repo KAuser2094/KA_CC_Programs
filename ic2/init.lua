@@ -33,7 +33,8 @@ local function tryRequire(paths)
 	error(table.concat(errorMsgs, "\n"))
 end
 
-local inv = tryRequire({ "inventory", "KA_CC_Programs/inventory", "../inventory" })
+-- local inv = tryRequire({ "inventory", "KA_CC_Programs/inventory", "../inventory" })
+local inv = dofile("KA_CC_Programs/inventory/init.lua")
 
 -- Store modules
 local module = {}
@@ -48,11 +49,12 @@ end
 
 -- I refuse to make all these methods manually.
 function betterReactor:getFindReactorComponentFunctions()
-	itemDatas = tryRequire({
-		"reactor_component_data",
-		"ic2/reactor_component_data",
-		"KA_CC_Programs/ic2/reactor_component_data",
-	})
+	-- itemDatas = tryRequire({
+	-- 	"reactor_component_data",
+	-- 	"ic2/reactor_component_data",
+	-- 	"KA_CC_Programs/ic2/reactor_component_data",
+	-- })
+	itemDatas = doFile("KA_CC_Programs/ic2/reactor_component_data.lua")
 	local function lower0()
 		return function(itemMeta)
 			return (name == itemMeta["name"] and damage == itemMeta["damage"])

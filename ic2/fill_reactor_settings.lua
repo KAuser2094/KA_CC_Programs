@@ -1,9 +1,9 @@
 return {
-  providerNames = {
-    "industrialforegoing:black_hole_unit_tile_2",
-    "industrialforegoing:black_hole_unit_tile_3",
-    "industrialforegoing:black_hole_unit_tile_4",
-  }
+	providerNames = {
+		"industrialforegoing:black_hole_unit_tile_2",
+		"industrialforegoing:black_hole_unit_tile_3",
+		"industrialforegoing:black_hole_unit_tile_4",
+	},
 	reactorName = "ic2:reactor chamber_13",
 	reactorConnectionSide = "up",
 	plan = {

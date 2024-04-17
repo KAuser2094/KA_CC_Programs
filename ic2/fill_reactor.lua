@@ -10,12 +10,17 @@ local function tryRequire(paths)
 	end
 	error(table.concat(errorMsgs, "\n"))
 end
-local invMod = tryRequire({ "inventory", "KA_CC_Programs/inventory" })
-local ic2Mod = tryRequire({ "ic2", "KA_CC_Programs/ic2" })
-local settings =
-	tryRequire({ "fill_reactor_settings", "KA_CC_Programs/ic2/fill_reactor_settings", "ic2/fill_reactor_settings" })
-local data =
-	tryRequire({ "reactor_component_data", "KA_CC_Programs/ic2/reactor_component_data", "ic2/reactor_component_data" })
+-- local invMod = tryRequire({ "inventory", "KA_CC_Programs/inventory" })
+-- local ic2Mod = tryRequire({ "ic2", "KA_CC_Programs/ic2" })
+-- local settings =
+-- 	tryRequire({ "fill_reactor_settings", "KA_CC_Programs/ic2/fill_reactor_settings", "ic2/fill_reactor_settings" })
+-- local data =
+-- 	tryRequire({ "reactor_component_data", "KA_CC_Programs/ic2/reactor_component_data", "ic2/reactor_component_data" })
+
+local invMod = dofile("KA_CC_Programs/inventory/init.lua")
+local ic2Mod = dofile("KA_CC_Programs/ic2/init.lua")
+local settings = dofile("KA_CC_Programs/ic2/fill_reactor_settings.lua")
+local data = dofile("KA_CC_Programs/ic2/reactor_component_data.lua")
 
 -- Index based list where each index is a slot and the value is the component at that slot
 -- Looks at `reactor_component_data` to find what you need to put in the strings (you need to put the key value)
