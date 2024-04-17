@@ -53,6 +53,11 @@ function betterReactor:getFindReactorComponentFunctions()
 		"ic2/reactor_component_data",
 		"KA_CC_Programs/ic2/reactor_component_data",
 	})
+	local function lower0()
+		return function(itemMeta)
+			return (name == itemMeta["name"] and damage == itemMeta["damage"])
+		end
+	end
 	local function lower1()
 		return function(itemMeta)
 			itemDurability = itemMeta["durability"] and (1 - itemMeta["durability"]) or 1
@@ -65,7 +70,8 @@ function betterReactor:getFindReactorComponentFunctions()
 			return name == itemMeta["name"] and damage == itemMeta["damage"] and itemDurability > durabilityDecimal
 		end
 	end
-	for key, itemData in pairs(itemDatas) do
+	for key, itemData in pairs(itemDatas) do -- TODO: Some of these (durability) are only needed for certain component types, add the check against "name" to find out what
+		-- Pure Find Functions
 		self["find" .. key] = function(self, startRange, endRange)
 			return self:findItemsWithNameAndDamage(itemData.name, itemData.damage, startRange, endRange)
 		end
@@ -74,6 +80,13 @@ function betterReactor:getFindReactorComponentFunctions()
 		end
 		self["find" .. key .. "DurabilityAbove"] = function(self, durabilityDecimal, startRange, endRange)
 			return self:findItemsThatFulfilsFunction(lower2(), startRange, endRange)
+		end
+		-- Find And Push/Pull
+		self["find" .. key .. "AndPush"] = function(self, otherName_or_other, startRange, endRange, limit, toSlot)
+			return self:findAndPush(otherName_or_other, lower0(), startRange, endRange, limit, toSlot)
+		end
+		self["find" .. key .. "AndPull"] = function(self, otherName_or_other, startRange, endRange, limit, toSlot)
+			return self:findAndPull(otherName_or_other, lower0(), startRange, endRange, limit, toSlot)
 		end
 	end
 end
