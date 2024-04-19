@@ -35,11 +35,13 @@ end
 
 local function pullFromMacerators()
 	for _, macerator in ipairs(macerators) do
-		macerator:pushItems(condensorRM, 3)
+		macerator:pushItems(condensorRM, 2) -- Who knows why this is 2 when pulling/pushing but is actually in slot 3
 	end
 end
 
 for i = 1, 5 do
+	print("Pushing")
 	pushToMacerators() -- This has an os.sleep(1)
+	print("Pulling")
 	pullFromMacerators()
 end
