@@ -34,8 +34,8 @@ local function pushToMacerators() -- Does 21 stacks
 end
 
 local function pullFromMacerators()
-	for _, macerator in ipairs(macerators) do
-		macerator:pushItems(condensorRM, 2) -- Who knows why this is 2 when pulling/pushing but is actually in slot 3
+	for i, macerator in ipairs(macerators) do
+		macerator:pushItems(condensorRM, 2, nil, i) -- Who knows why this is 2 when pulling/pushing but is actually in slot 3
 	end
 end
 
