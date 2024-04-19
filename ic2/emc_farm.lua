@@ -3,8 +3,14 @@
 -- Total Rods made = 6549.3385416667
 -- in stacks: 102.33 = 103 (round up)
 
+-- 27 seconds per 5 mil
+-- 185,185 emc per second
+
 local invMod = dofile("KA_CC_Programs/inventory/init.lua")
 local ic2Mod = dofile("KA_CC_Programs/ic2/init.lua")
+
+-- Time needed to sleep so macerators are finished before pulling/pushing
+local timeNeeded = 0.1
 
 local lowerBound = 0
 local upperBound = lowerBound + 20
@@ -30,7 +36,10 @@ local function pushToMacerators() -- Does 21 stacks
 		condensorRod:pushItems(macerator, slotInCondensorRod)
 		slotInCondensorRod = (slotInCondensorRod == 84) and 43 or (slotInCondensorRod + 1)
 	end
-	os.sleep(1)
+end
+
+local function extraWaitForMacerators()
+	os.sleep(timeNeeded)
 end
 
 local function pullFromMacerators()
@@ -49,9 +58,12 @@ local function emcLoop()
 	for i = 1, 5 do
 		print("Pushing")
 		pushToMacerators() -- This has an os.sleep(1)
+		extraWaitForMacerators()
 		print("Pulling") -- Makes 3 stacks per 1 stack of rod
 		pullFromMacerators()
+		extraWaitForMacerators()
 		pullFromMacerators()
+		extraWaitForMacerators()
 		pullFromMacerators()
 	end
 	print("Done")
