@@ -6,6 +6,8 @@
 -- 27 seconds per 5 mil
 -- 185,185 emc per second
 
+-- Kinda just bad given how many maxed out macerators you need.
+
 local invMod = dofile("KA_CC_Programs/inventory/init.lua")
 local ic2Mod = dofile("KA_CC_Programs/ic2/init.lua")
 
@@ -52,7 +54,7 @@ local function refillRodCondensor()
 	condensorRM:pushItems(condensorRod, 43, 1)
 end
 
-local function emcLoop()
+local function emcSingleLoop()
 	print("Refilling Rods...")
 	refillRodCondensor()
 	for i = 1, 5 do
@@ -67,6 +69,18 @@ local function emcLoop()
 		pullFromMacerators()
 	end
 	print("Done")
+end
+
+local function emcLoop()
+	local count = 0
+	local generatedEmc = 0
+	while true do
+		emcSingleLoop()
+		count = count + 1
+		generatedEmc = count * (10059784 / 2)
+		print("Count: " .. count)
+		print("Generated Emc: " .. generatedEmc)
+	end
 end
 
 emcLoop()
