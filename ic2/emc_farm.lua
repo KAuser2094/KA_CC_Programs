@@ -9,8 +9,11 @@ local ic2Mod = dofile("KA_CC_Programs/ic2/init.lua")
 local lowerBound = 0
 local upperBound = lowerBound + 20
 
-local condensorName = "projecte:condenser_mk2_0"
-local condensor = invMod.createBetterInventory(condensorName)
+local condensorRodName = "projecte:condenser_mk2_0"
+local condensorRod = invMod.createBetterInventory(condensorRodName)
+
+local condensorRMName = "projecte:condenser_mk2_1"
+local condensorRM = invMod.createBetterInventory(condensorRMName)
 
 local macerators = {}
 
@@ -20,18 +23,23 @@ for i = lowerBound, upperBound do
 	table.insert(macerators, macerator)
 end
 
-local slotInCondensor = 43 -- Start of output inventory
+local slotInCondensorRod = 43 -- Start of output inventory
 
 local function pushToMacerators() -- Does 21 stacks
 	for _, macerator in ipairs(macerators) do
-		condensor:pushItems(macerator, slotInCondensor)
-		slotInCondensor = (slotInCondensor == 84) and 43 or (slotInCondensor + 1)
+		condensorRod:pushItems(macerator, slotInCondensorRod)
+		slotInCondensorRod = (slotInCondensorRod == 84) and 43 or (slotInCondensorRod + 1)
 	end
 	os.sleep(1)
 end
 
-pushToMacerators()
-pushToMacerators()
-pushToMacerators()
-pushToMacerators()
-pushToMacerators()
+local function pullFromMacerators()
+	for _, macerator in ipairs(macerators) do
+		macerator:pushItems(condensorRM, 3)
+	end
+end
+
+for i = 1, 5 do
+	pushToMacerators() -- This has an os.sleep(1)
+	pullFromMacerators()
+end
