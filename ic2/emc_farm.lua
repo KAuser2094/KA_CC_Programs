@@ -22,13 +22,16 @@ end
 
 local slotInCondensor = 43 -- Start of output inventory
 
-local function pushToMacerators()
+local function pushToMacerators() -- Does 21 stacks
 	for _, macerator in ipairs(macerators) do
 		condensor:pushItems(macerator, slotInCondensor)
 		slotInCondensor = (slotInCondensor == 84) and 43 or (slotInCondensor + 1)
 	end
+	os.sleep(1)
 end
 
+pushToMacerators()
+pushToMacerators()
 pushToMacerators()
 pushToMacerators()
 pushToMacerators()
