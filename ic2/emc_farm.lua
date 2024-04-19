@@ -44,4 +44,5 @@ for i = 1, 5 do
 	pushToMacerators() -- This has an os.sleep(1)
 	print("Pulling")
 	pullFromMacerators()
+	pullFromMacerators()
 end
