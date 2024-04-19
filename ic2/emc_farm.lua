@@ -39,10 +39,22 @@ local function pullFromMacerators()
 	end
 end
 
-for i = 1, 5 do
-	print("Pushing")
-	pushToMacerators() -- This has an os.sleep(1)
-	print("Pulling")
-	pullFromMacerators()
-	pullFromMacerators()
+local function refillRodCondensor()
+	condensorRM:pushItems(condensorRod, 43, 1)
 end
+
+local function emcLoop()
+	print("Refilling Rods...")
+	refillRodCondensor()
+	for i = 1, 5 do
+		print("Pushing")
+		pushToMacerators() -- This has an os.sleep(1)
+		print("Pulling") -- Makes 3 stacks per 1 stack of rod
+		pullFromMacerators()
+		pullFromMacerators()
+		pullFromMacerators()
+	end
+	print("Done")
+end
+
+emcLoop()
