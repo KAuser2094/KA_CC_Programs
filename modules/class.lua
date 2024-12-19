@@ -1,6 +1,6 @@
 local function class()
     local cls = {}
-    cls.__index = cls
+    cls.__index = cls -- Use the fact that __index will be called on fallback
 
 
     function cls:new(...)
