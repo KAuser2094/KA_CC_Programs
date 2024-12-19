@@ -15,14 +15,14 @@ local search_paths = {
 -- Function to load modules from search paths
 local function require_from_paths(module_name)
     local native_package_path = package.path
-    package.path = table.concat(search_paths, ";") .. ";" .. package.path
+    local combinated_package_path = table.concat(search_paths, ";") .. ";" .. package.path
+    package.path = combinated_package_path
     local success, result = pcall(require, module_name)
+    package.path = native_package_path
     if success then
-        package.path = native_package_path
         return result
     else
-        error("Module '" .. module_name .. "' not found. From: " .. package.path)
-        package.path = native_package_path
+        error("Module '" .. module_name .. "' not found. From: " .. combinated_package_path)
     end
 end
 
