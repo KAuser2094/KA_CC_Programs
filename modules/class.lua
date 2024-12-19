@@ -1,5 +1,6 @@
 local req = require "KA_CC.require"
 local utils = req "utils"
+
 local function class(base)
     local cls = {}
     cls.__index = cls -- Use the fact that __index will be called on fallback

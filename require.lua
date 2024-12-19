@@ -50,7 +50,7 @@ local function require_from_paths_2(module_name)
     error("Module '" .. module_name .. "' not found in any search path.")
 end
 
-local use_1 = false
+local use_1 = true
 
 if use_1 then
     return require_from_paths

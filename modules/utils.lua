@@ -1,5 +1,4 @@
 local req = require "KA_CC.require"
-local class = req "class"
 
 local fs = _G.fs
 local textutils = _G.textutils
