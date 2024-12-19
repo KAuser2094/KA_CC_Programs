@@ -1,5 +1,3 @@
-local req = require "KA_CC.require"
-
 local fs = _G.fs
 local textutils = _G.textutils
 
@@ -418,5 +416,9 @@ function utils.trimr(s)
 	return s:find('^%s*$') and '' or s:match('^(.*%S)')
 end
 -- end http://snippets.luacode.org/?p=snippets/trim_whitespace_from_string_76
+
+function utils.isClass(klass, class_name)
+	return klass.class and utils.containsValue(klass.class, class_name)
+end
 
 return utils

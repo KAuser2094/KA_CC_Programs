@@ -1,5 +1,4 @@
-local req = require "KA_CC.require"
-local utils = req "utils"
+local utils = require "KA_CC.modules.utils"
 
 local function class(base)
     local cls = {}
