@@ -1,11 +1,15 @@
 -- Custom directories to search
+-- TODO: Make this work off a file
 local search_paths = {
     "/KA_CC/?",
     "/KA_CC/?.lua",
     "/KA_CC/modules/?",
     "/KA_CC/modules/?.lua",
-    "/lib/?",
-    "/lib/?.lua",
+
+    "/KA_CC_Programs/?",
+    "/KA_CC_Programs/?.lua",
+    "/KA_CC_Programs/modules/?",
+    "/KA_CC_Programs/modules/?.lua",
 }
 
 -- Function to load modules from search paths
