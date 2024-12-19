@@ -1,3 +1,5 @@
+local req = require "KA_CC/require"
+local utils = req "utils"
 local function class(base)
     local cls = {}
     cls.__index = cls -- Use the fact that __index will be called on fallback
@@ -19,7 +21,7 @@ local function class(base)
         if not cls.class then
             cls.class = {}  -- Initialize the class table if not already done
         end
-        if not table.contains(cls.class, className) then
+        if not utils.containsValue(cls.class, className) then
             table.insert(cls.class, className)
         end
     end
