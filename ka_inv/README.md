@@ -1,1 +1,0 @@
-A wrapper around a normal inventory peripheral.

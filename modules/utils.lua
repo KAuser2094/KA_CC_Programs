@@ -165,7 +165,7 @@ function utils.filter(tbl, filter_func) -- this is a weird way to do it... might
     local filtered_tbl = {}
 
     for key, value in pairs(tbl) do
-        if filter_func(v) then
+        if filter_func(value) then
             filtered_tbl[key] = value
         end
     end
@@ -330,12 +330,13 @@ end
 
 -- taken from opus
 function utils.loadTable(fname)
-	local fc = Util.readFile(fname)
+	local fc = utils.readFile(fname)
 	if not fc then
 		return false, 'Unable to read file'
 	end
 	local s, m = loadstring('return ' .. fc, fname)
 	if s then
+---@diagnostic disable-next-line: cast-local-type -- Why are you like this
 		s, m = pcall(s)
 		if s then
 			return m
