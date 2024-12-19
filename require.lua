@@ -21,8 +21,8 @@ local function require_from_paths(module_name)
         package.path = native_package_path
         return result
     else
+        error("Module '" .. module_name .. "' not found. From: " .. package.path)
         package.path = native_package_path
-        error("Module '" .. module_name .. "' not found.")
     end
 end
 
