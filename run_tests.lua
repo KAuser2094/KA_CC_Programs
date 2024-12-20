@@ -1,4 +1,3 @@
-shell.setDir(".")
 -- Runs tests is KA_CC.tests
 local Test = require "KA_CC.tests"
 local context = require "KA_CC.test_context"
