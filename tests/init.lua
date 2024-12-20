@@ -3,7 +3,8 @@ local textutils = _G.textutils
 local class = require "KA_CC.modules.class"
 local t_utils = require "KA_CC.tests.utils"
 
-local peripheral_tests = require "KA_CC.tests.tests_peripheral"
+local class_tests = require "KA_CC.tests.test_class"
+local peripheral_tests = require "KA_CC.tests.test_peripheral"
 
 Test = class("KA_Test")
 
@@ -11,6 +12,7 @@ function Test:init(context)
     self.context = context
     self.tests = {}
 
+    self:addTests(class_tests)
     self:addTests(peripheral_tests)
 end
 
@@ -56,7 +58,7 @@ function Test:runTests(waitForInput)
 
         -- Wait for input
         if i ~= test_count and waitForInput then
-            print("Enter for next test. (" .. i .. "/" .. test_count .. ")")
+            print("Enter for next test. (" .. (i+1) .. "/" .. test_count .. ")")
 ---@diagnostic disable-next-line: discard-returns
             io.read()
         end

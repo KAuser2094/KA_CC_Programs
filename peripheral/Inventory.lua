@@ -5,30 +5,24 @@ local utils = require "KA_CC.modules.utils"
 
 local native = _G.peripheral
 
-local COMPUTER_SIDES = {
-    ["front"] = true,
-    ["back"] = true,
-    ["right"] = true,
-    ["left"] = true,
+local Inventory = class("KA_Inventory", Peripheral)
 
-    ["top"] = true,
-    ["botttom"] = true,
-    ["north"] = true,
-    ["south"] = true,
-    ["west"] = true,
-    ["east"]= true,
+-- STATIC
+
+Inventory.EVENTS = {
+    SYNC = "sync", -- For when contents are synced and possibly changed
 }
 
-local SIDES = {
-    ["up"] = true,
-    ["down"] = true,
-    ["north"] = true,
-    ["south"] = true,
-    ["west"] = true,
-    ["east"]= true,
+Inventory.SIDES = {
+    up = true,
+    down = true,
+    north = true,
+    south = true,
+    west = true,
+    east= true,
 }
 
-local NEEDS_SIDE = {
+Inventory.NEEDS_SIDE = {
     mods = {
         "ic2"
     },
@@ -42,15 +36,15 @@ local NEEDS_SIDE = {
     },
 }
 
-local function isInventory(Inventory) 
-    return Inventory._className and Inventory._className == "KA_Inventory"
+function Inventory.isInventory(i) 
+    return i._className and i._className == "KA_Inventory"
 end
 
-local function needsSideSpecified(InventoryOrWrappedOrName)
+function Inventory.needsSideSpecified(InventoryOrWrappedOrName)
     local mod = nil
     local mods = nil
     local needs_side = false
-    if isInventory(InventoryOrWrappedOrName)  then
+    if Inventory.isInventory(InventoryOrWrappedOrName)  then
         return InventoryOrWrappedOrName.needs_side
     elseif p_utils.isWrapped(InventoryOrWrappedOrName) or p_utils.isName(InventoryOrWrappedOrName) then
         _, _, _, _, mod, mods = p_utils.getClassFields(InventoryOrWrappedOrName)
@@ -60,13 +54,13 @@ local function needsSideSpecified(InventoryOrWrappedOrName)
 
     if not needs_side and mods then
         for _,_m in pairs(mods) do
-            needs_side = utils.containsValue(NEEDS_SIDE.mods, _m)
+            needs_side = utils.containsValue(Inventory.NEEDS_SIDE.mods, _m)
             if needs_side then
                 break
             end
         end
     elseif not needs_side and mod then
-        needs_side = utils.containsValue(NEEDS_SIDE.mods, mod)
+        needs_side = utils.containsValue(Inventory.NEEDS_SIDE.mods, mod)
     end
     
     -- TODO: Insert code for exact and pattern matching
@@ -74,45 +68,62 @@ local function needsSideSpecified(InventoryOrWrappedOrName)
     return needs_side
 end
 
-local Inventory = class("KA_Inventory", Peripheral)
-
-Inventory.EVENTS = {
-    SYNC = "sync", -- For when contents are synced and possibly changed
-}
+-- INSTANCE (PUBLIC/PRIVATE)
 
 function Inventory:init(wrappedOrName, sideOrNil)
     self._super.init(self, wrappedOrName)
 
     assert(self.api.list, "The peripheral passed in is not an inventory")
 
-    self.sideSpecified = SIDES[sideOrNil] and sideOrNil or nil -- For blocks where the side matters. (ideally you pass in during the push/pull as well)
+    self.sideSpecified = Inventory.SIDES[sideOrNil] and sideOrNil or nil -- For blocks where the side matters. (ideally you pass in during the push/pull as well)
 
     self:sync()
 
-    self.needs_side = needsSideSpecified(self.api) -- Don't call with self because that uses the field set here, which obv. isn't set yet.
+    self.needs_side = Inventory.needsSideSpecified(self.api) -- Don't call with self because that uses the field set here, which obv. isn't set yet.
 end
+
+-- SETTERS
 
 function Inventory:setSide(side)
-    assert(SIDES[side], "Trying to set an invalid side and sideSpecified")
-    self.sideSpecified = SIDES[side] and side or self.sideSpecified
+    assert(Inventory.SIDES[side], "Trying to set an invalid side and sideSpecified")
+    self.sideSpecified = Inventory.SIDES[side] and side or self.sideSpecified
 end
 
+-- GETTERS/PROPERTIES
+
+--! Note that this isn't about whether the inventory is full, just whether the slots are.
+function Inventory:slotsFull()
+	return self:slotsFilled() == self.api.size()
+end
+
+function Inventory:isEmpty()
+	return self:slotsFilled() == 0
+end
+
+function Inventory:slotsFilled()
+	return #(self.contents)
+end
+
+-- ASSERT/PRINT/UTIL
+
 function Inventory:assertValidOperation(other_InventoryOrWrappedOrName, selfSideOrNil, otherSideOrNil)
-    local needs_side = needsSideSpecified(self)
-    local other_needs_side = needsSideSpecified(other_InventoryOrWrappedOrName)
+    local needs_side = Inventory.needsSideSpecified(self)
+    local other_needs_side = Inventory.needsSideSpecified(other_InventoryOrWrappedOrName)
 
     local selfSide = selfSideOrNil or self.sideSpecified or nil
-    local otherSide = otherSideOrNil or (isInventory(other_InventoryOrWrappedOrName) and other_InventoryOrWrappedOrName.sideSpecified) or nil
+    local otherSide = otherSideOrNil or (Inventory.isInventory(other_InventoryOrWrappedOrName) and other_InventoryOrWrappedOrName.sideSpecified) or nil
     
     assert(not (needs_side and other_needs_side), "Cannot do operation between 2 inventories that need to specify a side, needs an imbetween inventory")
     assert(not (needs_side and not selfSide), "The calling Inventory requires a side to be specified (init, setSide, or pass in)")
-    assert(not (needs_side and not SIDES[selfSide]), "The calling Inventory requires a side, the side is invalid")
+    assert(not (needs_side and not Inventory.SIDES[selfSide]), "The calling Inventory requires a side, the side is invalid")
     assert(not (other_needs_side and not otherSide), "The other Inventory requires a side to be specified (init, setSide, or pass in)")
-    assert(not (other_needs_side and not SIDES[otherSide]), "The other Inventory requires a side, the side is invalid")
+    assert(not (other_needs_side and not Inventory.SIDES[otherSide]), "The other Inventory requires a side, the side is invalid")
 
 
     return true
 end
+
+-- ITEM MOVEMENT
 
 function Inventory:sync() -- updates "contents"
     self.contents = self.api.list()
@@ -133,7 +144,7 @@ function Inventory:push(other, fromSlot, limitOrNil, toSlotOrNil, selfSideOrNil,
     local otherName = p_utils.getName(other)
 
     local selfSide = selfSideOrNil or self.sideSpecified or nil
-    local otherSide = otherSideOrNil or (isInventory(other) and other.sideSpecified) or nil
+    local otherSide = otherSideOrNil or (Inventory.isInventory(other) and other.sideSpecified) or nil
     local selfSidedName = self.name .. "." .. selfSide .. "_side"
     local otherSidedName = otherName .. "." .. otherSide .. "_side"
 
@@ -141,7 +152,7 @@ function Inventory:push(other, fromSlot, limitOrNil, toSlotOrNil, selfSideOrNil,
 
     if self.needs_side then -- You can't call from a peripheral that needs a side
         ret = native.call(otherName, "pullItems", selfSidedName, fromSlot, limitOrNil, toSlotOrNil)
-    elseif needsSideSpecified(other) then
+    elseif Inventory.needsSideSpecified(other) then
         ret = self.api.pushItems(otherSidedName, fromSlot, limitOrNil, toSlotOrNil)
     else
         ret = self.api.pushItems(otherName, fromSlot, limitOrNil, toSlotOrNil)
@@ -149,7 +160,7 @@ function Inventory:push(other, fromSlot, limitOrNil, toSlotOrNil, selfSideOrNil,
 
     self:sync()
 
-    if isInventory(other) then
+    if Inventory.isInventory(other) then
         other:sync()
     end
 
@@ -162,7 +173,7 @@ function Inventory:pull(other, fromSlot, limitOrNil, toSlotOrNil, selfSideOrNil,
     local otherName = p_utils.getName(other)
 
     local selfSide = selfSideOrNil or self.sideSpecified or nil
-    local otherSide = otherSideOrNil or (isInventory(other) and other.sideSpecified) or nil
+    local otherSide = otherSideOrNil or (Inventory.isInventory(other) and other.sideSpecified) or nil
     local selfSidedName = self.name .. "." .. selfSide .. "_side"
     local otherSidedName = otherName .. "." .. otherSide .. "_side"
 
@@ -170,7 +181,7 @@ function Inventory:pull(other, fromSlot, limitOrNil, toSlotOrNil, selfSideOrNil,
 
     if self.needs_side then -- You can't call from a peripheral that needs a side
         ret = native.call(otherName, "pushItems", selfSidedName, fromSlot, limitOrNil, toSlotOrNil)
-    elseif needsSideSpecified(other) then
+    elseif Inventory.needsSideSpecified(other) then
         ret = self.api.pullItems(otherSidedName, fromSlot, limitOrNil, toSlotOrNil)
     else
         ret = self.api.pullItems(otherName, fromSlot, limitOrNil, toSlotOrNil)
@@ -178,24 +189,11 @@ function Inventory:pull(other, fromSlot, limitOrNil, toSlotOrNil, selfSideOrNil,
 
     self:sync()
 
-    if isInventory(other) then
+    if Inventory.isInventory(other) then
         other:sync()
     end
 
     return ret
-end
-
---! Note that this isn't about whether the inventory is full, just whether the slots are.
-function Inventory:slotsFull()
-	return self:slotsFilled() == self.api.size()
-end
-
-function Inventory:isEmpty()
-	return self:slotsFilled() == 0
-end
-
-function Inventory:slotsFilled()
-	return #(self.contents)
 end
 
 return Inventory
