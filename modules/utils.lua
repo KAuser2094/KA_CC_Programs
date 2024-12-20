@@ -110,12 +110,26 @@ function utils.transpose(tbl)
     return t_tbl
 end
 
+function utils.hasValue(tbl, value)
+	return utils.containsValue(tbl, value) -- Both functions names make sense
+end
+
 function utils.containsValue(tbl, value)
     for key, v in pairs(tbl) do
         if v == value then
             return key
         end
     end
+end
+
+function utils.hasSubset(tbl, subset)
+	local func = function (value)
+		for _,v in pairs(tbl) do
+			if v == value then return true end
+		end
+		return false
+	end
+	return utils.all(subset, func)
 end
 
 function utils.shallowCopy(tbl)
@@ -211,6 +225,10 @@ function utils.any(tbl, func)
 			return true
 		end
 	end
+end
+
+function utils.all(tbl, func)
+	return utils.every(tbl, func) -- Both names make sense
 end
 
 function utils.every(tbl, func)
@@ -416,9 +434,5 @@ function utils.trimr(s)
 	return s:find('^%s*$') and '' or s:match('^(.*%S)')
 end
 -- end http://snippets.luacode.org/?p=snippets/trim_whitespace_from_string_76
-
-function utils.isClass(klass, class_name)
-	return klass.class and utils.containsValue(klass.class, class_name)
-end
 
 return utils

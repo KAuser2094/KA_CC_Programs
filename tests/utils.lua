@@ -21,16 +21,27 @@ function utils.getNameAndWrappedFromType(context, type)
 end
 
 function utils.testTitle(context, ...)
-    if context["testTitle"] then
+    if not context["silent"] and context["testTitles"] then
         print(...)
     end
 end
 
 function utils.verbosePrint(context, ...)
-    if context["verbose"] then
+    if not context["silent"] and context["verbose"] then
         print(...)
     end
 end
 
+function utils.extremeVerbosePrint(context, ...)
+    if not context["silent"] and context["extremely_verbose"] then
+        print(...)
+    end
+end
+
+function utils.testResolutionPrint(context, ...)
+    if not context["silent"] and context["resolutions"] then
+        print(...)
+    end
+end
 
 return utils
