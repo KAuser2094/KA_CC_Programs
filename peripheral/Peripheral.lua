@@ -1,8 +1,7 @@
 local class = require "KA_CC.modules.class"
 local p_utils = require "KA_CC.peripheral.utils"
-local utils = require "KA_CC.modules.utils"
 
-local native = _G.native
+local native = _G.peripheral
 
 local Peripheral = class()
 

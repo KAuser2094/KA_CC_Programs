@@ -1,13 +1,14 @@
 local utils = require "KA_CC.modules.utils"
-
+-- From http://lua-users.org/wiki/SimpleLuaClasses
 local function class(base)
     local cls = {}
-    cls.__index = cls -- Use the fact that __index will be called on fallback
-
-    if base then
-        setmetatable(cls, { __index = base })
+    if base and type(base) == 'table' then
+        utils.shallowMerge(cls, base)
         cls.super = base
     end
+
+    cls.__index = cls -- Use the fact that __index will be called on fallback
+
 
     function cls:new(...)
         local instance = setmetatable({}, cls)
@@ -43,6 +44,15 @@ local function class(base)
             return cls:new(...)
         end
     })
+
+    function cls:is_a(klass)
+        local m = getmetatable(self)
+        while m do
+            if m == klass then return true end
+            m = m._super
+        end
+        return false
+    end
 
     return cls
 end

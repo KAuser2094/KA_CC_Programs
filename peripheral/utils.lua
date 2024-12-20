@@ -1,4 +1,4 @@
-local native = _G.native
+local native = _G.peripheral
 
 local utils = require "KA_CC.modules.utils"
 
@@ -9,15 +9,15 @@ p_utils.INVENTORY_CLASS_NAME = "KA_Inventory"
 
 
 function p_utils.isPeripheralNative(peripheralNative)
-    local mt = getmetatable(peripheralNative)
-    if not mt or mt.__name ~= "peripheral" or type(mt.types) ~= "table" then
+    local mt = type(peripheralNative) == 'table' and getmetatable(peripheralNative)
+    if not mt or mt.__name ~= "peripheral" then
         return false
     end
     return true
 end
 
 function p_utils.isName(name)
-    return native.isPresent(name)
+    return type(name) == 'string' and native.isPresent(name)
 end
 
 function p_utils.isPeripheral(Peripheral)
@@ -44,6 +44,8 @@ function p_utils.getClassFields(nativeOrName)
     elseif p_utils.isName(nativeOrName) then
         peripheral = native.wrap(nativeOrName)
         name = nativeOrName
+    else
+        error("passed in value was not a native peripheral or a name on the network: " .. nativeOrName)
     end
 
     local version = utils.getVersion()
