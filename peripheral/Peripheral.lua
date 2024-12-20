@@ -22,7 +22,7 @@ function Peripheral.__eq(self, other)
 end
 
 function Peripheral.__tostring(self)
-    return self.getClassName() .. ": " .. self.name
+    return self:getClassName() .. ": " .. self.name
 end
 
 return Peripheral

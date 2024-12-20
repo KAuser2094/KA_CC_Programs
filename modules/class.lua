@@ -6,7 +6,7 @@ local function class(name, base)
     -- INHERITANCE
     if base and type(base) == 'table' then
         utils.shallowMerge(cls, base)
-        cls._super = base
+        cls.super = base
     end
 
     -- OVERWRITES FIELDS
@@ -39,7 +39,7 @@ local function class(name, base)
         local mt = getmetatable(self)
         while mt do
             if mt._className == klass._className then return true end
-            mt = mt._super
+            mt = mt.super
         end
         return false
     end
@@ -53,7 +53,7 @@ local function class(name, base)
         local mt = getmetatable(self)
         while mt do
             table.insert(names, mt._className)
-            mt = mt._super
+            mt = mt.super
         end
 
         table.insert(names, "KA_Class")
@@ -78,25 +78,26 @@ local function class(name, base)
     end
 
     -- PROPERTIES (GETTER/SETTER)
-    function cls:addGetter(propName, getterFunc)
+    function cls:addGetter(propName, getterFunc) -- CAN be self
         if not self._properties[propName] then
             self._properties[propName] = {}
         end
-        self._properties[propName].getter = getterFunc
+        self._properties[propName]["getter"] = getterFunc
     end
 
-    function cls:addSetter(propName, setterFunc)
-        if not self._properties[propName] then
-            self._properties[propName] = {}
+    function cls:addSetter(propName, setterFunc) -- CANNOT be self
+        if not cls._properties[propName] then
+            cls._properties[propName] = {}
         end
-        self._properties[propName].setter = setterFunc
+        cls._properties[propName]["setter"] = setterFunc
     end
 
     cls.__index = function(tbl, key) -- NOTE: This is also how we are making the whole class work, it will automatically fallback onto the "cls" which holds the class methods
         if cls._properties[key] and cls._properties[key].getter then
             return cls._properties[key].getter(tbl) -- Call the getter function
         end
-        return rawget(cls, key) -- Fallback to normal indexing
+
+        return rawget(cls, key)
     end
 
     cls.__newindex = function(tbl, key, value)

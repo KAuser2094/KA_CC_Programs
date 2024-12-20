@@ -11,12 +11,19 @@ local EVENTS = {
     Test2 = 1,
 }
 local function getTestingClass()
-    id = id or nil
     local testClass = class(TESTING_CLASS_NAME)
 
     function testClass:init(id)
-        self.id = id or nil
+        self._id = id or nil
     end
+
+    testClass:addGetter("id", function (self)
+        return self._id
+    end)
+
+    testClass.addSetter("id", function (self, value)
+        self._id = value
+    end)
 
     function testClass:addToSubscribers(value)
         self:_notifyEvent(EVENTS.TEST1, value)
@@ -29,6 +36,10 @@ local function getChildTestingClass()
     local base = getTestingClass()
     local child = class(CHILD_TESTING_CLASS_NAME, base)
 
+    function child:init(id)
+        self.super.init(self, id)
+    end
+
     return child
 end
 
@@ -40,7 +51,7 @@ local function getSubscriberClass()
         self.value = 0
 
         self.publisher:addSubscriber(EVENTS.TEST1, function (publisher,value)
-            if publisher.id and self.publisher.id and publisher.id == self.publisher.id then
+            if publisher._id and self.publisher._id and publisher._id == self.publisher._id then
                 self.value = self.value + value
             end
         end)
@@ -116,5 +127,32 @@ end
 
 -- test getter and setter property
 
+function tests.properties(context)
+    t_utils.testTitle(context, "Testing: Class module's getter and setters properties")
+    local c_class = getTestingClass()
+    local cc_class = getChildTestingClass()
+
+    local c_1 = c_class(1)
+    local c_2 = c_class(0)
+    local cc_1 = cc_class(2)
+
+    assert(c_1.id, "c_1.id does not exist")
+    assert(c_2.id, "c_2.id does not exist")
+    assert(cc_1.id, "cc_1.id does not exist")
+
+
+    assert(c_1.id == 1, "getter is not working for base class")
+    assert(c_2.id == 0, "getter is not working for base class 2")
+    assert(cc_1.id == 2, "getter is not working for child class")
+
+    c_1.id = 5
+    cc_1.id = 10
+
+    assert(c_1.id == 5, "base class should have changed to 5, got: " .. c_1.id)
+    assert(c_2.id == 0, "2nd base class should not have id changed (0), got: " .. c_2.id)
+    assert(cc_1.id == 10, "child class should have changed to 10, got: " .. cc_1.id)
+end
+
+-- test inheritance of instance and static values/functions
 
 return tests

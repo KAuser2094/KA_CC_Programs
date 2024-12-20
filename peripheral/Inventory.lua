@@ -71,7 +71,7 @@ end
 -- INSTANCE (PUBLIC/PRIVATE)
 
 function Inventory:init(wrappedOrName, sideOrNil)
-    self._super.init(self, wrappedOrName)
+    self.super.init(self, wrappedOrName)
 
     assert(self.api.list, "The peripheral passed in is not an inventory")
 

@@ -15,7 +15,7 @@ local function isPeripheralOrWrappedOrName(p)
     elseif type(p) == 'string' then
         return p_utils.isName(p)
     else
-        return False
+        return false
     end
 end
 
