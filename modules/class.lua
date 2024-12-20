@@ -1,15 +1,18 @@
 local utils = require "KA_CC.modules.utils"
 -- From http://lua-users.org/wiki/SimpleLuaClasses
-local function class(base)
+local function class(name, base)
     local cls = {}
+    -- Inheritance
     if base and type(base) == 'table' then
         utils.shallowMerge(cls, base)
-        cls.super = base
+        cls._super = base
     end
-
+    -- Overwrites from base
+    cls._className = name
+    
     cls.__index = cls -- Use the fact that __index will be called on fallback
 
-
+    -- Constructor
     function cls:new(...)
         local instance = setmetatable({}, cls)
         if instance.init then
@@ -17,41 +20,37 @@ local function class(base)
         end
         return instance
     end
-
-    function cls:addClass(className)
-        if not cls.class then
-            cls.class = {}  -- Initialize the class table if not already done
-        end
-        if not utils.containsValue(cls.class, className) then
-            table.insert(cls.class, className)
-        end
-    end
-
-    function cls:isClass(className)
-        if not cls.class then
-            return false
-        end
-        for _, name in ipairs(cls.class) do
-            if name == className then
-                return true
-            end
-        end
-        return false
-    end
-
+    -- Lets you call <class>(<args>)
     setmetatable(cls, {
         __call = function(_, ...)
             return cls:new(...)
-        end
+        end,
     })
-
-    function cls:is_a(klass)
-        local m = getmetatable(self)
-        while m do
-            if m == klass then return true end
-            m = m._super
+    -- Generic Class Functions
+    function cls:isClass(klass)
+        local mt = getmetatable(self)
+        while mt do
+            if mt == klass then return true end
+            mt = mt._super
         end
         return false
+    end
+
+    function cls:getClassName()
+        return self._className
+    end
+
+    function cls:getAllClassNames()
+        local names = {}
+        local mt = getmetatable(self)
+        while mt do
+            table.insert(names, mt._className)
+            mt = mt._super
+        end
+
+        table.insert(names, "KA_Class")
+
+        return names
     end
 
     return cls

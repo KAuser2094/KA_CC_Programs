@@ -3,7 +3,7 @@ local Peripheral = require "KA_CC.peripheral.Peripheral"
 local p_utils = require "KA_CC.peripheral.utils"
 local utils = require "KA_CC.modules.utils"
 
-local native = _G.native
+local native = _G.peripheral
 
 local COMPUTER_SIDES = {
     ["front"] = true,
@@ -42,14 +42,18 @@ local NEEDS_SIDE = {
     },
 }
 
-local function needsSideSpecified(InventoryOrNativeOrName)
+local function isInventory(Inventory) 
+    return Inventory._className and Inventory._className == "KA_Inventory"
+end
+
+local function needsSideSpecified(InventoryOrWrappedOrName)
     local mod = nil
     local mods = nil
     local needs_side = false
-    if p_utils.isInventory(InventoryOrNativeOrName) then
-        return InventoryOrNativeOrName.needs_side
-    elseif p_utils.isPeripheralNative(InventoryOrNativeOrName) or p_utils.isName(InventoryOrNativeOrName) then
-        _, _, _, _, mod, mods = p_utils.getClassFields(InventoryOrNativeOrName)
+    if isInventory(InventoryOrWrappedOrName)  then
+        return InventoryOrWrappedOrName.needs_side
+    elseif p_utils.isWrapped(InventoryOrWrappedOrName) or p_utils.isName(InventoryOrWrappedOrName) then
+        _, _, _, _, mod, mods = p_utils.getClassFields(InventoryOrWrappedOrName)
     else
         error("Invalid input")
     end
@@ -70,16 +74,14 @@ local function needsSideSpecified(InventoryOrNativeOrName)
     return needs_side
 end
 
-local Inventory = class(Peripheral)
+local Inventory = class("KA_Inventory", Peripheral)
 
-function Inventory:init(nativeOrName, sideOrNil)
-    self.super.init(self, nativeOrName)
+function Inventory:init(wrappedOrName, sideOrNil)
+    self._super.init(self, wrappedOrName)
 
     assert(self.api.list, "The peripheral passed in is not an inventory")
 
     self.sideSpecified = SIDES[sideOrNil] and sideOrNil or nil -- For blocks where the side matters. (ideally you pass in during the push/pull as well)
-  
-    self:addClass(p_utils.INVENTORY_CLASS_NAME)
 
     self:sync()
 
@@ -91,12 +93,12 @@ function Inventory:setSide(side)
     self.sideSpecified = SIDES[side] and side or self.sideSpecified
 end
 
-function Inventory:assertValidOperation(other_InventoryOrNativeOrName, selfSideOrNil, otherSideOrNil)
+function Inventory:assertValidOperation(other_InventoryOrWrappedOrName, selfSideOrNil, otherSideOrNil)
     local needs_side = needsSideSpecified(self)
-    local other_needs_side = needsSideSpecified(other_InventoryOrNativeOrName)
+    local other_needs_side = needsSideSpecified(other_InventoryOrWrappedOrName)
 
     local selfSide = selfSideOrNil or self.sideSpecified or nil
-    local otherSide = otherSideOrNil or (p_utils.isInventory(other_InventoryOrNativeOrName) and other_InventoryOrNativeOrName.sideSpecified) or nil
+    local otherSide = otherSideOrNil or (isInventory(other_InventoryOrWrappedOrName) and other_InventoryOrWrappedOrName.sideSpecified) or nil
     
     assert(not (needs_side and other_needs_side), "Cannot do operation between 2 inventories that need to specify a side, needs an imbetween inventory")
     assert(not (needs_side and not selfSide), "The calling Inventory requires a side to be specified (init, setSide, or pass in)")
@@ -125,7 +127,7 @@ function Inventory:push(other, fromSlot, limitOrNil, toSlotOrNil, selfSideOrNil,
     local otherName = p_utils.getName(other)
 
     local selfSide = selfSideOrNil or self.sideSpecified or nil
-    local otherSide = otherSideOrNil or (p_utils.isInventory(other) and other.sideSpecified) or nil
+    local otherSide = otherSideOrNil or (isInventory(other) and other.sideSpecified) or nil
     local selfSidedName = self.name .. "." .. selfSide .. "_side"
     local otherSidedName = otherName .. "." .. otherSide .. "_side"
 
@@ -141,7 +143,7 @@ function Inventory:push(other, fromSlot, limitOrNil, toSlotOrNil, selfSideOrNil,
 
     self:sync()
 
-    if p_utils.isInventory(other) then
+    if isInventory(other) then
         other:sync()
     end
 
@@ -154,7 +156,7 @@ function Inventory:pull(other, fromSlot, limitOrNil, toSlotOrNil, selfSideOrNil,
     local otherName = p_utils.getName(other)
 
     local selfSide = selfSideOrNil or self.sideSpecified or nil
-    local otherSide = otherSideOrNil or (p_utils.isInventory(other) and other.sideSpecified) or nil
+    local otherSide = otherSideOrNil or (isInventory(other) and other.sideSpecified) or nil
     local selfSidedName = self.name .. "." .. selfSide .. "_side"
     local otherSidedName = otherName .. "." .. otherSide .. "_side"
 
@@ -170,7 +172,7 @@ function Inventory:pull(other, fromSlot, limitOrNil, toSlotOrNil, selfSideOrNil,
 
     self:sync()
 
-    if p_utils.isInventory(other) then
+    if isInventory(other) then
         other:sync()
     end
 

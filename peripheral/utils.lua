@@ -8,8 +8,8 @@ p_utils.PERIPHERAL_CLASS_NAME = "KA_Peripheral"
 p_utils.INVENTORY_CLASS_NAME = "KA_Inventory"
 
 
-function p_utils.isPeripheralNative(peripheralNative)
-    local mt = type(peripheralNative) == 'table' and getmetatable(peripheralNative)
+function p_utils.isWrapped(wrapped)
+    local mt = type(wrapped) == 'table' and getmetatable(wrapped)
     if not mt or mt.__name ~= "peripheral" then
         return false
     end
@@ -20,15 +20,7 @@ function p_utils.isName(name)
     return type(name) == 'string' and native.isPresent(name)
 end
 
-function p_utils.isPeripheral(Peripheral)
-    return utils.isClass(Peripheral, p_utils.PERIPHERAL_CLASS_NAME)
-end
-
-function p_utils.isInventory(Inventory)
-    return utils.isClass(Inventory, p_utils.INVENTORY_CLASS_NAME)
-end
-
-function p_utils.getClassFields(nativeOrName)
+function p_utils.getClassFields(wrappedOrName)
     local peripheral = nil
     local name = nil
 
@@ -38,14 +30,14 @@ function p_utils.getClassFields(nativeOrName)
     local mod = nil
     local mods = nil
 
-    if p_utils.isPeripheralNative(nativeOrName) then
-        peripheral = nativeOrName
+    if p_utils.isWrapped(wrappedOrName) then
+        peripheral = wrappedOrName
         name = native.getName(peripheral)
-    elseif p_utils.isName(nativeOrName) then
-        peripheral = native.wrap(nativeOrName)
-        name = nativeOrName
+    elseif p_utils.isName(wrappedOrName) then
+        peripheral = native.wrap(wrappedOrName)
+        name = wrappedOrName
     else
-        error("passed in value was not a native peripheral or a name on the network: " .. nativeOrName)
+        error("passed in value was not a native peripheral or a name on the network: " .. wrappedOrName)
     end
 
     local version = utils.getVersion()
@@ -70,13 +62,13 @@ function p_utils.getClassFields(nativeOrName)
     return peripheral, name, type, types, mod, mods
 end
 
-function p_utils.getName(PeripheralOrNativeOrName)
-    if p_utils.isPeripheral(PeripheralOrNativeOrName) then
-        return PeripheralOrNativeOrName.name
-    elseif p_utils.isPeripheralNative(PeripheralOrNativeOrName) then
-        return native.getName(PeripheralOrNativeOrName)
-    elseif p_utils.isName(PeripheralOrNativeOrName) then
-        return PeripheralOrNativeOrName
+function p_utils.getName(PeripheralOrWrappedOrName)
+    if p_utils.isPeripheral(PeripheralOrWrappedOrName) then
+        return PeripheralOrWrappedOrName.name
+    elseif p_utils.isWrapped(PeripheralOrWrappedOrName) then
+        return native.getName(PeripheralOrWrappedOrName)
+    elseif p_utils.isName(PeripheralOrWrappedOrName) then
+        return PeripheralOrWrappedOrName
     else
         error("Invalid input")
     end

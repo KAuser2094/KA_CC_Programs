@@ -3,10 +3,10 @@ local p_utils = require "KA_CC.peripheral.utils"
 
 local native = _G.peripheral
 
-local Peripheral = class()
+local Peripheral = class("KA_Peripheral")
 
-function Peripheral:init(peripheralOrName)
-    self.api, self.name, self.type, self.types, self.mod, self.mods = p_utils.getClassFields(peripheralOrName)
+function Peripheral:init(wrappedOrName)
+    self.api, self.name, self.type, self.types, self.mod, self.mods = p_utils.getClassFields(wrappedOrName)
     
     -- Make it so that this can be used instead of normal peripherals. (So any dot function should exist)
     local methods = native.getMethods(self.name)
@@ -15,8 +15,6 @@ function Peripheral:init(peripheralOrName)
             return native.call(self.name, method, ...)
         end
     end
-
-    self:addClass(p_utils.PERIPHERAL_CLASS_NAME)
 end
 
 return Peripheral
