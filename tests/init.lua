@@ -38,6 +38,9 @@ function Test:runTests(waitForInput)
         t_utils.testResolutionPrint(self.context, "--------------------")
         t_utils.testResolutionPrint(self.context, "TEST: (" .. i .. "/" .. test_count .. ")")
         local notFail, skipped = pcall(test,self.context) -- Will return true early if skipped
+        if not notFail then
+            t_utils.assertPrint(self.context, skipped) -- Skipped holds the error value if errored
+        end
         t_utils.testResolutionPrint(self.context, not notFail and "[FAILED]" or (skipped and "[SKIPPED]" or "[PASSED]"))
         t_utils.testResolutionPrint(self.context, "--------------------")
         -- Update results

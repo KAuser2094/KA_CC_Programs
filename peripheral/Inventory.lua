@@ -76,6 +76,10 @@ end
 
 local Inventory = class("KA_Inventory", Peripheral)
 
+Inventory.EVENTS = {
+    SYNC = "sync", -- For when contents are synced and possibly changed
+}
+
 function Inventory:init(wrappedOrName, sideOrNil)
     self._super.init(self, wrappedOrName)
 
@@ -112,6 +116,8 @@ end
 
 function Inventory:sync() -- updates "contents"
     self.contents = self.api.list()
+
+    self:_notifyEvent(Inventory.EVENTS.SYNC)
 end
 
 function Inventory:rearrange(fromSlot, limit, toSlot)
@@ -179,5 +185,17 @@ function Inventory:pull(other, fromSlot, limitOrNil, toSlotOrNil, selfSideOrNil,
     return ret
 end
 
+--! Note that this isn't about whether the inventory is full, just whether the slots are.
+function Inventory:slotsFull()
+	return self:slotsFilled() == self.api.size()
+end
+
+function Inventory:isEmpty()
+	return self:slotsFilled() == 0
+end
+
+function Inventory:slotsFilled()
+	return #(self.contents)
+end
 
 return Inventory

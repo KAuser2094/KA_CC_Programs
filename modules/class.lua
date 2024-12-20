@@ -9,6 +9,7 @@ local function class(name, base)
     end
     -- Overwrites from base
     cls._className = name
+    cls._subsribers = {} -- For publish-subscribe model
     
     cls.__index = cls -- Use the fact that __index will be called on fallback
 
@@ -26,7 +27,8 @@ local function class(name, base)
             return cls:new(...)
         end,
     })
-    -- Generic Class Functions
+
+    -- GENERIC CLASS FUNCTIONS
     function cls:isClass(klass)
         local mt = getmetatable(self)
         while mt do
@@ -37,7 +39,7 @@ local function class(name, base)
     end
 
     function cls:getClassName()
-        return self._className
+        return cls._className
     end
 
     function cls:getAllClassNames()
@@ -52,7 +54,24 @@ local function class(name, base)
 
         return names
     end
+    -- PUBLISH-SUBSCRIBE
+    function cls:subscribeEvent(eventName, callback)
+        if not cls._subsribers[eventName] then
+            cls._subsribers[eventName] = {}
+        end
+        table.insert(cls._subsribers[eventName], callback)
+    end
 
+    function cls:_notifyEvent(eventName, ...)
+        if cls._subsribers[eventName] then
+            for _, callback in ipairs(cls._subsribers[eventName]) do
+                callback(self, ...)
+            end
+        end
+    end
+
+
+-- RETURNS
     return cls
 end
 

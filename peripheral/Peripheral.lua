@@ -17,4 +17,12 @@ function Peripheral:init(wrappedOrName)
     end
 end
 
+function Peripheral.__eq(self, other)
+    return self.name == other.name
+end
+
+function Peripheral.__tostring(self)
+    return self.getClassName() .. ": " .. self.name
+end
+
 return Peripheral

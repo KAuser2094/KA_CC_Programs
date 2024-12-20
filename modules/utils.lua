@@ -122,13 +122,16 @@ function utils.containsValue(tbl, value)
     end
 end
 
-function utils.hasSubset(tbl, subset)
-	local func = function (value)
-		for _,v in pairs(tbl) do
-			if v == value then return true end
-		end
-		return false
+function utils.partialFunction(func, arg1)
+	local partial =  function (...)
+		return func(arg1, ...)
 	end
+
+	return partial
+end
+
+function utils.hasSubset(tbl, subset)
+	local func = utils.partialFunction(utils.hasValue, tbl)
 	return utils.all(subset, func)
 end
 
@@ -184,6 +187,24 @@ function utils.filter(tbl, filter_func) -- this is a weird way to do it... might
 	return filtered_tbl
 end
 
+function utils.filterIndex(i_tbl, filter_func)
+    local filtered_tbl = {}
+
+    for _, value in ipairs(i_tbl) do
+        if filter_func(value) then
+			table.insert(filtered_tbl, value)
+        end
+    end
+
+	return filtered_tbl
+end
+
+function utils.getParitalFilterFunction(tbl, filter_func)
+	return function ()
+		utils.filter(tbl, filter_func)
+	end
+end
+
 function utils.reduce(tbl, reduce_func, initial)
 	local accumulated = initial or 0
 	for _, value in pairs(tbl) do
@@ -198,6 +219,21 @@ function utils.size(tbl)
 	end
 	return 0
 end
+
+function utils.removeDuplicates(i_tbl)
+    local seen = {} 
+    local result = {}
+
+    for _, value in ipairs(i_tbl) do
+        if not seen[value] then
+            seen[value] = true
+            table.insert(result, value)
+        end
+    end
+
+    return result
+end
+
 
 -- Taken from opus
 local function isArray(value)

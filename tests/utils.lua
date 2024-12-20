@@ -44,4 +44,10 @@ function utils.testResolutionPrint(context, ...)
     end
 end
 
+function utils.assertPrint(context, ...)
+    if not context["silent"] and context["assert"] then
+        print(...)
+    end
+end
+
 return utils

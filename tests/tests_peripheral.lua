@@ -33,6 +33,11 @@ function tests.testInventoryClass(context)
     assert(chestInv, "KA_Inventory was not made from name")
     assert(chestInv2, "KA_Inventory was not made from wrapped")
 
+    t_utils.verbosePrint(context, "FirstName: " .. chestInv.name)
+    t_utils.verbosePrint(context, "SecondtName: " .. chestInv2.name)
+    assert(chestInv == chestInv2, "Same chest, not equal")
+
+    assert(tostring(chestInv) == "KA_Inventory: " .. name, "tostring is incorrect, got: " .. tostring(chestInv))
 
     assert(chestInv:isClass(Peripheral), "Could not use isClass on Peripheral")
     assert(chestInv:isClass(Inventory), "Could not use isClass on Inventory")

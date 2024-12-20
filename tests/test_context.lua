@@ -21,7 +21,8 @@ context["flags"] = flags
 context["silent"] = false
 context["resolutions"] = true
 context["testTitles"] = true
-context["verbose"] = true
+context["assert"] = true
+context["verbose"] = false
 context["extremely_verbose"] = true
 
 return context
