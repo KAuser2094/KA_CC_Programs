@@ -1,9 +1,12 @@
 local textutils = _G.textutils
 
+local expect = require "cc.expect".expect
+
 local class = require "KA_CC.modules.class.simple"
 local t_utils = require "KA_CC.tests.utils"
 
 local class_tests = require "KA_CC.tests.test_class"
+local expect_tests = require "KA_CC.tests.test_expect"
 local peripheral_tests = require "KA_CC.tests.test_peripheral"
 
 Test = class("KA_Test")
@@ -12,15 +15,21 @@ function Test:init(context)
     self.context = context
     self.tests = {}
 
+    assert(class_tests, "class_tests")
     self:addTests(class_tests)
+    assert(expect_tests, "expect_tests")
+    self:addTests(expect_tests)
+    assert(peripheral_tests, "peripheral_tests")
     self:addTests(peripheral_tests)
 end
 
 function Test:addTest(testFunction)
+    expect(1,testFunction,"function")
     table.insert(self.tests, testFunction)
 end
 
 function Test:addTests(testsTable)
+    expect(1, testsTable, "table")
     for _, test in pairs(testsTable) do
         self:addTest(test)
     end

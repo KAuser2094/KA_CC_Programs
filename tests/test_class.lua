@@ -207,7 +207,6 @@ function tests.caseSensitivity(context)
     assert(c_1:RETurnTRue(), "c_1 RETurnTRue does not in fact return true")
     assert(cc_1.RETurnTRue, "cc_1 does not have RETurnTRue")
     assert(cc_1:RETurnTRue(), "cc_1 RETurnTRue does not in fact return true")
-
 end
 
 -- test inheritance of instance and static values/functions

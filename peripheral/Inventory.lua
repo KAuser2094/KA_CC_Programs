@@ -36,8 +36,8 @@ Inventory.NEEDS_SIDE = {
     },
 }
 
-function Inventory.isInventory(i) 
-    return i._className and i._className == "KA_Inventory"
+function Inventory.isInventory(i)
+    return i.isClass and i:isClass(Inventory)
 end
 
 function Inventory.needsSideSpecified(InventoryOrWrappedOrName)

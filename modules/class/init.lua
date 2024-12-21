@@ -30,6 +30,10 @@ local function class(name, base)
     cls._properties = cls._properties or {} -- For getters and setters
     cls._case_insensitive = cls._case_insensitive or {} -- For case insensitivity on fields and methods
 
+    cls.__tostring = cls.__tostring or function (self)
+        self:getClassName()
+    end
+
     -- CONSTRUCTOR
     function cls:new(...)
         local instance = setmetatable({}, cls)
@@ -48,14 +52,15 @@ local function class(name, base)
 
     -- GENERIC CLASS FUNCTIONS
     function cls:isClass(klass)
+        -- TODO: Expect a "KA_Class" or string
+        if not klass then return false end -- TEMPORARY
+        local klass_name = type(klass) == "string" and klass or klass._className
         local self_classes = self:getAllClassNames()
-        local mt = getmetatable(self)
-        while mt do
-            if mt._className == klass._className then return true end
-            mt = mt.super
-        end
-        return false
+
+        return utils.hasValue(self_classes, klass_name)
     end
+
+    function cls:hasClass(klass) return self:isClass(klass) end
 
     function cls:getClassName()
         return cls._className -- You would think that "getmetatable(self)" could be used instead of "cls", but it errors here.
