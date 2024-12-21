@@ -1,6 +1,9 @@
 local fs = _G.fs
 local textutils = _G.textutils
 
+local eexpectModule = require "KA_CC.modules.expect"
+local TYPES, eexpect, eexpectNot = eexpectModule.TYPES, eexpectModule.expect, eexpectModule.expectNot
+
 local utils = {} -- A bunch of random functions that I don't want to make a single file for
 
 -- Some functions taken for "https://github.com/kepler155c/opus/blob/4104750539695affeb6518947b53ef0c5ba372fb/sys/modules/opus/util.lua" 
@@ -34,6 +37,7 @@ end
 
 
 function utils.sign(number)
+	eexpect(1, number, TYPES.NUMBER)
     if number == 0 then
         return 0
     end
@@ -41,6 +45,10 @@ function utils.sign(number)
 end
 
 function utils.clamp(number, lb, ub)
+	eexpect(1, number, TYPES.NUMBER)
+	eexpect(2, lb, TYPES.NUMBER)
+	eexpect(3, ub, TYPES.NUMBER)
+
     number = number > lb and number or lb
     number = number < ub and number or ub
     return number
@@ -48,27 +56,35 @@ end
 
 -- http://lua-users.org/wiki/SimpleRound
 function utils.round(num, numDecimalPlaces)
+	eexpect(1, num, TYPES.NUMBER)
+	eexpect(2, numDecimalPlaces, TYPES.NUMBER)
+
 	local mult = 10^(numDecimalPlaces or 0)
 	return utils.sign(num) * math.floor(math.abs(num) * mult + 0.5) / mult
 end
 
-function utils.randomFloat(ub, lb)
+function utils.randomFloat(lb, ub)
+	eexpect(1, lb, TYPES.NUMBER)
+	eexpect(2, ub, TYPES.NUMBER)
 	local lb = lb or 0
 	local ub = ub or 1
 	return (ub-lb) * math.random() + lb
 end
 
 function utils.clearTable(tbl)
+	eexpect(1, tbl, TYPES.TABLE)
     for key,_ in pairs(tbl) do
         tbl[key] = nil
     end
 end
 
 function utils.isEmptyTable(tbl)
+	eexpect(1, tbl, TYPES.TABLE)
     return not next(tbl)
 end
 
 function utils.getKeyAtValue(tbl, value)
+	eexpect(1, tbl, TYPES.TABLE)
     for key, v in pairs(tbl) do
         if v == value then
             return key
@@ -77,6 +93,7 @@ function utils.getKeyAtValue(tbl, value)
 end
 
 function utils.getKeys(tbl)
+	eexpect(1, tbl, TYPES.TABLE)
     local keys = {}
     for k,_ in pairs(tbl) do
         table.insert(tbl, k)
@@ -85,6 +102,8 @@ function utils.getKeys(tbl)
 end
 
 function utils.shallowMerge(tbl, other)
+	eexpect(1, tbl, TYPES.TABLE)
+	eexpect(2, other, TYPES.TABLE)
     for key, value in pairs(other) do
         tbl[key] = value
     end
@@ -92,6 +111,8 @@ function utils.shallowMerge(tbl, other)
 end
 
 function utils.deppMerge(tbl, other)
+	eexpect(1, tbl, TYPES.TABLE)
+	eexpect(2, other, TYPES.TABLE)
     for key, value in pairs(other) do
         if type(value) == 'table' then
             tbl[key] = tbl[key] or {}
@@ -103,6 +124,7 @@ function utils.deppMerge(tbl, other)
 end
 
 function utils.transpose(tbl)
+	eexpect(1, tbl, TYPES.TABLE)
     local t_tbl = {}
     for key, value in pairs(tbl) do
         t_tbl[value] = key
@@ -111,10 +133,12 @@ function utils.transpose(tbl)
 end
 
 function utils.hasValue(tbl, value)
+	eexpect(1, tbl, TYPES.TABLE)
 	return utils.containsValue(tbl, value) -- Both functions names make sense
 end
 
 function utils.containsValue(tbl, value)
+	eexpect(1, tbl, TYPES.TABLE)
     for key, v in pairs(tbl) do
         if v == value then
             return key
@@ -123,6 +147,7 @@ function utils.containsValue(tbl, value)
 end
 
 function utils.partialFunction(func, arg1)
+	eexpect(1, func, TYPES.EFFECTIVE_FUNCTION)
 	local partial =  function (...)
 		return func(arg1, ...)
 	end
@@ -131,11 +156,14 @@ function utils.partialFunction(func, arg1)
 end
 
 function utils.hasSubset(tbl, subset)
+	eexpect(1, tbl, TYPES.TABLE)
+	eexpect(2, subset, TYPES.TABLE)
 	local func = utils.partialFunction(utils.hasValue, tbl)
 	return utils.all(subset, func)
 end
 
 function utils.shallowCopy(tbl)
+	eexpect(1, tbl, TYPES.TABLE)
     local copy = {}
     for key, value in pairs(tbl) do
         copy[key] = value
@@ -144,6 +172,7 @@ function utils.shallowCopy(tbl)
 end
 
 function utils.deepCopy(tbl)
+	eexpect(1, tbl, TYPES.TABLE)
     local copy = {}
     for key, value in pairs(tbl) do
         if type(value) == 'table' then
@@ -157,6 +186,8 @@ end
 
 -- http://snippets.luacode.org/?p=snippets/Filter_a_table_in-place_119
 function utils.filterInplace(tbl, filter_func) -- this is a weird way to do it... might change later
+	eexpect(1, tbl, TYPES.TABLE)
+	eexpect(2, filter_func, TYPES.EFFECTIVE_FUNCTION)
 	local j = 1
 
 	for i = 1,#tbl do
@@ -176,6 +207,8 @@ function utils.filterInplace(tbl, filter_func) -- this is a weird way to do it..
 end
 
 function utils.filter(tbl, filter_func) -- this is a weird way to do it... might change later
+	eexpect(1, tbl, TYPES.TABLE)
+	eexpect(2, filter_func, TYPES.EFFECTIVE_FUNCTION)
     local filtered_tbl = {}
 
     for key, value in pairs(tbl) do
@@ -188,6 +221,8 @@ function utils.filter(tbl, filter_func) -- this is a weird way to do it... might
 end
 
 function utils.filterIndex(i_tbl, filter_func)
+	eexpect(1, i_tbl, TYPES.TABLE)
+	eexpect(2, filter_func, TYPES.EFFECTIVE_FUNCTION)
     local filtered_tbl = {}
 
     for _, value in ipairs(i_tbl) do
@@ -199,13 +234,9 @@ function utils.filterIndex(i_tbl, filter_func)
 	return filtered_tbl
 end
 
-function utils.getParitalFilterFunction(tbl, filter_func)
-	return function ()
-		utils.filter(tbl, filter_func)
-	end
-end
-
 function utils.reduce(tbl, reduce_func, initial)
+	eexpect(1, tbl, TYPES.TABLE)
+	eexpect(2, reduce_func, TYPES.EFFECTIVE_FUNCTION)
 	local accumulated = initial or 0
 	for _, value in pairs(tbl) do
 		accumulated = reduce_func(accumulated, value)
@@ -214,6 +245,7 @@ function utils.reduce(tbl, reduce_func, initial)
 end
 
 function utils.size(tbl)
+	eexpect(1, tbl, TYPES.TABLE)
 	if type(tbl) == 'table' then
 		return #tbl -- why
 	end
@@ -221,6 +253,7 @@ function utils.size(tbl)
 end
 
 function utils.removeDuplicates(i_tbl)
+	eexpect(1, i_tbl, TYPES.TABLE)
     local seen = {} 
     local result = {}
 
@@ -237,12 +270,15 @@ end
 
 -- Taken from opus
 local function isArray(value)
+	eexpect(1, value, TYPES.TABLE)
+
 	-- dubious
 	return type(value) == "table" and (value[1] or next(value) == nil)
 end
 
 -- Taken from opus
 function utils.removeByValue(t, e)
+	eexpect(1, t, TYPES.TABLE)
 	for k,v in pairs(t) do
 		if v == e then
 			if isArray(t) then
@@ -256,6 +292,9 @@ function utils.removeByValue(t, e)
 end
 
 function utils.any(tbl, func)
+	eexpect(1, tbl, TYPES.TABLE)
+	eexpect(2, func, TYPES.EFFECTIVE_FUNCTION)
+
 	for _, value in pairs(tbl) do
 		if func(value) then
 			return true
@@ -264,10 +303,14 @@ function utils.any(tbl, func)
 end
 
 function utils.all(tbl, func)
+	eexpect(1, tbl, TYPES.TABLE)
+	eexpect(2, func, TYPES.EFFECTIVE_FUNCTION)
 	return utils.every(tbl, func) -- Both names make sense
 end
 
 function utils.every(tbl, func)
+	eexpect(1, tbl, TYPES.TABLE)
+	eexpect(2, func, TYPES.EFFECTIVE_FUNCTION)
 	for _, value in pairs(tbl) do
 		if not func(value) then
 			return false
@@ -310,6 +353,8 @@ function utils.first(t, order)
 end
 
 function utils.readFile(file_name, flags)
+	eexpect(1, file_name, TYPES.STRING)
+	eexpect(2, flags, TYPES.STRING, TYPES.NIL)
 	local file = fs.open(file_name, flags or "r")
 	if file then
 		local contents = file.readAll()
@@ -320,6 +365,7 @@ end
 
 -- taken from opus
 function utils.writeFile(fname, data, flags)
+	eexpect(1, fname, TYPES.STRING)
 	if not fname or not data then error('utils.writeFile: invalid parameters', 2) end
 
 	if fs.exists(fname) then

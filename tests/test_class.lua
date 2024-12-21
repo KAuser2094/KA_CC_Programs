@@ -31,7 +31,7 @@ local function getTestingClass()
         return self._id
     end)
 
-    testClass.addSetter("id", function (self, value)
+    testClass:addSetter("id", function (self, value)
         self._id = value
     end)
 

@@ -1,4 +1,5 @@
 local utils = require "KA_CC.modules.utils"
+local expect = require "cc.expect".expect -- Can't use customn one here
 -- From http://lua-users.org/wiki/SimpleLuaClasses with quite a few modifications
 
 -- DONE:
@@ -13,7 +14,19 @@ local utils = require "KA_CC.modules.utils"
 -- (maybe) Doc maker, a function that allows you to pass in a function and doc string and stores the documentation. 
 -- ... Then you can call a function to get all docs. And another to pass in a function and gets its docs
 
+-- DO THIS: add a function that allows you to set a function to be non-case sensitive instead of presuming they all are.
+
+local function expectFunction(index, value)
+    expect(2, value, "function", "table")
+    if type(callback) == "table" then
+        assert(getmetatable(value) and getmetatable(value).__call, "value is a table but not callable at " .. index) -- needs to act like a function
+    end
+end
+
 local function class(name, base)
+    expect(1, name, "string")
+    expect(2, base, "table", "nil")
+
     local cls = {}
 
     -- INHERITANCE
@@ -52,8 +65,10 @@ local function class(name, base)
 
     -- GENERIC CLASS FUNCTIONS
     function cls:isClass(klass)
-        -- TODO: Expect a "KA_Class" or string
-        if not klass then return false end -- TEMPORARY
+        expect(1, klass, "table", "string")
+        if type(klass) == "table" then
+            assert(klass._className, "Not a class or className, cannot check if isClass")
+        end
         local klass_name = type(klass) == "string" and klass or klass._className
         local self_classes = self:getAllClassNames()
 
@@ -81,6 +96,9 @@ local function class(name, base)
 
     -- PUBLISH-SUBSCRIBE
     function cls:addSubscriber(eventName, callback)
+        expect(1, eventName, "string", "number")
+        expectFunction(2, callback)
+
         if not self._subsribers[eventName] then
             self._subsribers[eventName] = {}
         end
@@ -88,6 +106,7 @@ local function class(name, base)
     end
 
     function cls:_notifyEvent(eventName, ...)
+        expect(1, eventName, "string", "number")
         if self._subsribers[eventName] then
             for _, callback in ipairs(self._subsribers[eventName]) do
                 callback(self, ...)
@@ -97,6 +116,8 @@ local function class(name, base)
 
     -- PROPERTIES (GETTER/SETTER)
     function cls:addGetter(propName, getterFunc) -- CAN be self
+        expect(1, propName, "string", "number", "table", "function") -- How would a function as a key work?
+        expectFunction(2, getterFunc)
         local lower_propName = type(propName) == "string" and string.lower(propName) or nil -- For case insensitivity
         if not self._properties[lower_propName and lower_propName or propName] then
             self._properties[lower_propName and lower_propName or propName] = {}
@@ -105,6 +126,8 @@ local function class(name, base)
     end
 
     function cls:addSetter(propName, setterFunc) -- CANNOT be self
+        expect(1, propName, "string", "number", "table", "function") -- How would a function as a key work?
+        expectFunction(2, setterFunc)
         local lower_propName = type(propName) == "string" and string.lower(propName) or nil -- For case insensitivity
         if not cls._properties[lower_propName and lower_propName or propName] then
             cls._properties[lower_propName and lower_propName or propName] = {}
