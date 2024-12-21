@@ -13,8 +13,18 @@ local EVENTS = {
 local function getTestingClass()
     local testClass = class(TESTING_CLASS_NAME)
 
+    testClass.STATIC = true
+
+    testClass.STATICMETHOD = function ()
+        return true
+    end
+
     function testClass:init(id)
         self._id = id or nil
+    end
+
+    function testClass:returnTrue()
+        return true
     end
 
     testClass:addGetter("id", function (self)
@@ -151,6 +161,53 @@ function tests.properties(context)
     assert(c_1.id == 5, "base class should have changed to 5, got: " .. c_1.id)
     assert(c_2.id == 0, "2nd base class should not have id changed (0), got: " .. c_2.id)
     assert(cc_1.id == 10, "child class should have changed to 10, got: " .. cc_1.id)
+end
+
+function tests.caseSensitivity(context)
+    t_utils.testTitle(context, "Testing: Class module's case sensitivity (should not have it)")
+    local c_class = getTestingClass()
+    local cc_class = getChildTestingClass()
+
+    local c_1 = c_class(1)
+    local cc_1 = cc_class(2)
+
+    -- Sanity
+    assert(c_1._id, "Why does c_1 not have an _id, got: " .. c_1._id)
+    assert(c_1.id, "Why does c_1 not have an id, got: " .. c_1.id)
+    assert(c_1.id == 1, "Why does c_1,id not equal 1, got: " .. c_1.id)
+    assert(c_1.returnTrue and c_1.returnTrue(), "c_1 does not have returnTrue or it does not in fact return true")
+    assert(c_1.STATIC, "c_1 does not have STATIC defined")
+
+    assert(cc_1.id, "Why does cc_1 not have an id, got: " .. cc_1.id)
+    assert(cc_1._id, "Why does cc_1 not have an _id, got: " .. cc_1._id)
+    assert(cc_1.id == 2, "Why does cc_1,id not equal 2, got: " .. cc_1.id)
+    assert(cc_1.returnTrue and cc_1.returnTrue(), "cc_1 does not have returnTrue or it does not in fact return true")
+    assert(cc_1.STATIC, "cc_1 does not have STATIC defined")
+
+    -- instance fields
+    assert(c_1._ID, "c_1._ID does not exist")
+    assert(cc_1._ID, "cc_1._ID does not exist")
+
+    -- getter and setters (Note that these work by setting string keys to functions)
+    assert(c_1.ID, "Why does c_1 not have an ID, got: " .. c_1.ID)
+    assert(cc_1.ID, "Why does cc_1 not have an ID, got: " .. cc_1.ID)
+
+    -- static fields
+    assert(c_1.statIC, "c_1 does not have statIC defined")
+    assert(cc_1.statIC, "cc_1 does not have statIC defined")
+
+    -- static methods
+    assert(c_1.StAtICMethoD, "c_1 does not have StAtICMethoD")
+    assert(c_1.StAtICMethoD(), "c_1 StAtICMethoD does not in fact return true")
+    assert(cc_1.StAtICMethoD, "cc_1 does not have StAtICMethoD")
+    assert(cc_1.StAtICMethoD(), "cc_1 StAtICMethoD does not in fact return true")
+
+    -- instnace methods
+    assert(c_1.RETurnTRue, "c_1 does not have RETurnTRue")
+    assert(c_1:RETurnTRue(), "c_1 RETurnTRue does not in fact return true")
+    assert(cc_1.RETurnTRue, "cc_1 does not have RETurnTRue")
+    assert(cc_1:RETurnTRue(), "cc_1 RETurnTRue does not in fact return true")
+
 end
 
 -- test inheritance of instance and static values/functions

@@ -33,8 +33,6 @@ function tests.testInventoryClass(context)
     assert(chestInv, "KA_Inventory was not made from name")
     assert(chestInv2, "KA_Inventory was not made from wrapped")
 
-    t_utils.verbosePrint(context, "FirstName: " .. chestInv.name)
-    t_utils.verbosePrint(context, "SecondtName: " .. chestInv2.name)
     assert(chestInv == chestInv2, "Same chest, not equal")
 
     assert(tostring(chestInv) == "KA_Inventory: " .. name, "tostring is incorrect, got: " .. tostring(chestInv))
@@ -44,7 +42,7 @@ function tests.testInventoryClass(context)
 
     local className = chestInv:getClassName()
     assert(className == "KA_Inventory", "Did not get correct classname for KA_Inventory, got: " .. className)
-    
+
     local allClassNames = chestInv:getAllClassNames()
     -- This is a bit weird since it effectively just means = in this instance (well that would require a second call with swapped params)
     local hasClasses = utils.hasSubset(allClassNames, {"KA_Inventory", "KA_Peripheral", "KA_Class"}) 

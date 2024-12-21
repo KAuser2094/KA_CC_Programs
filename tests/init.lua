@@ -1,6 +1,6 @@
 local textutils = _G.textutils
 
-local class = require "KA_CC.modules.class"
+local class = require "KA_CC.modules.class.simple"
 local t_utils = require "KA_CC.tests.utils"
 
 local class_tests = require "KA_CC.tests.test_class"

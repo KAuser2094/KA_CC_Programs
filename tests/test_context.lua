@@ -22,7 +22,7 @@ context["silent"] = false
 context["resolutions"] = true
 context["testTitles"] = true
 context["assert"] = true
-context["verbose"] = false
+context["verbose"] = true
 context["extremely_verbose"] = true
 
 return context

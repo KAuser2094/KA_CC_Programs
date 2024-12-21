@@ -5,6 +5,9 @@ local context = require "KA_CC.tests.test_context"
 local waitForInput = true
 -- Get test class
 local tester = Test(context)
+-- Some pre-tests since the tester literally relies on some of the stuff being tested -_-.
+assert(tester, "Tester couldn't be instantiated")
+
 -- Run
 local results = tester:runTests(waitForInput)
 tester:printResults(results)
