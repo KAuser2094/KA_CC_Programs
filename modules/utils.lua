@@ -1,8 +1,7 @@
 local fs = _G.fs
 local textutils = _G.textutils
 
-local eexpectModule = require "KA_CC.modules.expect"
-local TYPES, eexpect, eexpectNot = eexpectModule.TYPES, eexpectModule.expect, eexpectModule.expectNot
+local e = require "KA_CC.modules.expect"
 
 local utils = {} -- A bunch of random functions that I don't want to make a single file for
 
@@ -37,7 +36,7 @@ end
 
 
 function utils.sign(number)
-	eexpect(1, number, TYPES.NUMBER)
+	e.expectNumber("utils.sign,number", number)
     if number == 0 then
         return 0
     end
@@ -45,9 +44,9 @@ function utils.sign(number)
 end
 
 function utils.clamp(number, lb, ub)
-	eexpect(1, number, TYPES.NUMBER)
-	eexpect(2, lb, TYPES.NUMBER)
-	eexpect(3, ub, TYPES.NUMBER)
+	e.expectNumber("utils.clamp.number", number)
+	e.expectNumber("utils.clamp.lb", lb)
+	e.expectNumber("utils.clamp.ub", ub)
 
     number = number > lb and number or lb
     number = number < ub and number or ub
@@ -56,35 +55,36 @@ end
 
 -- http://lua-users.org/wiki/SimpleRound
 function utils.round(num, numDecimalPlaces)
-	eexpect(1, num, TYPES.NUMBER)
-	eexpect(2, numDecimalPlaces, TYPES.NUMBER)
+	e.expectNumber("utils.round.num", num)
+	e.expectNumber("utils.round.numDecimalPlaces", numDecimalPlaces)
 
 	local mult = 10^(numDecimalPlaces or 0)
 	return utils.sign(num) * math.floor(math.abs(num) * mult + 0.5) / mult
 end
 
 function utils.randomFloat(lb, ub)
-	eexpect(1, lb, TYPES.NUMBER)
-	eexpect(2, ub, TYPES.NUMBER)
-	local lb = lb or 0
-	local ub = ub or 1
-	return (ub-lb) * math.random() + lb
+	e.expectNumber("utils.randomFloat.lb", lb)
+	e.expectNumber("utils.randomFloat.ub", ub)
+	local lb2 = lb or 0
+	local ub2 = ub or 1
+	return (ub2-lb2) * math.random() + lb2
 end
 
 function utils.clearTable(tbl)
-	eexpect(1, tbl, TYPES.TABLE)
+	e.expectTable("utils.clearTable.tbl", tbl)
     for key,_ in pairs(tbl) do
         tbl[key] = nil
     end
 end
 
 function utils.isEmptyTable(tbl)
-	eexpect(1, tbl, TYPES.TABLE)
+	e.expectTable("utils.isEmptyTable.tbl", tbl)
     return not next(tbl)
 end
 
 function utils.getKeyAtValue(tbl, value)
-	eexpect(1, tbl, TYPES.TABLE)
+	e.expectTable("utils.getKeyAtValue.tbl", tbl)
+	e.expectAny("utils.getKeyAtValue.value", value)
     for key, v in pairs(tbl) do
         if v == value then
             return key
@@ -93,7 +93,7 @@ function utils.getKeyAtValue(tbl, value)
 end
 
 function utils.getKeys(tbl)
-	eexpect(1, tbl, TYPES.TABLE)
+	e.expectTable("utils.getKeys.tbl", tbl)
     local keys = {}
     for k,_ in pairs(tbl) do
         table.insert(tbl, k)
@@ -102,21 +102,21 @@ function utils.getKeys(tbl)
 end
 
 function utils.shallowMerge(tbl, other)
-	eexpect(1, tbl, TYPES.TABLE)
-	eexpect(2, other, TYPES.TABLE)
+	e.expectTable("utils.shallowMerge.tbl", tbl)
+	e.expectTable("utils.shallowMerge.other", other)
     for key, value in pairs(other) do
         tbl[key] = value
     end
     return tbl
 end
 
-function utils.deppMerge(tbl, other)
-	eexpect(1, tbl, TYPES.TABLE)
-	eexpect(2, other, TYPES.TABLE)
+function utils.deepMerge(tbl, other)
+	e.expectTable("utils.deepMerge.tbl", tbl)
+	e.expectTable("utils.deepMerge.other", other)
     for key, value in pairs(other) do
         if type(value) == 'table' then
             tbl[key] = tbl[key] or {}
-            utils.deppMerge(tbl[key],value)
+            utils.deepMerge(tbl[key],value)
         else
             tbl[key] = value
         end
@@ -124,7 +124,7 @@ function utils.deppMerge(tbl, other)
 end
 
 function utils.transpose(tbl)
-	eexpect(1, tbl, TYPES.TABLE)
+	e.expectTable("utils.transpose.tbl", tbl)
     local t_tbl = {}
     for key, value in pairs(tbl) do
         t_tbl[value] = key
@@ -133,12 +133,14 @@ function utils.transpose(tbl)
 end
 
 function utils.hasValue(tbl, value)
-	eexpect(1, tbl, TYPES.TABLE)
+	e.expectTable("utils.hasValue.tbl", tbl)
+	e.expectAny("utils.hasValue.value", value)
 	return utils.containsValue(tbl, value) -- Both functions names make sense
 end
 
 function utils.containsValue(tbl, value)
-	eexpect(1, tbl, TYPES.TABLE)
+	e.expectTable("utils.containsValue.tbl", tbl)
+	e.expectAny("utils.containsValue.value", value)
     for key, v in pairs(tbl) do
         if v == value then
             return key
@@ -147,7 +149,8 @@ function utils.containsValue(tbl, value)
 end
 
 function utils.partialFunction(func, arg1)
-	eexpect(1, func, TYPES.CALLABLE)
+	e.expectCallable("utils.partialFunction.func", func)
+	-- arg1 isn't at all mandatory
 	local partial =  function (...)
 		return func(arg1, ...)
 	end
@@ -156,14 +159,14 @@ function utils.partialFunction(func, arg1)
 end
 
 function utils.hasSubset(tbl, subset)
-	eexpect(1, tbl, TYPES.TABLE)
-	eexpect(2, subset, TYPES.TABLE)
+	e.expectTable("utils.hasSubset.tbl", tbl)
+	e.expectTable("utils.hasSubset.subset", subset)
 	local func = utils.partialFunction(utils.hasValue, tbl)
 	return utils.all(subset, func)
 end
 
 function utils.shallowCopy(tbl)
-	eexpect(1, tbl, TYPES.TABLE)
+	e.expectTable("utils.shallowCopy.tbl", tbl)
     local copy = {}
     for key, value in pairs(tbl) do
         copy[key] = value
@@ -172,7 +175,7 @@ function utils.shallowCopy(tbl)
 end
 
 function utils.deepCopy(tbl)
-	eexpect(1, tbl, TYPES.TABLE)
+	e.expectTable("utils.deepCopy.tbl", tbl)
     local copy = {}
     for key, value in pairs(tbl) do
         if type(value) == 'table' then
@@ -186,8 +189,8 @@ end
 
 -- http://snippets.luacode.org/?p=snippets/Filter_a_table_in-place_119
 function utils.filterInplace(tbl, filter_func) -- this is a weird way to do it... might change later
-	eexpect(1, tbl, TYPES.TABLE)
-	eexpect(2, filter_func, TYPES.CALLABLE)
+	e.expectTable("utils.filterInplace.tbl", tbl)
+	e.expectCallable("utils.filterInplace.filter_func", filter_func)
 	local j = 1
 
 	for i = 1,#tbl do
@@ -207,8 +210,8 @@ function utils.filterInplace(tbl, filter_func) -- this is a weird way to do it..
 end
 
 function utils.filter(tbl, filter_func) -- this is a weird way to do it... might change later
-	eexpect(1, tbl, TYPES.TABLE)
-	eexpect(2, filter_func, TYPES.CALLABLE)
+	e.expectTable("utils.filter.tbl", tbl)
+	e.expectCallable("utils.filter.filter_func", filter_func)
     local filtered_tbl = {}
 
     for key, value in pairs(tbl) do
@@ -221,8 +224,8 @@ function utils.filter(tbl, filter_func) -- this is a weird way to do it... might
 end
 
 function utils.filterIndex(i_tbl, filter_func)
-	eexpect(1, i_tbl, TYPES.TABLE)
-	eexpect(2, filter_func, TYPES.CALLABLE)
+	e.expectTable("utils.filterIndex.tbl", tbl)
+	e.expectCallable("utils.filterIndex.filter_func", filter_func)
     local filtered_tbl = {}
 
     for _, value in ipairs(i_tbl) do
@@ -235,8 +238,8 @@ function utils.filterIndex(i_tbl, filter_func)
 end
 
 function utils.reduce(tbl, reduce_func, initial)
-	eexpect(1, tbl, TYPES.TABLE)
-	eexpect(2, reduce_func, TYPES.CALLABLE)
+	e.expectTable("utils.reduce.tbl", tbl)
+	e.expectCallable("utils.reduce.reduce_func", reduce_func)
 	local accumulated = initial or 0
 	for _, value in pairs(tbl) do
 		accumulated = reduce_func(accumulated, value)
@@ -245,7 +248,6 @@ function utils.reduce(tbl, reduce_func, initial)
 end
 
 function utils.size(tbl)
-	eexpect(1, tbl, TYPES.TABLE)
 	if type(tbl) == 'table' then
 		return #tbl -- why
 	end
@@ -253,7 +255,7 @@ function utils.size(tbl)
 end
 
 function utils.removeDuplicates(i_tbl)
-	eexpect(1, i_tbl, TYPES.TABLE)
+	e.expectTable("utils.removeDuplicates.i_tbl", i_tbl)
     local seen = {} 
     local result = {}
 
@@ -270,17 +272,16 @@ end
 
 -- Taken from opus
 local function isArray(value)
-	eexpect(1, value, TYPES.TABLE)
-
 	-- dubious
 	return type(value) == "table" and (value[1] or next(value) == nil)
 end
 
 -- Taken from opus
-function utils.removeByValue(t, e)
-	eexpect(1, t, TYPES.TABLE)
+function utils.removeByValue(t, _e)
+	e.expectTable("utils.removeByValue.t", t)
+	e.expectAny("utils.removeByValue._e", _e)
 	for k,v in pairs(t) do
-		if v == e then
+		if v == _e then
 			if isArray(t) then
 				table.remove(t, k)
 			else
@@ -292,9 +293,8 @@ function utils.removeByValue(t, e)
 end
 
 function utils.any(tbl, func)
-	eexpect(1, tbl, TYPES.TABLE)
-	eexpect(2, func, TYPES.CALLABLE)
-
+	e.expectTable("utils.any.tbl", tbl)
+	e.expectCallable("utils.any.func", func)
 	for _, value in pairs(tbl) do
 		if func(value) then
 			return true
@@ -303,14 +303,14 @@ function utils.any(tbl, func)
 end
 
 function utils.all(tbl, func)
-	eexpect(1, tbl, TYPES.TABLE)
-	eexpect(2, func, TYPES.CALLABLE)
+	e.expectTable("utils.all.tbl", tbl)
+	e.expectCallable("utils.all.func", func)
 	return utils.every(tbl, func) -- Both names make sense
 end
 
 function utils.every(tbl, func)
-	eexpect(1, tbl, TYPES.TABLE)
-	eexpect(2, func, TYPES.CALLABLE)
+	e.expectTable("utils.every.tbl", tbl)
+	e.expectCallable("utils.every.func", func)
 	for _, value in pairs(tbl) do
 		if not func(value) then
 			return false
@@ -321,6 +321,8 @@ end
 
 -- http://stackoverflow.com/questions/15706270/sort-a-table-in-lua
 function utils.spairs(t, order)
+	e.expectTable("utils.spairs.t", t)
+	e.optionalCallable("utils.spairs.order", order)
 	local keys = utils.getKeys(t)
 
 	-- if order function given, sort by it by passing the table and keys a, b,
@@ -343,6 +345,8 @@ end
 
 -- Taken from opus
 function utils.first(t, order)
+	e.expectTable("utils.first.t", t)
+	e.optionalCallable("utils.first.order", order)
 	local keys = utils.getKeys(t)
 	if order then
 		table.sort(keys, function(a,b) return order(t[a], t[b]) end)
@@ -353,8 +357,8 @@ function utils.first(t, order)
 end
 
 function utils.readFile(file_name, flags)
-	eexpect(1, file_name, TYPES.STRING)
-	eexpect(2, flags, TYPES.STRING, TYPES.NIL)
+	e.expectString("utils.readFile.file_name", file_name)
+	e.optionalString("utils.readFile.flags", flags)
 	local file = fs.open(file_name, flags or "r")
 	if file then
 		local contents = file.readAll()
@@ -365,8 +369,9 @@ end
 
 -- taken from opus
 function utils.writeFile(fname, data, flags)
-	eexpect(1, fname, TYPES.STRING)
-	if not fname or not data then error('utils.writeFile: invalid parameters', 2) end
+	e.expectString("utils.writeFile.fname", fname)
+	e.expectAny("utils.writeFile.data", data)
+	e.optionalString("utils.writeFile.flags", flags)
 
 	if fs.exists(fname) then
 		local diff = #data - fs.getSize(fname)
@@ -387,6 +392,7 @@ end
 
 -- taken from opus
 function utils.readLines(fname)
+	e.expectString("utils.readLines.fname", fname)
 	local file = fs.open(fname, "r")
 	if file then
 		local t = {}
@@ -402,6 +408,8 @@ end
 
 -- taken from opus
 function utils.writeLines(fname, lines)
+	e.expectString("utils.writeLines.fname", fname)
+	e.expectTable("utils.writeLines.lines", lines)
 	local file = fs.open(fname, 'w')
 	if file then
 		for _,line in ipairs(lines) do
@@ -414,6 +422,7 @@ end
 
 -- taken from opus
 function utils.readTable(fname)
+	e.expectString("utils.readTable.fname", fname)
 	local t = utils.readFile(fname)
 	if t then
 		return textutils.unserialize(t)
@@ -422,11 +431,14 @@ end
 
 -- taken from opus
 function utils.writeTable(fname, data)
+	e.expectString("utils.writeTable.fname", fname)
+	e.expectTable("utils.writeTable.data", data)
 	utils.writeFile(fname, textutils.serialize(data))
 end
 
 -- taken from opus
 function utils.loadTable(fname)
+	e.expectString("utils.loadTable.fname", fname)
 	local fc = utils.readFile(fname)
 	if not fc then
 		return false, 'Unable to read file'
@@ -444,10 +456,16 @@ end
 
 -- taken from opus START:
 function utils.insertString(str, istr, pos)
+	e.expectString("utils.insertString.str", str)
+	e.expectString("utils.insertString.istr", istr)
+	e.expectNumber("utils.insertString.pos", pos)
 	return str:sub(1, pos - 1) .. istr .. str:sub(pos)
 end
 
 function utils.split(str, pattern)
+	e.expectString("utils.split.str", str)
+	e.optionalString("utils.split.pattern", pattern)
+
 	if not str or type(str) ~= 'string' then error('utils.split: Invalid parameters', 2) end
 	pattern = pattern or "(.-)\n"
 	local t = {}
@@ -457,6 +475,8 @@ function utils.split(str, pattern)
 end
 
 function utils.matches(str, pattern)
+	e.expectString("utils.matches.str", str)
+	e.optionalString("utils.matches.pattern", pattern)
 	pattern = pattern or '%S+'
 	local t = { }
 	for s in str:gmatch(pattern) do
@@ -466,10 +486,12 @@ function utils.matches(str, pattern)
 end
 
 function utils.startsWith(s, match)
+	e.expectString("utils.startsWith.s", s)
+	e.expectString("utils.startsWith.match", match)
 	return string.sub(s, 1, #match) == match
 end
 
-
+-- TODO: Type these
 local function wrap(text, max, lines)
 	local index = 1
 	repeat
@@ -503,16 +525,19 @@ end
 
 -- http://snippets.luacode.org/?p=snippets/trim_whitespace_from_string_76
 function utils.trim(s)
+	e.expectString("utils.trim.s", s)
 	return s:find('^%s*$') and '' or s:match('^%s*(.*%S)')
 end
 
 -- trim whitespace from left end of string
 function utils.triml(s)
+	e.expectString("utils.triml.s", s)
 	return s:match('^%s*(.*)')
 end
 
 -- trim whitespace from right end of string
 function utils.trimr(s)
+	e.expectString("utils.trimr.s", s)
 	return s:find('^%s*$') and '' or s:match('^(.*%S)')
 end
 -- end http://snippets.luacode.org/?p=snippets/trim_whitespace_from_string_76
