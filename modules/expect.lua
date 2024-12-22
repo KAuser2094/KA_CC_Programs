@@ -43,7 +43,7 @@ local TYPES = {
     USER_DATA = "userdata",
     THREAD = "thread",
 
-    EFFECTIVE_FUNCTION = "effective_function",
+    CALLABLE = "callable",
     CLASS = "class",
 }
 
@@ -141,7 +141,7 @@ local function call(index_or_table, value_or_key, ...)
         -- Do the check with class first
         for i = 1, select('#', ...) do
             local other = select(i, ...) -- get the ith in the ...
-            local other_name = (type(other) == TYPES.TABLE and other.isClass) and other._className or (type(other) == TYPES.STRING and other or nil)
+            local other_name = (type(other) == TYPES.TABLE and other.isClass) and other.__className or (type(other) == TYPES.STRING and other or nil)
             if other_name == TYPES.CLASS then return value end -- General any class
             if other_name and value:isClass(other_name) then return value end
         end
@@ -151,7 +151,7 @@ local function call(index_or_table, value_or_key, ...)
     if (t == TYPES.FUNCTION) or (t == TYPES.TABLE and getmetatable(value) and getmetatable(value).__call) then
         for i = 1, select('#', ...) do
             local other = select(i, ...) -- get the ith in the ...
-            if other == TYPES.EFFECTIVE_FUNCTION then return value end
+            if other == TYPES.CALLABLE then return value end
         end
     end
 
@@ -174,7 +174,7 @@ function expect.NOT(index_or_table, value_or_key, ...)
         local err_msg = "Parameter #" .. index .. " had a bad class value"
         for i = 1, select('#', ...) do
             local other = select(i, ...) -- get the ith in the ...
-            local other_name = (type(other) == TYPES.TABLE and other.isClass) and other._className or (type(other) == TYPES.STRING and other or nil)
+            local other_name = (type(other) == TYPES.TABLE and other.isClass) and other.__className or (type(other) == TYPES.STRING and other or nil)
             assert(other_name ~= TYPES.TABLE, err_msg)
             assert(other_name ~= TYPES.CLASS, err_msg)
             assert(not (other_name and value:isClass(other_name)), err_msg)
@@ -185,7 +185,7 @@ function expect.NOT(index_or_table, value_or_key, ...)
     if (t == TYPES.FUNCTION) or (t == TYPES.TABLE and getmetatable(value) and getmetatable(value).__call) then
         for i = 1, select('#', ...) do
             local other = select(i, ...) -- get the ith in the ...
-            assert(other ~= TYPES.EFFECTIVE_FUNCTION, "Parameter #" .. index .. " is an effective function which is blacklisted")
+            assert(other ~= TYPES.CALLABLE, "Parameter #" .. index .. " is an effective function which is blacklisted")
         end
     end
 

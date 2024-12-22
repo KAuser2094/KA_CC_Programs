@@ -147,7 +147,7 @@ function utils.containsValue(tbl, value)
 end
 
 function utils.partialFunction(func, arg1)
-	eexpect(1, func, TYPES.EFFECTIVE_FUNCTION)
+	eexpect(1, func, TYPES.CALLABLE)
 	local partial =  function (...)
 		return func(arg1, ...)
 	end
@@ -187,7 +187,7 @@ end
 -- http://snippets.luacode.org/?p=snippets/Filter_a_table_in-place_119
 function utils.filterInplace(tbl, filter_func) -- this is a weird way to do it... might change later
 	eexpect(1, tbl, TYPES.TABLE)
-	eexpect(2, filter_func, TYPES.EFFECTIVE_FUNCTION)
+	eexpect(2, filter_func, TYPES.CALLABLE)
 	local j = 1
 
 	for i = 1,#tbl do
@@ -208,7 +208,7 @@ end
 
 function utils.filter(tbl, filter_func) -- this is a weird way to do it... might change later
 	eexpect(1, tbl, TYPES.TABLE)
-	eexpect(2, filter_func, TYPES.EFFECTIVE_FUNCTION)
+	eexpect(2, filter_func, TYPES.CALLABLE)
     local filtered_tbl = {}
 
     for key, value in pairs(tbl) do
@@ -222,7 +222,7 @@ end
 
 function utils.filterIndex(i_tbl, filter_func)
 	eexpect(1, i_tbl, TYPES.TABLE)
-	eexpect(2, filter_func, TYPES.EFFECTIVE_FUNCTION)
+	eexpect(2, filter_func, TYPES.CALLABLE)
     local filtered_tbl = {}
 
     for _, value in ipairs(i_tbl) do
@@ -236,7 +236,7 @@ end
 
 function utils.reduce(tbl, reduce_func, initial)
 	eexpect(1, tbl, TYPES.TABLE)
-	eexpect(2, reduce_func, TYPES.EFFECTIVE_FUNCTION)
+	eexpect(2, reduce_func, TYPES.CALLABLE)
 	local accumulated = initial or 0
 	for _, value in pairs(tbl) do
 		accumulated = reduce_func(accumulated, value)
@@ -293,7 +293,7 @@ end
 
 function utils.any(tbl, func)
 	eexpect(1, tbl, TYPES.TABLE)
-	eexpect(2, func, TYPES.EFFECTIVE_FUNCTION)
+	eexpect(2, func, TYPES.CALLABLE)
 
 	for _, value in pairs(tbl) do
 		if func(value) then
@@ -304,13 +304,13 @@ end
 
 function utils.all(tbl, func)
 	eexpect(1, tbl, TYPES.TABLE)
-	eexpect(2, func, TYPES.EFFECTIVE_FUNCTION)
+	eexpect(2, func, TYPES.CALLABLE)
 	return utils.every(tbl, func) -- Both names make sense
 end
 
 function utils.every(tbl, func)
 	eexpect(1, tbl, TYPES.TABLE)
-	eexpect(2, func, TYPES.EFFECTIVE_FUNCTION)
+	eexpect(2, func, TYPES.CALLABLE)
 	for _, value in pairs(tbl) do
 		if not func(value) then
 			return false

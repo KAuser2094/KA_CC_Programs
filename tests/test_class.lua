@@ -1,4 +1,5 @@
-local class = require "KA_CC.modules.class"
+local class = require "KA_CC.modules.class".Class
+local extends = require "KA_CC.modules.class.extends".ALL
 
 local t_utils = require "KA_CC.tests.utils"
 
@@ -11,29 +12,29 @@ local EVENTS = {
     Test2 = 1,
 }
 local function getTestingClass()
-    local testClass = class(TESTING_CLASS_NAME)
+    local testClass = class(TESTING_CLASS_NAME, extends)
 
     testClass.STATIC = true
 
-    testClass:removeCaseSensitive("STATIC")
+    testClass:removeCaseSensitivity("STATIC")
 
     testClass.STATICMETHOD = function ()
         return true
     end
 
-    testClass:removeCaseSensitive("STATICMETHOD")
+    testClass:removeCaseSensitivity("STATICMETHOD")
 
     function testClass:init(id)
         self._id = id or nil
     end
 
-    testClass:removeCaseSensitive("_id")
+    testClass:removeCaseSensitivity("_id")
 
     function testClass:returnTrue()
         return true
     end
 
-    testClass:removeCaseSensitive("returnTrue")
+    testClass:removeCaseSensitivity("returnTrue")
 
     testClass:addGetter("id", function (self)
         return self._id
@@ -47,7 +48,7 @@ local function getTestingClass()
         self:_notifyEvent(EVENTS.TEST1, value)
     end
 
-    testClass:removeCaseSensitive("addToSubscribers")
+    testClass:removeCaseSensitivity("addToSubscribers")
 
     return testClass
 end
@@ -57,14 +58,14 @@ local function getChildTestingClass()
     local child = class(CHILD_TESTING_CLASS_NAME, base)
 
     function child:init(id)
-        self.super.init(self, id)
+        self:super(base).init(self, id)
     end
 
     return child
 end
 
 local function getSubscriberClass()
-    local subscriber = class(SUBSCRIBER_TESTING_CLASS_NAME)
+    local subscriber = class(SUBSCRIBER_TESTING_CLASS_NAME, extends)
 
     function subscriber:init(testingClass)
         self.publisher = testingClass

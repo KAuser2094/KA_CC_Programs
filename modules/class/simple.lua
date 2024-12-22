@@ -4,7 +4,7 @@
 local function class(name)
     local cls = {}
 
-    cls._className = name
+    cls.__className = name
     
 
     -- CONSTRUCTOR

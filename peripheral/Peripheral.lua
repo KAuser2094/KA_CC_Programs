@@ -1,9 +1,11 @@
 local class = require "KA_CC.modules.class"
+local ClassModule = require "KA_CC.modules.class"
+local Class, EXTEND_ALL = ClassModule.Class, ClassModule.Extends.ALL
 local p_utils = require "KA_CC.peripheral.utils"
 
 local native = _G.peripheral
 
-local Peripheral = class("KA_Peripheral")
+local Peripheral = Class("KA_Peripheral", EXTEND_ALL)
 
 function Peripheral:init(wrappedOrName)
     self.api, self.name, self.type, self.types, self.mod, self.mods = p_utils.getClassFields(wrappedOrName)

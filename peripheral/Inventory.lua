@@ -1,11 +1,11 @@
-local class = require "KA_CC.modules.class"
+local Class = require "KA_CC.modules.class".Class
 local Peripheral = require "KA_CC.peripheral.Peripheral"
 local p_utils = require "KA_CC.peripheral.utils"
 local utils = require "KA_CC.modules.utils"
 
 local native = _G.peripheral
 
-local Inventory = class("KA_Inventory", Peripheral)
+local Inventory = Class("KA_Inventory", Peripheral)
 
 -- STATIC
 
@@ -71,7 +71,7 @@ end
 -- INSTANCE (PUBLIC/PRIVATE)
 
 function Inventory:init(wrappedOrName, sideOrNil)
-    self.super.init(self, wrappedOrName)
+    self:super(Peripheral).init(self, wrappedOrName)
 
     assert(self.api.list, "The peripheral passed in is not an inventory")
 

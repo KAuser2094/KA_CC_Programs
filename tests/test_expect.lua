@@ -30,7 +30,7 @@ function tests.expect(context)
     local success, res, err  = _pcall(exp,"1",chestInv, Inventory)
     assert(success, "Pass in Inventory, err: " .. err)
 
-    local success, res, err  = _pcall(exp,"2",chestInv, Inventory._className)
+    local success, res, err  = _pcall(exp,"2",chestInv, Inventory.__className)
     assert(success, "Pass in Inventory name, err: " .. err)
 
     local success, res, err  = _pcall(exp,"3",chestInv, Peripheral)
@@ -54,11 +54,11 @@ function tests.expect(context)
 
     local just_table = {}
 
-    local success, res, err = _pcall(exp, "8", just_table, TYPES.EFFECTIVE_FUNCTION)
+    local success, res, err = _pcall(exp, "8", just_table, TYPES.CALLABLE)
     assert(not success, "Passed in a raw table and should have failed effective function")
 
     
-    local success, res, err = _pcall(exp, "9", Inventory, TYPES.EFFECTIVE_FUNCTION)
+    local success, res, err = _pcall(exp, "9", Inventory, TYPES.CALLABLE)
     assert(success, "Passed in a class (callable) table and should have been effective function, err: " .. err)
     
     -- test over base types
@@ -82,7 +82,7 @@ function tests.expectNot(context)
     local success, res, err  = _pcall(expNot,"1",chestInv, Inventory)
     assert(not success, "Pass in Inventory, res: " .. res)
 
-    local success, res, err  = _pcall(expNot,"2",chestInv, Inventory._className)
+    local success, res, err  = _pcall(expNot,"2",chestInv, Inventory.__className)
     assert(not success, "Pass in Inventory name, res: " .. res)
 
     local success, res, err  = _pcall(expNot,"3",chestInv, Peripheral)
@@ -108,11 +108,11 @@ function tests.expectNot(context)
 
     local just_table = {}
 
-    local success, res, err = _pcall(expNot, "8", just_table, TYPES.EFFECTIVE_FUNCTION)
+    local success, res, err = _pcall(expNot, "8", just_table, TYPES.CALLABLE)
     assert(success, "Passed in a raw table and should have failed effective function")
 
     
-    local success, res, err = _pcall(expNot, "9", Inventory, TYPES.EFFECTIVE_FUNCTION)
+    local success, res, err = _pcall(expNot, "9", Inventory, TYPES.CALLABLE)
     assert(not success, "Passed in a class (callable) table and should have been effective function")
     
     -- test over base types

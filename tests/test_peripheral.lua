@@ -44,12 +44,9 @@ function tests.testInventoryClass(context)
     assert(className == "KA_Inventory", "Did not get correct classname for KA_Inventory, got: " .. className)
 
     local allClassNames = chestInv:getAllClassNames()
-    -- TODO: add a similar test in test_class as it really should be there instead -_-
-    -- This is a bit weird since it effectively just means = in this instance (well that would require a second call with swapped params)
-    t_utils.verbosePrint(context, "allClassNames = " .. textutils.serialise(allClassNames))
-    local hasClasses = utils.hasSubset(allClassNames, {"KA_Inventory", "KA_Peripheral", "KA_Class"})
-    local coHasClasses = utils.hasSubset({"KA_Inventory", "KA_Peripheral", "KA_Class"}, allClassNames)
-    assert(hasClasses and coHasClasses, "Did not have all classes expected, got: " .. textutils.serialise(allClassNames))
+    local expected =  {"KA_Inventory", "KA_Peripheral"}
+    local hasClasses = utils.hasSubset(allClassNames, expected)
+    assert(hasClasses and coHasClasses, "Did not have all classes expected, got: " .. textutils.serialise(allClassNames) .. " looking for " .. textutils.serialise(expected))
 end
 
 
