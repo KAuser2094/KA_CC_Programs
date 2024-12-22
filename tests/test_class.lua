@@ -15,17 +15,25 @@ local function getTestingClass()
 
     testClass.STATIC = true
 
+    testClass:removeCaseSensitive("STATIC")
+
     testClass.STATICMETHOD = function ()
         return true
     end
+
+    testClass:removeCaseSensitive("STATICMETHOD")
 
     function testClass:init(id)
         self._id = id or nil
     end
 
+    testClass:removeCaseSensitive("_id")
+
     function testClass:returnTrue()
         return true
     end
+
+    testClass:removeCaseSensitive("returnTrue")
 
     testClass:addGetter("id", function (self)
         return self._id
@@ -38,6 +46,8 @@ local function getTestingClass()
     function testClass:addToSubscribers(value)
         self:_notifyEvent(EVENTS.TEST1, value)
     end
+
+    testClass:removeCaseSensitive("addToSubscribers")
 
     return testClass
 end
@@ -184,7 +194,7 @@ function tests.caseSensitivity(context)
     assert(cc_1.returnTrue and cc_1.returnTrue(), "cc_1 does not have returnTrue or it does not in fact return true")
     assert(cc_1.STATIC, "cc_1 does not have STATIC defined")
 
-    -- instance fields
+    -- -- instance fields
     assert(c_1._ID, "c_1._ID does not exist")
     assert(cc_1._ID, "cc_1._ID does not exist")
 

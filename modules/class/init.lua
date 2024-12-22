@@ -75,7 +75,7 @@ local function class(name, base)
         return utils.hasValue(self_classes, klass_name)
     end
 
-    function cls:hasClass(klass) return self:isClass(klass) end
+    function cls:hasClass(klass) return self:isClass(klass) end -- alternate name
 
     function cls:getClassName()
         return cls._className -- You would think that "getmetatable(self)" could be used instead of "cls", but it errors here.
@@ -114,6 +114,13 @@ local function class(name, base)
         end
     end
 
+    -- REMOVE CASE SENSITIVITY
+    function cls:removeCaseSensitive(true_key)
+        expect(1, true_key, "string") -- For obvious reasons, don't try and do this with a non string
+        local lower_key = string.lower(true_key)
+        self._case_insensitive[lower_key] = true_key
+    end
+
     -- PROPERTIES (GETTER/SETTER)
     function cls:addGetter(propName, getterFunc) -- CAN be self
         expect(1, propName, "string", "number", "table", "function") -- How would a function as a key work?
@@ -141,31 +148,18 @@ local function class(name, base)
         local lower_key = type(key) == "string" and string.lower(key) or nil -- For case insensitivity
 
         -- Call the getter functions if possible
-        if (cls._properties[key] and cls._properties[key].getter) then 
-            return cls._properties[key].getter(tbl)
+        if (cls._properties[lower_key and lower_key or key] and cls._properties[lower_key and lower_key or key].getter) then 
+            return cls._properties[lower_key and lower_key or key].getter(tbl)
         end
 
-        -- Try again with lower case (removes case sensitivity)
-        if (lower_key and cls._properties[lower_key] and cls._properties[lower_key].getter) then
-            return cls._properties[lower_key].getter(tbl)
-        end
+        -- Check if the lower_key is in the case insensitive table
 
-        -- Check if the lower_key is in the case insensitive table (only works for instance values -_-)
         if lower_key and cls._case_insensitive[lower_key] then
-            return cls._case_insensitive[lower_key]
-        end
+            local true_key = cls._case_insensitive[lower_key]
 
-        -- Manually loop over keys for static and instance methods
-        if lower_key then
-            for k,v in pairs(cls) do
-                local lower_k = type(k) == "string" and string.lower(k) or nil
-                if lower_k == lower_key then
-                    cls._case_insensitive[lower_key] = v -- Add to table so you don't need to do this again
-                    return v
-                end
-            end
+            local try = rawget(cls, true_key) -- This usually works 99% of the time
+            return try and try or rawget(tbl, true_key) -- SPECIFICALLY for instance fields (defined self.<key> = <value> since they don't live in cls and would never be called here normally)
         end
-
         -- Works like normal
         return rawget(cls, key)
     end
@@ -173,13 +167,9 @@ local function class(name, base)
     cls.__newindex = function(tbl, key, value)
         local lower_key = type(key) == "string" and string.lower(key) or nil -- For case insensitivity
 
-        if (lower_key and cls._properties[lower_key] and cls._properties[lower_key].setter) then -- setters should automatically be normalised to lower
+        -- Call the setter functions if possible
+        if (lower_key and cls._properties[lower_key] and cls._properties[lower_key].setter) then
             return cls._properties[lower_key].setter(tbl, value)
-        end
-
-        -- Add to insensitive table (only works for instance fields for some reason)
-        if lower_key then
-            cls._case_insensitive[lower_key] = value
         end
 
         -- Works like normal

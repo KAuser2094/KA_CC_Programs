@@ -41,7 +41,7 @@ local TYPES = {
     TABLE = "table",
     FUNCTION = "function",
     USER_DATA = "userdata",
-    THREAT = "thread",
+    THREAD = "thread",
 
     EFFECTIVE_FUNCTION = "effective_function",
     CLASS = "class",
@@ -50,6 +50,20 @@ local TYPES = {
 module.TYPES = TYPES
 
 local BASE_TYPES = {
+    NIL = "nil",
+    BOOLEAN = "boolean",
+    NUMBER = "number",
+    STRING = "string",
+    TABLE = "table",
+    FUNCTION = "function",
+    USER_DATA = "userdata",
+    THREAD = "thread",
+}
+
+module.BASE_TYPES = BASE_TYPES
+
+
+local i_BASE_TYPES = {
     "nil",
     "boolean",
     "number",
@@ -60,7 +74,7 @@ local BASE_TYPES = {
     "thread",
 }
 
-module.BASE_TYPES = BASE_TYPES
+module.i_BASE_TYPES = i_BASE_TYPES
 
 local function copy(tbl)
     local copy = {}
@@ -176,7 +190,7 @@ function expect.NOT(index_or_table, value_or_key, ...)
     end
 
     -- Take the complement of the basic types and any basic types in the .. and call expect on that.
-    local complement = complement(BASE_TYPES, ...)
+    local complement = complement(i_BASE_TYPES, ...)
     return call_native_reimpl(index, value, table.unpack(complement))
 end
 
@@ -198,8 +212,9 @@ end
 module.expectOptional = expect.OPTIONAL
 module.fieldOptional = expect.OPTIONAL
 
+-- TODO: add <TYPE>? functions (probably goes here)
 local function addSingleTypeExpects(tbl)
-    for key, ty in pairs(TYPES) do
+    for key, ty in pairs(BASE_TYPES) do
         tbl[key] = function (index, value)
             assert(type(value) == ty, "Paramter #" .. index .. " must be of " .. ty .. " type")
             return value
@@ -216,6 +231,12 @@ local function addSingleTypeExpects(tbl)
 end
 
 addSingleTypeExpects(expect)
+
+-- TODO: Add single Type expects for the effective function and class
+
+--
+
+
 
 function module.getFields()
     local fields = {}
