@@ -6,8 +6,6 @@ local PublishSubsribe = Class("KA_PublishSubscribe")
 
 PublishSubsribe.__subsribers = {} -- For publish-subscribe model
 
-PublishSubsribe.__preserveKeys["__subsribers"] = false -- Avoids using the inherit hook to add an empty __subsribers table
-
 function PublishSubsribe:addSubscriber(eventName, callback)
 
     if not self.__subsribers[eventName] then

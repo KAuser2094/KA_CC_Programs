@@ -34,6 +34,7 @@ local function PRESERVE_KEYS()
     __default = true,
     -- Stuff you should add not replace (merge the values (the tables) not the keys (which replaces a table)
     __preserveKeys = true,
+    __mergeKeys = true,
     __inherits = true,
     __abstractFields = true,
     __abstractMethods = true,
@@ -42,12 +43,32 @@ local function PRESERVE_KEYS()
     __indexHooks = true,
     __newindexHooks = true,
     __inheritsHooks = true,
-} 
+    }
+end
+
+local function MERGES_UP()
+    return { -- Merge the table up (or overwrite if it doesnt exist)
+    __inherits = true,
+    __abstractFields = true,
+    __abstractMethods = true,
+    __wellFormedHooks = true,
+    __indexHooks = true,
+    __newindexHooks = true,
+    __inheritsHooks = true,
+    }    
+end
+
+local function shallowMerge(tbl, other)
+    for k,v in pairs(other) do
+        tbl[k] = v
+    end
 end
 
 local function shallowMergeWithPreserve(tbl, other, preserveOrNil)
     for k,v in pairs(other) do
-        if (not preserveOrNil) or (not preserveOrNil[k]) then
+        if (preserveOrNil and preserveOrNil[k]) then -- Case: Preserve
+            -- print("Preserved " .. k)
+        else -- Case: Overwrite
             tbl[k] = v
         end
     end
@@ -78,6 +99,7 @@ local function class(name, ...)
 
     cls.__className = name -- Should not be changed after this
     cls.__preserveKeys = PRESERVE_KEYS() -- preserve the values at those keys. (They should not be overridden, can be added to)
+    cls.__mergeKeys = MERGES_UP() -- Table values that are copied up (or set if not yet exists)
     -- NOTE: Tables below should be in the form "<className>" = <value> 
     -- Each class should have a unique value in the tables (if any) and we use the fact the table key constraint is the exact same to do this.
     cls.__inherits = {} -- Stores all classes this inherits from
@@ -102,20 +124,22 @@ local function class(name, ...)
     ----------------------------------------------------------------------------------------------------
     function cls:_basicInheritInto(klass) -- At a basic level, extends and implements are the exact same. They are just seperated for clarity and extra functionality.
         expectClass("class._basicInheritInto.klass", klass)
-        -- Merge with no preserves SHOULD act like a merge when we use the keys as markers for duplicates (Index based would allow duplicates to form)
-        -- This REPLACES the values (except preserved)
+        -- Only merge in the ones that are NOT preserved by either class AND bubble/merge up where needed
         shallowMergeWithPreserve(klass.__preserveKeys, self.__preserveKeys)
-        shallowMergeWithPreserve(klass, self, klass.__preserveKeys) -- Only merge in the ones that are NOT preserved by either class
-        -- Deal with preserved keys (Add them, instead of replace)
-        shallowMergeWithPreserve(klass.__inherits, self.__inherits)
+        shallowMergeWithPreserve(klass, self, klass.__preserveKeys)
+        -- Merge/Bubble up needed tables
+        shallowMergeWithPreserve(klass.__mergeKeys, self.__mergeKeys)
+        for k, v in pairs(klass.__mergeKeys) do
+            if v then -- Just in case someone set __mergeKeys[k] to false
+                klass[k] = klass[k] and klass[k] or {}
+                self[k] = self[k] and self[k] or {}
+                shallowMerge(klass[k],self[k])
+            end
+        end
+        -- Need to add yourself to the inherits
         klass.__inherits[self:getClassName()] = self -- Set yourself as a base class as well
-        shallowMergeWithPreserve(klass.__abstractFields, self.__abstractFields)
-        shallowMergeWithPreserve(klass.__abstractMethods, self.__abstractMethods)
-        shallowMergeWithPreserve(klass.__wellFormedHooks, self.__wellFormedHooks)
-        shallowMergeWithPreserve(klass.__indexHooks, self.__indexHooks)
-        shallowMergeWithPreserve(klass.__newindexHooks, self.__newindexHooks)
-        shallowMergeWithPreserve(klass.__inheritsHooks, self.__inheritsHooks)
-        cls:_execInheritsHook(klass) -- Any extra work specific classes neeed
+        -- Any extra work specific classes need
+        cls:_execInheritsHook(klass)
     end
     cls.__default._basicInheritInto = cls._basicInheritInto
 
@@ -124,6 +148,18 @@ local function class(name, ...)
         self:_basicInheritInto(klass)
     end
     cls.__default.inheritsInto = cls.inheritsInto
+
+    function cls:addPreservedField(key, value)
+        self.__preserveKeys[key] = true
+        self[key] = value
+    end
+
+    function cls:addBubbledField(key, value)
+        assert(type(value) == "table", "You can only set a table to be bubbled/merged up")
+        self.__preserveKeys[key] = true
+        self.__mergeKeys[key] = true
+        self[key] = value
+    end
 
     ----------------------------------------------------------------------------------------------------
     -- GENERICS
@@ -326,3 +362,7 @@ local function class(name, ...)
 end
 
 return class
+-- Cases:
+-- Overwrite (overwrite the table/value)
+-- Do nothing / Ignore
+-- Merge table up

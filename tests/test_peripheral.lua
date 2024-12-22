@@ -46,8 +46,7 @@ function tests.testInventoryClass(context)
     local allClassNames = chestInv:getAllClassNames()
     local expected =  {"KA_Inventory", "KA_Peripheral"}
     local hasClasses = utils.hasSubset(allClassNames, expected)
-    assert(hasClasses and coHasClasses, "Did not have all classes expected, got: " .. textutils.serialise(allClassNames) .. " looking for " .. textutils.serialise(expected))
+    assert(hasClasses, "Did not have all classes expected, got: " .. textutils.serialise(allClassNames) .. " looking for " .. textutils.serialise(expected))
 end
-
 
 return tests

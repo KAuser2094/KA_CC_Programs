@@ -3,13 +3,7 @@ local Class = require "KA_CC.modules.class.class"
 
 local GetterSetter = Class("KA_GetterSetter")
 
-local helper = GetterSetter.__helper
-
-local shallowMergeWithPreserve = helper.shallowMergeWithPreserve
-
-GetterSetter.__classProperties = {} -- Stores getters and setters
-
-GetterSetter.__preserveKeys["__classProperties"] = true -- Want to add not replace
+GetterSetter:addBubbledField("__classProperties", {})
 
 function GetterSetter:addGetter(propName, getterFunc)
     local lower_propName = type(propName) == "string" and string.lower(propName) or nil -- For case insensitivity
@@ -51,12 +45,5 @@ local function getSetter(cls, tbl, key, value)
 end
 
 GetterSetter:addNewIndexHook(getSetter)
-
-local function inheritGettersAndSetters(base, klass)
-    klass.__classProperties = klass.__classProperties or {}
-    shallowMergeWithPreserve(klass.__classProperties, base.__classProperties)
-end
-
-GetterSetter:addInheritsHook(inheritGettersAndSetters)
 
 return GetterSetter

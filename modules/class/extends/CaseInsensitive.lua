@@ -3,13 +3,7 @@ local Class = require "KA_CC.modules.class.class"
 
 local CaseInsensitive = Class("KA_RemoveCaseSensitivity")
 
-local helper = CaseInsensitive.__helper
-
-local shallowMergeWithPreserve = helper.shallowMergeWithPreserve
-
-CaseInsensitive.__case_insensitive = {} -- For case insensitivity on fields and methods
-
-CaseInsensitive.__preserveKeys["__case_insensitive"] = true -- Want to add not replace
+CaseInsensitive:addBubbledField("__case_insensitive", {})
 
 
 function CaseInsensitive:removeCaseSensitivity(true_key)
@@ -29,12 +23,5 @@ local function getWithoutCaseSensitive(cls, tbl, key)
     end
 end
 CaseInsensitive:addIndexHook(getWithoutCaseSensitive)
-
--- Needs an "index" hook
-local function inheritCaseInsensitivity(base, klass)
-    klass.__case_insensitive = klass.__case_insensitive or {}
-    shallowMergeWithPreserve(klass.__case_insensitive, base.__case_insensitive)
-end
-CaseInsensitive:addInheritsHook(inheritCaseInsensitivity)
 
 return CaseInsensitive
