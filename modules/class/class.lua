@@ -153,6 +153,8 @@ local function class(name, ...)
         self.__preserveKeys[key] = true
         self[key] = value
     end
+    cls.__default.addPreservedField = cls.addPreservedField
+
 
     function cls:addBubbledField(key, value)
         assert(type(value) == "table", "You can only set a table to be bubbled/merged up")
@@ -160,6 +162,7 @@ local function class(name, ...)
         self.__mergeKeys[key] = true
         self[key] = value
     end
+    cls.__default.addBubbledField = cls.addBubbledField
 
     ----------------------------------------------------------------------------------------------------
     -- GENERICS
