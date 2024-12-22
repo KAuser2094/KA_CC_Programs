@@ -106,7 +106,7 @@ local function class(name, ...)
     cls.__abstractMethods = {} -- Holds methods that must be implemented or error, ideally: bubbles up from interfaces
     cls.__abstractFields = {} -- Holds fields that must be implemented or error, ideally: bubbles up from interfaces
 
-    cls.__wellFormedHooks = {} -- Holds functions to check wellformed-ness
+    cls.__wellFormedHooks = {} -- Holds functions to check wellformed-ness. NOTE: Is ALSO the "post-init" hooks. Both are stored in here, but the latter has "_POST_INIT" at the end of the key
     cls.__indexHooks = {} -- Lets a class to add a custom function to run during __index, ideally: bubbles up from extensions
     cls.__newindexHooks = {} -- Lets a class to add a custom function to run during __newindex, ideally: bubbles up from extensions
     cls.__inheritsHooks = {} -- Deals with any extra work that a class needs to do if it is inherited
@@ -232,7 +232,7 @@ local function class(name, ...)
             assert(type(field) == desc_type["type"], custom_err)    
         end
 
-        -- Possible extra functionality
+        -- Possible extra functionality (NOTE: This ALSO runs the post init hooks)
         self:_execWellformedHooks()
     end
     cls.__default._assertWellFormed = cls._assertWellFormed
@@ -251,6 +251,12 @@ local function class(name, ...)
     ----------------------------------------------------------------------------------------------------
     -- HOOKS (Let you modify certain functions which due to inheritance can't be directly chagned)
     ----------------------------------------------------------------------------------------------------
+    function cls:addPostInitHook(func) -- This is EXTREMELY cursed as it is just using the fact wellformed hooks are also called after init at exactly where this would be called
+        expectCallable("class.addPostInitHook.func", func)
+        self.__wellFormedHooks[self:getClassName() .. "_POST_INIT"] = func -- Use a weird key so that it can bubble up 2 different wellformed hooks, still enforces restrictions as it is a static change.
+    end
+    cls.__default.addPostInitHook = cls.addPostInitHook
+
     function cls:addWellformedHook(func)
         expectCallable("class.addWellformedHook.func", func)
         self.__wellFormedHooks[self:getClassName()] = func
@@ -259,7 +265,7 @@ local function class(name, ...)
 
     function cls:_execWellformedHooks()
         for _, func in pairs(self.__wellFormedHooks) do
-            func()
+            func(self)
         end
     end
     cls.__default._execWellformedHooks = cls._execWellformedHooks
