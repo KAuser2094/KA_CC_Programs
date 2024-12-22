@@ -26,7 +26,7 @@ local function call_native_reimpl(index, value, ...) -- reimpl so it doesn't bre
         if t == select(i, ...) then return value end
     end
     local type_names = get_type_names(...)
-    error("bad argument/field (#".. index .. "): Expected " .. type_names .. ", got " .. t, 3)
+    error("bad argument/field (".. index .. "): Expected " .. type_names .. ", got " .. t, 3)
 end
 
 -- MODULE
@@ -126,6 +126,17 @@ local function toCamelCase(str)
     return camel
 end
 
+local function isAClass(value)
+    local t = type(value)
+    local className = (t == TYPES.TABLE and value.isClass) and value:getClassName() or nil -- is a class
+    return className
+end
+
+local function isACallable(value)
+    local t = type(value)
+    return (t == TYPES.FUNCTION) or (t == TYPES.TABLE and getmetatable(value) and getmetatable(value).__call)
+end
+
 local expect = {}
 
 module.expect = expect
@@ -136,19 +147,19 @@ expect.TYPES = TYPES
 local function call(index_or_table, value_or_key, ...)
     local index, value = getIndexAndValueToCheck(index_or_table, value_or_key)
     local t = type(value)
-    local className = (t == TYPES.TABLE and value.isClass) and value:getClassName() or nil -- is a class
+    local className = isAClass(value)
     if className then
         -- Do the check with class first
         for i = 1, select('#', ...) do
             local other = select(i, ...) -- get the ith in the ...
-            local other_name = (type(other) == TYPES.TABLE and other.isClass) and other.__className or (type(other) == TYPES.STRING and other or nil)
+            local other_name = isAClass(other) or (type(other) == TYPES.STRING and other or nil)
             if other_name == TYPES.CLASS then return value end -- General any class
             if other_name and value:isClass(other_name) then return value end
         end
     end
 
     -- Table that effectively is a function and,,,well a function is effectively a function too.
-    if (t == TYPES.FUNCTION) or (t == TYPES.TABLE and getmetatable(value) and getmetatable(value).__call) then
+    if isACallable(value) then
         for i = 1, select('#', ...) do
             local other = select(i, ...) -- get the ith in the ...
             if other == TYPES.CALLABLE then return value end
@@ -168,13 +179,13 @@ function expect.NOT(index_or_table, value_or_key, ...)
     local index, value = getIndexAndValueToCheck(index_or_table, value_or_key)
     local t = type(value)
     -- Check if t is a class, if so make sure none of the ... is a class it has, if so, error
-    local className = (t == TYPES.TABLE and value.isClass) and value:getClassName() or nil -- is a class
+    local className = isAClass(value)
     if className then
         -- Do the check with class first
-        local err_msg = "Parameter #" .. index .. " had a bad class value"
+        local err_msg = index .. " had a bad class value"
         for i = 1, select('#', ...) do
             local other = select(i, ...) -- get the ith in the ...
-            local other_name = (type(other) == TYPES.TABLE and other.isClass) and other.__className or (type(other) == TYPES.STRING and other or nil)
+            local other_name = isAClass(other) or (type(other) == TYPES.STRING and other or nil)
             assert(other_name ~= TYPES.TABLE, err_msg)
             assert(other_name ~= TYPES.CLASS, err_msg)
             assert(not (other_name and value:isClass(other_name)), err_msg)
@@ -182,10 +193,10 @@ function expect.NOT(index_or_table, value_or_key, ...)
     end
     
     -- Check if t is a callable table or functio, if so if effective function is inside then error
-    if (t == TYPES.FUNCTION) or (t == TYPES.TABLE and getmetatable(value) and getmetatable(value).__call) then
+    if isACallable(value) then
         for i = 1, select('#', ...) do
             local other = select(i, ...) -- get the ith in the ...
-            assert(other ~= TYPES.CALLABLE, "Parameter #" .. index .. " is an effective function which is blacklisted")
+            assert(other ~= TYPES.CALLABLE, index .. " is an effective function which is blacklisted")
         end
     end
 
@@ -212,33 +223,80 @@ end
 module.expectOptional = expect.OPTIONAL
 module.fieldOptional = expect.OPTIONAL
 
--- TODO: add <TYPE>? functions (probably goes here)
 local function addSingleTypeExpects(tbl)
     for key, ty in pairs(BASE_TYPES) do
         tbl[key] = function (index, value)
-            assert(type(value) == ty, "Paramter #" .. index .. " must be of " .. ty .. " type")
+            assert(type(value) == ty, index .. " must be of " .. ty .. " type")
+            return value
+        end
+        tbl["OPTIONAL_" .. key] = function (index, value)
+            assert(type(value) == ty or type(value) == "nil", index .. " must be of " .. ty .. " type. Or, or be nil")
             return value
         end
         tbl["NOT_" .. key] = function (index, value) 
-            assert(type(value) ~= ty, "Paramter #" .. index .. " must NOT be of " .. ty .. " type")
+            assert(type(value) ~= ty, index .. " must NOT be of " .. ty .. " type")
             return value
         end
-        module["expect" .. toCamelCase(key)] = tbl[key]
-        module["expectNot" .. toCamelCase(key)] = tbl["NOT_" .. key]
-        module["field" .. toCamelCase(key)] = tbl[key]
-        module["fieldNot" .. toCamelCase(key)] = tbl["NOT_" .. key]
+        -- Optional Not doesn't make sense so...no
+        
+        local camelCaseKey = toCamelCase(key)
+        module["expect" .. camelCaseKey] = tbl[key]
+        module["expectNot" .. camelCaseKey] = tbl["NOT_" .. key]
+        module["optional" .. camelCaseKey]= tbl["OPTIONAL_" .. key]
+        module["field" .. camelCaseKey] = tbl[key]
+        module["fieldNot" .. camelCaseKey] = tbl["NOT_" .. key]
     end
 end
 
 addSingleTypeExpects(expect)
 
--- TODO: Add single Type expects for the effective function and class
+-- CALLABLE
+expect[TYPES.CALLABLE] = function (index, value)
+    assert(isACallable(value), index .. "must be callable")
+    return value
+end
+expect["OPTIONAL_" .. TYPES.CALLABLE] = function (index, value)
+    assert(isACallable(value) or type(value) == "nil", index .. " must be callable or nil")
+    return value
+end
+expect["NOT_" .. TYPES.CALLABLE] = function (index, value)
+    assert(not isACallable(value), index .. " cannot be callable")
+    return value
+end
 
---
+local camelCaseKey = toCamelCase(TYPES.CALLABLE)
+local key = TYPES.CALLABLE
+module["expect" .. camelCaseKey] = expect[key]
+module["expectNot" .. camelCaseKey] = expect["NOT_" .. key]
+module["optional" .. camelCaseKey]= expect["OPTIONAL_" .. key]
+module["field" .. camelCaseKey] = expect[key]
+module["fieldNot" .. camelCaseKey] = expect["NOT_" .. key]
+
+-- CLASS
+expect[TYPES.CLASS] = function (index, value)
+    assert(isAClass(value), index .. "must be a ckass")
+    return value
+end
+expect["OPTIONAL_" .. TYPES.CLASS] = function (index, value)
+    assert(isAClass(value) or type(value) == "nil", index .. " must be ckass or nil")
+    return value
+end
+expect["NOT_" .. TYPES.CLASS] = function (index, value)
+    assert(not isAClass(value), index .. " cannot be a ckass")
+    return value
+end
+
+camelCaseKey = toCamelCase(TYPES.CLASS)
+key = TYPES.CLASS
+module["expect" .. camelCaseKey] = expect[key]
+module["expectNot" .. camelCaseKey] = expect["NOT_" .. key]
+module["optional" .. camelCaseKey]= expect["OPTIONAL_" .. key]
+module["field" .. camelCaseKey] = expect[key]
+module["fieldNot" .. camelCaseKey] = expect["NOT_" .. key]
 
 
 
-function module.getFields()
+function module.serialise() -- For printing out since functions hate being turned into strings
     local fields = {}
     for k, v in pairs(module) do
         local ty = type(v)
@@ -249,7 +307,7 @@ function module.getFields()
             fields[k] = v
         end
     end
-    return fields
+    return textutils.serialise(fields)
 end
 
 return module
