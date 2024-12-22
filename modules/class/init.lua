@@ -23,6 +23,8 @@ local function expectFunction(index, value)
     end
 end
 
+local module = {}
+
 local function class(name, base)
     expect(1, name, "string")
     expect(2, base, "table", "nil")
@@ -181,4 +183,12 @@ local function class(name, base)
     return cls
 end
 
-return class
+module.Class = class
+
+setmetatable(module, {
+    __call = function (_,...)
+        return class(...)
+    end
+})
+
+return module
