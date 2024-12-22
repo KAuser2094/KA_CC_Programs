@@ -1,4 +1,7 @@
 -- Lets you set a method to case insensitive.
+
+local e = require "KA_CC.modules.expect"
+
 local Class = require "KA_CC.modules.class.class"
 
 local CaseInsensitive = Class("KA_RemoveCaseSensitivity")
@@ -7,6 +10,7 @@ CaseInsensitive:addBubbledField("__case_insensitive", {})
 
 
 function CaseInsensitive:removeCaseSensitivity(true_key)
+    e.expectString("CaseInsensitive.removeCaseSensitivity.true_key", true_key)
     local lower_key = string.lower(true_key)
     self.__case_insensitive[lower_key] = true_key
 end

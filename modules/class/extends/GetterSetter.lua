@@ -1,4 +1,7 @@
 -- Lets you create getter and setter functions that will act as fields.
+
+local e = require "KA_CC.modules.expect"
+
 local Class = require "KA_CC.modules.class.class"
 
 local GetterSetter = Class("KA_GetterSetter")
@@ -6,6 +9,8 @@ local GetterSetter = Class("KA_GetterSetter")
 GetterSetter:addBubbledField("__classProperties", {})
 
 function GetterSetter:addGetter(propName, getterFunc)
+    e.expectAny("GetterSetter.addGetter.propName", propName)
+    e.expectCallable("GetterSetter.addGetter.getterFunc", getterFunc)
     local lower_propName = type(propName) == "string" and string.lower(propName) or nil -- For case insensitivity
     if not self.__classProperties[lower_propName and lower_propName or propName] then
         self.__classProperties[lower_propName and lower_propName or propName] = {}
@@ -14,6 +19,8 @@ function GetterSetter:addGetter(propName, getterFunc)
 end
 
 function GetterSetter:addSetter(propName, setterFunc)
+    e.expectAny("GetterSetter.addSetter.propName", propName)
+    e.expectCallable("GetterSetter.addSetter.setterFunc", setterFunc)
     local lower_propName = type(propName) == "string" and string.lower(propName) or nil -- For case insensitivity
     if not self.__classProperties[lower_propName and lower_propName or propName] then
         self.__classProperties[lower_propName and lower_propName or propName] = {}

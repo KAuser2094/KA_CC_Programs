@@ -1,7 +1,11 @@
--- local eexpect = require "KA_CC.modules.expect"
+-- local expect = require "KA_CC.modules.expect"
+-- local e = require "KA_CC.modules.expect"
 
 -- An extension/rewrite of cc.expect but it also allows you to use classes
 -- If "index" is a table then we presume we are calling field instead
+
+-- TODO: Change ALL functions to lowercase and the __index meta table to call from lowercase key
+
 local type = type
 local select = select
 
@@ -209,7 +213,7 @@ module.expectNot = expect.NOT
 module.fieldNot = expect.NOT
 
 function expect.ANY(index, value) -- So not nil
-    assert(type(value) ~= "nil", "Parameter #" .. index .. " must be a non-nil value")
+    assert(type(value) ~= "nil", index .. " must be a non-nil value")
     return value
 end
 
