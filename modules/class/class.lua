@@ -1,5 +1,9 @@
 -- local Class = require "KA_CC.modules.class.new_class"
 -- local Class = require "KA_CC.modules.class".Class
+
+-- TODO:
+-- Add a "cleanup" step after init that removes any "Class Defining" functions/fields that are no longer needed. Now class is clearly defined already.
+
 local type = type
 
 local function expectCallable(_index, value, custom_err)
@@ -248,6 +252,20 @@ local function class(name, ...)
         self.__abstractMethods[key] = description
     end
     cls.__default.abstractMethod = cls.abstractMethod
+ 
+    function cls:forceDeclareField(key, description, ty) -- Forces each class to declare this field themselves
+        assert(key, "You need a key for the field to be assigned to")
+        self.__abstractFields[key] = { description = description, type = ty}
+        self.__preserveKeys[key] = true
+    end
+
+    function cls:forceDeclareMethod(key, description) -- Forces each class to declare this method themselves
+        assert(key, "You need a key that the method will be assigned to")
+        self.__abstractMethods[key] = description
+        self.__preserveKeys[key] = true
+
+    end
+
     ----------------------------------------------------------------------------------------------------
     -- HOOKS (Let you modify certain functions which due to inheritance can't be directly chagned)
     ----------------------------------------------------------------------------------------------------
