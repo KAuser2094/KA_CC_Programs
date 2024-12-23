@@ -14,6 +14,8 @@ local EVENTS = {
 local function getTestingClass()
     local testClass = class(TESTING_CLASS_NAME, extends)
 
+    testClass:mergeEventHookEnum(EVENTS)
+
     testClass.STATIC = true
 
     testClass:removeCaseSensitivity("STATIC")

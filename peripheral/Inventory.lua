@@ -1,17 +1,24 @@
 local Class = require "KA_CC.modules.class".Class
+local PublishSubscribe = require "KA_CC.modules.class".Extends.PublishSubscribe
 local Peripheral = require "KA_CC.peripheral.Peripheral"
 local p_utils = require "KA_CC.peripheral.utils"
 local utils = require "KA_CC.modules.utils"
 
 local native = _G.peripheral
 
-local Inventory = Class("KA_Inventory", Peripheral)
+assert(PublishSubscribe, "Failed to import PublishSubscribe")
+
+local Inventory = Class("KA_Inventory", Peripheral, PublishSubscribe)
 
 -- STATIC
 
 Inventory.EVENTS = {
-    SYNC = "sync", -- For when contents are synced and possibly changed
+    SYNC = "KA_Inventory_sync", -- For when contents are synced and possibly changed
 }
+
+Inventory:doNotInhertKey("EVENTS")
+
+Inventory:mergeEventHookEnum(Inventory.EVENTS)
 
 Inventory.SIDES = {
     up = true,

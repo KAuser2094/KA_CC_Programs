@@ -1,12 +1,11 @@
 local Class = require "KA_CC.modules.class".Class
-local EXTEND_ALL = require "KA_CC.modules.class".Extends.ALL
 local utils = require "KA_CC.modules.utils"
 local e = require "KA_CC.modules.expect"
 local p_utils = require "KA_CC.peripheral.utils"
 
 local native = _G.peripheral
 
-local Peripheral = Class("KA_Peripheral", EXTEND_ALL)
+local Peripheral = Class("KA_Peripheral")
 
 function Peripheral:init(wrappedOrName)
     e.expect("Peripheral.init.wrappedOrName", wrappedOrName, "table", "string")

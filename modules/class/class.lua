@@ -180,6 +180,15 @@ local function class(name, ...)
     ---- Preserved (Not overridden when inheriting)
     -------------------------------------------------- TODO: add Method version? (A bit redundant)
     
+    function cls:doNotInhertKey(key) -- More understandable name for what it does
+        self:preserveKey(key)
+    end
+
+    function cls:preserveKey(key)
+        self.__preserveKeys[key] = true
+    end
+    cls.__default.preserveKey = cls.preserveKey
+
     function cls:addPreservedField(key, value)
         self.__preserveKeys[key] = true
         self[key] = value
@@ -189,7 +198,13 @@ local function class(name, ...)
     --------------------------------------------------
     ---- Bubble (Merges tables instead of overriding when inheriting, merging with nil is the same as with {})
     -------------------------------------------------- TODO: add Method version? (A bit redundant)
-    
+
+    function cls:bubbleKey(key)
+        self.__preserveKeys[key] = true
+        self.__mergeKeys[key] = true
+    end
+    cls.__default.bubbleKey = cls.bubbleKey
+
     function cls:addBubbledField(key, value)
         assert(type(value) == "table", "You can only set a table to be bubbled/merged up")
         self.__preserveKeys[key] = true
@@ -197,6 +212,12 @@ local function class(name, ...)
         self[key] = value
     end
     cls.__default.addBubbledField = cls.addBubbledField
+
+    function cls:deepBubbleKey(key)
+        self.__preserveKeys[key] = true
+        self.__deepMergeKeys[key] = true
+    end
+    cls.__default.deepBubbleKey = cls.deepBubbleKey
 
     function cls:addDeepBubbledField(key, value)
         assert(type(value) == "table", "You can only set a table to be deep bubbled/merged up")
@@ -393,6 +414,7 @@ local function class(name, ...)
     cls.__default.addIndexHook = cls.addIndexHook
 
     function cls:_execIndexHooks(cls, tbl, key) -- Special case 1
+        if not cls.__hooks[cls.__BASIC_HOOKS.INDEX] then return nil end
         for _, func in pairs(cls.__hooks[cls.__BASIC_HOOKS.INDEX]) do
             local result = func(cls, tbl, key)
             if result ~= nil then
@@ -412,6 +434,7 @@ local function class(name, ...)
     cls.__default.addNewIndexHook = cls.addNewIndexHook
 
     function cls:_execNewIndexHooks(cls, tbl, key, value) -- Special case 2
+        if not cls.__hooks[cls.__BASIC_HOOKS.NEW_INDEX] then return nil end
         for _, func in pairs(cls.__hooks[cls.__BASIC_HOOKS.NEW_INDEX]) do
             local result = func(cls, tbl, key, value)
             if result ~= nil then
