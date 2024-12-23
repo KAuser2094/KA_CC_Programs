@@ -114,7 +114,7 @@ local function class(name, ...)
     cls.__default = { __className = "KA_Class" } -- Name is just here so it is still treated as a class -- MAYBE: add the local functions into this
 
     cls.__className = name -- Should not be changed after this
-    cs.__BASIC_HOOKS = BASIC_HOOKS
+    cls.__BASIC_HOOKS = BASIC_HOOKS
     cls.__preserveKeys = PRESERVE_KEYS() -- preserve the values at those keys. (They should not be overridden, can be added to)
     cls.__mergeKeys = MERGES_UP() -- Table values that are copied up (or set if not yet exists)
     cls.__deepMergeKeys = DEEP_MERGES_UP() -- Same as above but use a deep merge
