@@ -5,6 +5,7 @@
 -- If "index" is a table then we presume we are calling field instead
 
 -- TODO: Change ALL functions to lowercase and the __index meta table to call from lowercase key
+-- Add "peripheral" as a type
 
 local type = type
 local select = select

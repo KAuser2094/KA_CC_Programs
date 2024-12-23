@@ -43,14 +43,12 @@ local function PRESERVE_KEYS()
     -- Stuff you should add not replace (merge the values (the tables) not the keys (which replaces a table)
     __preserveKeys = true,
     __mergeKeys = true,
+    __deepMergeKeys = true,
     __inherits = true,
     __abstractFields = true,
     __abstractMethods = true,
     ---- Hooks
-    __wellFormedHooks = true,
-    __indexHooks = true,
-    __newindexHooks = true,
-    __inheritsHooks = true,
+    __hooks = true, -- TODO: !! THIS NEEDS TO BE A DEEP MERGE UP, don't use simply MERGES_UP
     }
 end
 
@@ -59,16 +57,54 @@ local function MERGES_UP()
     __inherits = true,
     __abstractFields = true,
     __abstractMethods = true,
-    __wellFormedHooks = true,
-    __indexHooks = true,
-    __newindexHooks = true,
+    }
+end
+
+local function DEEP_MERGES_UP()
+    return {
+        __hooks = true,
+    }
+end
+
+local function INSTANCE_CLEAN_UP()
+    return { -- To be nil-ed after instance is made
+    __preserveKeys = true,
+    __mergeKeys = true,
+    __abstractFields = true,
+    __abstractMethods = true,
     __inheritsHooks = true,
-    }    
+    _basicInheritInto = true,
+    inheritsInto = true,
+    addPreservedField = true,
+    addBubbledField = true,
+    addDeepBubbledField = true,
+    addToInstanceCleanUp = true, -- ironic
+    _assertWellFormed = true,
+    abstractField = true,
+    abstractMethod = true,
+    forceDeclareField = true, 
+    forceDeclareMethod = true, 
+    addWellformedHook = true, 
+    addInstanceCleanUpHook = true,
+    execPostInitHooks = true,
+    _execInheritsHook = true,
+    }
 end
 
 local function shallowMerge(tbl, other)
     for k,v in pairs(other) do
         tbl[k] = v
+    end
+end
+
+local function deepMerge(tbl, other)
+    for k, v in pairs(other) do
+        if type(v) == "table" then
+            tbl[k] = tbl[k] or {} -- Presumes same shape of tables (ignoring other types)
+            deepMerge(tbl[k], v)
+        else
+            tbl[k] = v
+        end
     end
 end
 
@@ -81,6 +117,15 @@ local function shallowMergeWithPreserve(tbl, other, preserveOrNil)
         end
     end
 end
+
+local BASIC_HOOKS = {
+    INDEX = "INDEX_HOOK",
+    NEW_INDEX = "NEW_INDEX_HOOK",
+    INHERITS = "INHERITS_HOOK",
+    POST_INIT = "POST_INIT_HOOK",
+    WELLFORMED = "WELLFORMED_HOOK",
+    INSTANCE_CLEAN_UP = "INSTANCE_CLEAN_UP_HOOK",
+}
 
 local helper = {}
 helper.expectCallable = expectCallable
@@ -97,6 +142,7 @@ local function class(name, ...)
     ----------------------------------------------------------------------------------------------------
     -- MAKE THE CLASS
     ----------------------------------------------------------------------------------------------------
+    
     local base_classes = table.pack(...)
 
     local cls = {}
@@ -108,16 +154,15 @@ local function class(name, ...)
     cls.__className = name -- Should not be changed after this
     cls.__preserveKeys = PRESERVE_KEYS() -- preserve the values at those keys. (They should not be overridden, can be added to)
     cls.__mergeKeys = MERGES_UP() -- Table values that are copied up (or set if not yet exists)
+    cls.__deepMergeKeys = DEEP_MERGES_UP() -- Same as above but use a deep merge
+    cls.__instanceCleanUp = INSTANCE_CLEAN_UP() -- Nil values after instance is made
     -- NOTE: Tables below should be in the form "<className>" = <value> 
     -- Each class should have a unique value in the tables (if any) and we use the fact the table key constraint is the exact same to do this.
     cls.__inherits = {} -- Stores all classes this inherits from
     cls.__abstractMethods = {} -- Holds methods that must be implemented or error, ideally: bubbles up from interfaces
     cls.__abstractFields = {} -- Holds fields that must be implemented or error, ideally: bubbles up from interfaces
 
-    cls.__wellFormedHooks = {} -- Holds functions to check wellformed-ness. NOTE: Is ALSO the "post-init" hooks. Both are stored in here, but the latter has "_POST_INIT" at the end of the key
-    cls.__indexHooks = {} -- Lets a class to add a custom function to run during __index, ideally: bubbles up from extensions
-    cls.__newindexHooks = {} -- Lets a class to add a custom function to run during __newindex, ideally: bubbles up from extensions
-    cls.__inheritsHooks = {} -- Deals with any extra work that a class needs to do if it is inherited
+    cls.__hooks = {} -- Holds hooks
 
     if base_classes then
         for i = #base_classes, 1, -1 do
@@ -130,15 +175,17 @@ local function class(name, ...)
     ----------------------------------------------------------------------------------------------------
     -- INHERITANCE
     ----------------------------------------------------------------------------------------------------
+    
     function cls:_basicInheritInto(klass) -- At a basic level, extends and implements are the exact same. They are just seperated for clarity and extra functionality.
         expectClass("class._basicInheritInto.klass", klass)
         -- Only merge in the ones that are NOT preserved by either class AND bubble/merge up where needed
         shallowMergeWithPreserve(klass.__preserveKeys, self.__preserveKeys)
         shallowMergeWithPreserve(klass, self, klass.__preserveKeys)
+
         -- Merge/Bubble up needed tables
         shallowMergeWithPreserve(klass.__mergeKeys, self.__mergeKeys)
         for k, v in pairs(klass.__mergeKeys) do
-            if v then -- Just in case someone set __mergeKeys[k] to false
+            if v then -- Just in case someone set to false
                 klass[k] = klass[k] and klass[k] or {}
                 self[k] = self[k] and self[k] or {}
                 shallowMerge(klass[k],self[k])
@@ -146,10 +193,20 @@ local function class(name, ...)
         end
         -- Need to add yourself to the inherits
         klass.__inherits[self:getClassName()] = self -- Set yourself as a base class as well
+
+        -- Deep Merge/Bubble up needed tables
+        shallowMergeWithPreserve(klass.__deepMergeKeys, self.__deepMergeKeys)
+        for k, v in pairs(klass.__deepMergeKeys) do
+            if v then -- Just in case someone set to false
+                klass[k] = klass[k] and klass[k] or {}
+                self[k] = self[k] and self[k] or {}
+                deepMerge(klass[k],self[k])
+            end
+        end
+
         -- Any extra work specific classes need
         cls:_execInheritsHook(klass)
     end
-    cls.__default._basicInheritInto = cls._basicInheritInto
 
     function cls:inheritsInto(klass)
         expectClass("class.inheritsInto.klass", klass)
@@ -157,12 +214,20 @@ local function class(name, ...)
     end
     cls.__default.inheritsInto = cls.inheritsInto
 
+    --------------------------------------------------
+    ---- Preserved (Not overridden when inheriting)
+    -------------------------------------------------- TODO: add Method version? (A bit redundant)
+    
     function cls:addPreservedField(key, value)
         self.__preserveKeys[key] = true
         self[key] = value
     end
     cls.__default.addPreservedField = cls.addPreservedField
 
+    --------------------------------------------------
+    ---- Bubble (Merges tables instead of overriding when inheriting, merging with nil is the same as with {})
+    -------------------------------------------------- TODO: add Method version? (A bit redundant)
+    
     function cls:addBubbledField(key, value)
         assert(type(value) == "table", "You can only set a table to be bubbled/merged up")
         self.__preserveKeys[key] = true
@@ -171,9 +236,27 @@ local function class(name, ...)
     end
     cls.__default.addBubbledField = cls.addBubbledField
 
+    function cls:addDeepBubbledField(key, value)
+        assert(type(value) == "table", "You can only set a table to be deep bubbled/merged up")
+        self.__preserveKeys[key] = true
+        self.__deepMergeKeys[key] = true
+        self[key] = value
+    end
+    cls.__default.addDeepBubbledField = cls.addDeepBubbledField
+
+    --------------------------------------------------
+    ---- InstanceCleanUp (If the value/function only matters for defining/instantiation process)
+    --------------------------------------------------
+    
+    function cls:addToInstanceCleanUp(key)
+        self.__instanceCleanUp[key] = true
+    end
+    cls.__default.addToInstanceCleanUp = cls.addToInstanceCleanUp
+
     ----------------------------------------------------------------------------------------------------
     -- GENERICS
     ----------------------------------------------------------------------------------------------------
+    
     function cls:isExactClass(klass)
         local klassName = type(klass) == "string" and klass or (expectClass("class.isExactClass.klass", klass):getClassName())
         if bothExactSameClass(self, klassName) then return true end
@@ -225,6 +308,7 @@ local function class(name, ...)
     ----------------------------------------------------------------------------------------------------
     -- INTERFACE
     ----------------------------------------------------------------------------------------------------
+    
     function cls:_assertWellFormed()
         for k, desc in pairs(self.__abstractMethods) do
             local method = self[k]
@@ -239,10 +323,12 @@ local function class(name, ...)
             assert(type(field) == desc_type["type"], custom_err)    
         end
 
-        -- Possible extra functionality (NOTE: This ALSO runs the post init hooks)
         self:_execWellformedHooks()
     end
-    cls.__default._assertWellFormed = cls._assertWellFormed
+
+    --------------------------------------------------
+    ---- Abstract (Must be defined somewhere)
+    --------------------------------------------------
 
     function cls:abstractField(key, description, ty) -- Note: Will override old abstracts
         assert(key, "You need a key for the field to be assigned to")
@@ -255,91 +341,164 @@ local function class(name, ...)
         self.__abstractMethods[key] = description
     end
     cls.__default.abstractMethod = cls.abstractMethod
- 
+
+    --------------------------------------------------
+    ---- forceDeclare (Must be defined by CURRENT class)
+    --------------------------------------------------
+
     function cls:forceDeclareField(key, description, ty) -- Forces each class to declare this field themselves
         assert(key, "You need a key for the field to be assigned to")
         self.__abstractFields[key] = { description = description, type = ty}
         self.__preserveKeys[key] = true
     end
+    cls.__default.forceDeclareField = cls.forceDeclareField
+
 
     function cls:forceDeclareMethod(key, description) -- Forces each class to declare this method themselves
         assert(key, "You need a key that the method will be assigned to")
         self.__abstractMethods[key] = description
         self.__preserveKeys[key] = true
-
     end
+    cls.__default.forceDeclareMethod = cls.forceDeclareMethod
 
     ----------------------------------------------------------------------------------------------------
-    -- HOOKS (Let you modify certain functions which due to inheritance can't be directly chagned)
+    -- HOOKS (Let you modify certain functions which due to inheritance can't be directly chagned, each class can only add one function per hook)
     ----------------------------------------------------------------------------------------------------
-    function cls:addPostInitHook(func) -- This is EXTREMELY cursed as it is just using the fact wellformed hooks are also called after init at exactly where this would be called
-        expectCallable("class.addPostInitHook.func", func)
-        self.__wellFormedHooks[self:getClassName() .. "_POST_INIT"] = func -- Use a weird key so that it can bubble up 2 different wellformed hooks, still enforces restrictions as it is a static change.
+
+    function cls:addHook(hookName, func) -- NOTE: ONLY 1 FUNCTION PER HOOK PER CLASS
+        expectCallable("class.addHook.func", func)
+        self.__hooks[hookName] = self.__hooks[hookName] or {}
+        self.__hooks[hookName][self:getClassName()] = func
     end
-    cls.__default.addPostInitHook = cls.addPostInitHook
+    cls.__default.addHook = cls.addHook
+
+    function cls:_execHooks(hookName, ...)
+        local hooks = self.__hooks[hookName]
+        if not hooks then return nil end
+        for _, func in pairs(hooks) do
+            func(self, ...)
+        end
+    end
+
+    --------------------------------------------------
+    ---- PostInit Hooks (Called in sequence: PostInit, Wellformed, InstanceCleanUp)
+    --------------------------------------------------
+    -------------------------
+    ------ Wellformed
+    -------------------------
 
     function cls:addWellformedHook(func)
         expectCallable("class.addWellformedHook.func", func)
-        self.__wellFormedHooks[self:getClassName()] = func
+        self:addHook(BASIC_HOOKS.WELLFORMED. func)
     end
     cls.__default.addWellformedHook = cls.addWellformedHook
 
     function cls:_execWellformedHooks()
-        for _, func in pairs(self.__wellFormedHooks) do
-            func(self)
-        end
+        self:_execHooks(BASIC_HOOKS.WELLFORMED)
     end
-    cls.__default._execWellformedHooks = cls._execWellformedHooks
+    
+    -------------------------
+    ------ InstanceCleanUp
+    -------------------------
+
+    function cls:addInstanceCleanUpHook(func)
+        expectCallable("class.addInstanceCleanUpHook.func", func)
+        self:addHook(BASIC_HOOKS.INSTANCE_CLEAN_UP, func)
+    end
+    cls.__default.addInstanceCleanUpHook = cls.addInstanceCleanUpHook
+
+    function cls:_execInstanceCleanUpHooks()
+        self:_execHooks(BASIC_HOOKS.INSTANCE_CLEAN_UP)
+    end
+    
+    -------------------------
+    ------ PostInit
+    -------------------------
+    
+    function cls:addPostInitHook(func)
+        expectCallable("class.addPostInitHook.func", func)
+        self:addHook(BASIC_HOOKS.POST_INIT, func)
+    end
+    cls.__default.addPostInitHook = cls.addPostInitHook
+
+    function cls:_execPostInitHooks() -- Also: Wellformed; InstanceCleanUp Hooks
+        self:_execHooks(BASIC_HOOKS.POST_INIT)
+    end
+
+    --------------------------------------------------
+    ---- Inherits (Post) 
+    --------------------------------------------------
+
+    function cls:addInheritsHook(func)
+        expectCallable("cls.addInheritsHook.func", func)
+        self:addHook(BASIC_HOOKS.INHERITS, func)
+    end
+    cls.__default.addInheritsHook = cls.addInheritsHook
+
+    function cls:_execInheritsHook(klass) -- Note this is called by the base class inheriting INTO the sub class
+        expectClass("class._execInheritsHook.klass", klass)
+        self:_execHooks(BASIC_HOOKS.INHERITS, klass)
+    end
+
+    --------------------------------------------------
+    ---- Meta Tablle hooks
+    --------------------------------------------------
+    -------------------------
+    ------ Index
+    -------------------------
 
     function cls:addIndexHook(func)
         expectCallable("cls.addIndexHook.func", func)
-        self.__indexHooks[self:getClassName()] = func
+        self:addHook(BASIC_HOOKS.INDEX, func)
     end
     cls.__default.addIndexHook = cls.addIndexHook
 
-    function cls:_execIndexHooks(cls, tbl, key)
-        for _, func in pairs(cls.__indexHooks) do
+    function cls:_execIndexHooks(cls, tbl, key) -- Special case 1
+        for _, func in pairs(cls.__hooks[BASIC_HOOKS.INDEX]) do
             local result = func(cls, tbl, key)
             if result ~= nil then
                 return result
             end
         end
     end
-    cls.__default._execIndexHooks = cls._execIndexHooks
+
+    -------------------------
+    ------ NewIndex
+    -------------------------
 
     function cls:addNewIndexHook(func)
         expectCallable("cls.addNewIndexHook.func", func)
-        self.__newindexHooks[self:getClassName()] = func
+        self:addHook(BASIC_HOOKS.NEW_INDEX, func)
     end
     cls.__default.addNewIndexHook = cls.addNewIndexHook
 
     function cls:_execNewIndexHooks(cls, tbl, key, value)
-        for _, func in pairs(cls.__newindexHooks) do
+        for _, func in pairs(cls.__hooks[BASIC_HOOKS.NEW_INDEX]) do
             local result = func(cls, tbl, key, value)
             if result ~= nil then
                 return result
             end
         end
     end
-    cls.__default._execNewIndexHooks = cls._execNewIndexHooks
 
-    function cls:addInheritsHook(func)
-        expectCallable("cls.addInheritsHook.func", func)
-        self.__inheritsHooks[self:getClassName()] = func
-    end
-    cls.__default.addInheritsHook = cls.addInheritsHook
+    ----------------------------------------------------------------------------------------------------
+    -- Clean Up Class Instance (When class is defined, the table is polluted with alot of stuff that needs to be cleaned up)
+    ----------------------------------------------------------------------------------------------------
 
-    function cls:_execInheritsHook(klass) -- Note this is called by the base class inheriting INTO the sub class
-        expectClass("class._execInheritsHook.klass", klass)
-        for _, func in pairs(self.__inheritsHooks) do
-            func(self, klass)
+    function cls:_InstanceCleanUp()
+        for k, v in pairs(klass.__instanceCleanUp) do
+            if v then -- Just in case someone set to false
+                self[k] = nil
+            end
         end
+
+        self:_execInstanceCleanUpHooks()
     end
-    cls.__default._execInheritsHook = cls._execInheritsHook
 
     ----------------------------------------------------------------------------------------------------
     -- DEFAULT (For cases where a class overwrites a method)
     ----------------------------------------------------------------------------------------------------
+
     function cls:DEFAULT() -- Note you will have to use dot notation to call the functions
         return self.__default
     end
@@ -351,11 +510,14 @@ local function class(name, ...)
     ----------------------------------------------------------------------------------------------------
     -- CONSTRUCTOR
     ----------------------------------------------------------------------------------------------------
+
     function cls:_new(...)
         local instance = setmetatable({}, cls)
         if instance.init then
             instance:init(...)
         end
+        instance:_execPostInitHooks()
+        instance:_InstanceCleanUp()
         instance:_assertWellFormed()
         return instance
     end
