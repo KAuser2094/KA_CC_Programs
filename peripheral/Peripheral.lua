@@ -1,6 +1,6 @@
-local class = require "KA_CC.modules.class"
-local ClassModule = require "KA_CC.modules.class"
-local Class, EXTEND_ALL = ClassModule.Class, ClassModule.Extends.ALL
+local Class = require "KA_CC.modules.class".Class
+local EXTEND_ALL = require "KA_CC.modules.class".Extends.ALL
+local utils = require "KA_CC.modules.utils"
 local p_utils = require "KA_CC.peripheral.utils"
 
 local native = _G.peripheral
@@ -17,6 +17,11 @@ function Peripheral:init(wrappedOrName)
             return native.call(self.name, method, ...)
         end
     end
+end
+
+function Peripheral:onNetwork()
+    local network = native.getNames()
+    return utils.hasSubset(network, self.name)
 end
 
 function Peripheral.__eq(self, other)

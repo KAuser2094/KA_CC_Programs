@@ -44,3 +44,6 @@ luac.out
 
 # scripts (you don't need to know my file paths >:)
 copy_to_computer.sh
+
+# Random stuff
+.ignore*

@@ -3,6 +3,10 @@
 
 -- TODO:
 -- Add a "cleanup" step after init that removes any "Class Defining" functions/fields that are no longer needed. Now class is clearly defined already.
+-- -- Right now tables are an absolute mess of methods
+
+-- MAYBE:
+-- Add "remove" methods for inheritance stuff, right now if you add a rule to a field/method it MUST propogate up. An inheriting class may want to disable it.
 
 local type = type
 
@@ -158,7 +162,6 @@ local function class(name, ...)
         self[key] = value
     end
     cls.__default.addPreservedField = cls.addPreservedField
-
 
     function cls:addBubbledField(key, value)
         assert(type(value) == "table", "You can only set a table to be bubbled/merged up")
