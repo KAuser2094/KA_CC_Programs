@@ -1,10 +1,6 @@
 -- local Class = require "KA_CC.modules.class.new_class"
 -- local Class = require "KA_CC.modules.class".Class
 
--- TODO:
--- Add a "cleanup" step after init that removes any "Class Defining" functions/fields that are no longer needed. Now class is clearly defined already.
--- -- Right now tables are an absolute mess of methods
-
 -- MAYBE:
 -- Add "remove" methods for inheritance stuff, right now if you add a rule to a field/method it MUST propogate up. An inheriting class may want to disable it.
 
@@ -66,31 +62,6 @@ local function DEEP_MERGES_UP()
     }
 end
 
-local function INSTANCE_CLEAN_UP()
-    return { -- To be nil-ed after instance is made
-    __preserveKeys = true,
-    __mergeKeys = true,
-    __abstractFields = true,
-    __abstractMethods = true,
-    __inheritsHooks = true,
-    _basicInheritInto = true,
-    inheritsInto = true,
-    addPreservedField = true,
-    addBubbledField = true,
-    addDeepBubbledField = true,
-    addToInstanceCleanUp = true, -- ironic
-    _assertWellFormed = true,
-    abstractField = true,
-    abstractMethod = true,
-    forceDeclareField = true, 
-    forceDeclareMethod = true, 
-    addWellformedHook = true, 
-    addInstanceCleanUpHook = true,
-    execPostInitHooks = true,
-    _execInheritsHook = true,
-    }
-end
-
 local function shallowMerge(tbl, other)
     for k,v in pairs(other) do
         tbl[k] = v
@@ -124,15 +95,7 @@ local BASIC_HOOKS = {
     INHERITS = "INHERITS_HOOK",
     POST_INIT = "POST_INIT_HOOK",
     WELLFORMED = "WELLFORMED_HOOK",
-    INSTANCE_CLEAN_UP = "INSTANCE_CLEAN_UP_HOOK",
 }
-
-local helper = {}
-helper.expectCallable = expectCallable
-helper.expectClass = expectClass
-helper.bothExactSameClass = bothExactSameClass
-helper.PRESERVE_KEYS = PRESERVE_KEYS
-helper.shallowMergeWithPreserve = shallowMergeWithPreserve
 
 -- local YouClassName = Class(YouClassNameString, Class_i?...Class_n?)
 -- Note: NO checks for conflicts by default.
@@ -146,16 +109,15 @@ local function class(name, ...)
     local base_classes = table.pack(...)
 
     local cls = {}
-    cls.__helper = helper
 
     -- Holds a guarenteed base implementation of generic class methods just in case of overrides
-    cls.__default = { __className = "KA_Class" } -- Name is just here so it is still treated as a class
+    cls.__default = { __className = "KA_Class" } -- Name is just here so it is still treated as a class -- MAYBE: add the local functions into this
 
     cls.__className = name -- Should not be changed after this
+    cs.__BASIC_HOOKS = BASIC_HOOKS
     cls.__preserveKeys = PRESERVE_KEYS() -- preserve the values at those keys. (They should not be overridden, can be added to)
     cls.__mergeKeys = MERGES_UP() -- Table values that are copied up (or set if not yet exists)
     cls.__deepMergeKeys = DEEP_MERGES_UP() -- Same as above but use a deep merge
-    cls.__instanceCleanUp = INSTANCE_CLEAN_UP() -- Nil values after instance is made
     -- NOTE: Tables below should be in the form "<className>" = <value> 
     -- Each class should have a unique value in the tables (if any) and we use the fact the table key constraint is the exact same to do this.
     cls.__inherits = {} -- Stores all classes this inherits from
@@ -243,15 +205,6 @@ local function class(name, ...)
         self[key] = value
     end
     cls.__default.addDeepBubbledField = cls.addDeepBubbledField
-
-    --------------------------------------------------
-    ---- InstanceCleanUp (If the value/function only matters for defining/instantiation process)
-    --------------------------------------------------
-    
-    function cls:addToInstanceCleanUp(key)
-        self.__instanceCleanUp[key] = true
-    end
-    cls.__default.addToInstanceCleanUp = cls.addToInstanceCleanUp
 
     ----------------------------------------------------------------------------------------------------
     -- GENERICS
@@ -381,7 +334,7 @@ local function class(name, ...)
     end
 
     --------------------------------------------------
-    ---- PostInit Hooks (Called in sequence: PostInit, Wellformed, InstanceCleanUp)
+    ---- PostInit Hooks (Called in sequence: PostInit, Wellformed)
     --------------------------------------------------
     -------------------------
     ------ Wellformed
@@ -389,40 +342,26 @@ local function class(name, ...)
 
     function cls:addWellformedHook(func)
         expectCallable("class.addWellformedHook.func", func)
-        self:addHook(BASIC_HOOKS.WELLFORMED. func)
+        self:addHook(self.__BASIC_HOOKS.WELLFORMED. func)
     end
     cls.__default.addWellformedHook = cls.addWellformedHook
 
     function cls:_execWellformedHooks()
-        self:_execHooks(BASIC_HOOKS.WELLFORMED)
+        self:_execHooks(self.__BASIC_HOOKS.WELLFORMED)
     end
-    
-    -------------------------
-    ------ InstanceCleanUp
-    -------------------------
 
-    function cls:addInstanceCleanUpHook(func)
-        expectCallable("class.addInstanceCleanUpHook.func", func)
-        self:addHook(BASIC_HOOKS.INSTANCE_CLEAN_UP, func)
-    end
-    cls.__default.addInstanceCleanUpHook = cls.addInstanceCleanUpHook
-
-    function cls:_execInstanceCleanUpHooks()
-        self:_execHooks(BASIC_HOOKS.INSTANCE_CLEAN_UP)
-    end
-    
     -------------------------
     ------ PostInit
     -------------------------
-    
+
     function cls:addPostInitHook(func)
         expectCallable("class.addPostInitHook.func", func)
-        self:addHook(BASIC_HOOKS.POST_INIT, func)
+        self:addHook(self.__BASIC_HOOKS.POST_INIT, func)
     end
     cls.__default.addPostInitHook = cls.addPostInitHook
 
-    function cls:_execPostInitHooks() -- Also: Wellformed; InstanceCleanUp Hooks
-        self:_execHooks(BASIC_HOOKS.POST_INIT)
+    function cls:_execPostInitHooks()
+        self:_execHooks(self.__BASIC_HOOKS.POST_INIT)
     end
 
     --------------------------------------------------
@@ -431,13 +370,13 @@ local function class(name, ...)
 
     function cls:addInheritsHook(func)
         expectCallable("cls.addInheritsHook.func", func)
-        self:addHook(BASIC_HOOKS.INHERITS, func)
+        self:addHook(self.__BASIC_HOOKS.INHERITS, func)
     end
     cls.__default.addInheritsHook = cls.addInheritsHook
 
     function cls:_execInheritsHook(klass) -- Note this is called by the base class inheriting INTO the sub class
         expectClass("class._execInheritsHook.klass", klass)
-        self:_execHooks(BASIC_HOOKS.INHERITS, klass)
+        self:_execHooks(self.__BASIC_HOOKS.INHERITS, klass)
     end
 
     --------------------------------------------------
@@ -449,12 +388,12 @@ local function class(name, ...)
 
     function cls:addIndexHook(func)
         expectCallable("cls.addIndexHook.func", func)
-        self:addHook(BASIC_HOOKS.INDEX, func)
+        self:addHook(self.__BASIC_HOOKS.INDEX, func)
     end
     cls.__default.addIndexHook = cls.addIndexHook
 
     function cls:_execIndexHooks(cls, tbl, key) -- Special case 1
-        for _, func in pairs(cls.__hooks[BASIC_HOOKS.INDEX]) do
+        for _, func in pairs(cls.__hooks[cls.__BASIC_HOOKS.INDEX]) do
             local result = func(cls, tbl, key)
             if result ~= nil then
                 return result
@@ -468,31 +407,17 @@ local function class(name, ...)
 
     function cls:addNewIndexHook(func)
         expectCallable("cls.addNewIndexHook.func", func)
-        self:addHook(BASIC_HOOKS.NEW_INDEX, func)
+        self:addHook(self.__BASIC_HOOKS.NEW_INDEX, func)
     end
     cls.__default.addNewIndexHook = cls.addNewIndexHook
 
-    function cls:_execNewIndexHooks(cls, tbl, key, value)
-        for _, func in pairs(cls.__hooks[BASIC_HOOKS.NEW_INDEX]) do
+    function cls:_execNewIndexHooks(cls, tbl, key, value) -- Special case 2
+        for _, func in pairs(cls.__hooks[cls.__BASIC_HOOKS.NEW_INDEX]) do
             local result = func(cls, tbl, key, value)
             if result ~= nil then
                 return result
             end
         end
-    end
-
-    ----------------------------------------------------------------------------------------------------
-    -- Clean Up Class Instance (When class is defined, the table is polluted with alot of stuff that needs to be cleaned up)
-    ----------------------------------------------------------------------------------------------------
-
-    function cls:_InstanceCleanUp()
-        for k, v in pairs(klass.__instanceCleanUp) do
-            if v then -- Just in case someone set to false
-                self[k] = nil
-            end
-        end
-
-        self:_execInstanceCleanUpHooks()
     end
 
     ----------------------------------------------------------------------------------------------------
@@ -517,7 +442,6 @@ local function class(name, ...)
             instance:init(...)
         end
         instance:_execPostInitHooks()
-        instance:_InstanceCleanUp()
         instance:_assertWellFormed()
         return instance
     end
@@ -554,7 +478,3 @@ local function class(name, ...)
 end
 
 return class
--- Cases:
--- Overwrite (overwrite the table/value)
--- Do nothing / Ignore
--- Merge table up
