@@ -1,5 +1,5 @@
 local class = require "KA_CC.modules.class".Class
-local extends = require "KA_CC.modules.class".MixIn.ALL
+local extends = require "KA_CC.modules.class".MixIns.ALL
 
 local t_utils = require "KA_CC.tests.utils"
 

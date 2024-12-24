@@ -5,6 +5,8 @@
 -- Add "remove" methods for inheritance stuff, right now if you add a rule to a field/method it MUST propogate up. An inheriting class may want to disable it.
 
 local type = type
+local select = select
+local expect = require "KA_CC.modules.expect" -- Don't like that I had to use a require but I am not reimplementing it -- TODO: change custom implementation here to use this now that I had to require it anyway
 
 local function expectCallable(_index, value, custom_err)
     local index = _index and _index or "N/A"
@@ -292,9 +294,13 @@ local function class(name, ...)
 
         for k, desc_type in pairs(self.__abstractFields) do
             local field = self[k]
-            local custom_err = "Missing or mistyped " .. k .. "(" .. desc_type["type"] .. "): " .. desc_type["description"]
-            assert(field, custom_err)
-            assert(type(field) == desc_type["type"], custom_err)    
+            local types = desc_type["type"] and desc_type["type"] or nil
+            local desc = desc_type["description"] and desc_type["description"] or "FAILED TO GET DESCRIPTION"
+            local custom_err = "Missing " .. k .. "\nDescrption: " .. desc
+            assert(field, custom_err) -- Field is defined ("types" having nil is invalid and if you set your abstract filed to it...why)
+            if types then
+                expect.expect("class._assertWellFormed." .. k .. "(Checking Abstract Field For Type)", field, table.unpack(types)) -- Field is correctly typed
+            end
         end
 
         self:_execWellformedHooks()
@@ -304,9 +310,24 @@ local function class(name, ...)
     ---- Abstract (Must be defined somewhere)
     --------------------------------------------------
 
-    function cls:abstractField(key, description, ty) -- Note: Will override old abstracts
+    function cls:abstractField(key, description, ty1, ...) -- Note: Will override old abstracts
         assert(key, "You need a key for the field to be assigned to")
-        self.__abstractFields[key] = { description = description, type = ty}
+        local tbl = nil -- Don't want to store into type if there isn't any
+        if ty1 ~= nil then
+            local success, err_or_value = pcall(expectClass, "class.abstractField.ty1", ty1)
+            assert(type(ty1) == "string" or success, "class.abstractField.ty1 needs to be a string or a class")
+            tbl = {}
+            table.insert(tbl, ty1)
+            local numVArgs = select("#", ...)
+            for i=1,numVArgs do
+                local tyNum = i + 1
+                local varg = select(i, ...)
+                assert(type(varg) == "string" or expectClass("class.abstractField.ty" .. tyNum, varg), "types need to be a string or a class")
+                table.insert(tbl, varg)
+            end
+        end
+
+        self.__abstractFields[key] = { description = description, type = tbl}
     end
     cls.__default.abstractField = cls.abstractField
 

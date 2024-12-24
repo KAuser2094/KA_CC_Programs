@@ -1,5 +1,5 @@
 local Class = require "KA_CC.modules.class".Class
-local PublishSubscribe = require "KA_CC.modules.class".MixIn.PublishSubscribe
+local PublishSubscribe = require "KA_CC.modules.class".MixIns.PublishSubscribe
 local Peripheral = require "KA_CC.peripheral.Peripheral"
 local p_utils = require "KA_CC.peripheral.utils"
 local utils = require "KA_CC.modules.utils"

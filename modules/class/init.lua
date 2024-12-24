@@ -4,14 +4,9 @@ local simple = require "KA_CC.modules.class.simple"
 
 local module = {}
 
-local function ClassExtendsAll(name, ...) -- Get a class with all extensions (as defined by mixins.ALL)
-    return Class(name, mixins.ALL, ...)
-end
-
 module.Class = class
-module.ExpandedClass = ClassExtendsAll
 module.SimpleClass = simple
-module.MixIn = mixins
+module.MixIns = mixins
 
 setmetatable(module, {
     __call = function (_,...)
