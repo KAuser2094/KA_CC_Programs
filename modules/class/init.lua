@@ -1,17 +1,17 @@
 local class = require "KA_CC.modules.class.class"
-local extends = require "KA_CC.modules.class.extends"
+local mixins = require "KA_CC.modules.class.mixins"
 local simple = require "KA_CC.modules.class.simple"
 
 local module = {}
 
-local function ClassExtendsAll(name, ...) -- Get a class with all extensions (as defined by extends.ALL)
-    return Class(name, extends.ALL, ...)
+local function ClassExtendsAll(name, ...) -- Get a class with all extensions (as defined by mixins.ALL)
+    return Class(name, mixins.ALL, ...)
 end
 
 module.Class = class
 module.ExpandedClass = ClassExtendsAll
 module.SimpleClass = simple
-module.Extends = extends
+module.MixIn = mixins
 
 setmetatable(module, {
     __call = function (_,...)
