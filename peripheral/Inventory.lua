@@ -49,24 +49,16 @@ end
 
 function Inventory.needsSideSpecified(InventoryOrWrappedOrName)
     local mod = nil
-    local mods = nil
     local needs_side = false
     if Inventory.isInventory(InventoryOrWrappedOrName)  then
         return InventoryOrWrappedOrName.needs_side
     elseif p_utils.isWrapped(InventoryOrWrappedOrName) or p_utils.isName(InventoryOrWrappedOrName) then
-        _, _, _, _, mod, mods = p_utils.getClassFields(InventoryOrWrappedOrName)
+        _, _, _, _, mod = p_utils.getClassFields(InventoryOrWrappedOrName)
     else
         error("Invalid input")
     end
 
-    if not needs_side and mods then
-        for _,_m in pairs(mods) do
-            needs_side = utils.containsValue(Inventory.NEEDS_SIDE.mods, _m)
-            if needs_side then
-                break
-            end
-        end
-    elseif not needs_side and mod then
+    if not needs_side and mod then
         needs_side = utils.containsValue(Inventory.NEEDS_SIDE.mods, mod)
     end
     
@@ -202,11 +194,5 @@ function Inventory:pull(other, fromSlot, limitOrNil, toSlotOrNil, selfSideOrNil,
 
     return ret
 end
-
-function Inventory:finishDefinition()
-    self["preserveKey"] = nil
-end
-
-Inventory:finishDefinition()
 
 return Inventory

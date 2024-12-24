@@ -9,7 +9,7 @@ local Peripheral = Class("KA_Peripheral")
 
 function Peripheral:init(wrappedOrName)
     e.expect("Peripheral.init.wrappedOrName", wrappedOrName, "table", "string")
-    self.api, self.name, self.type, self.types, self.mod, self.mods = p_utils.getClassFields(wrappedOrName)
+    self.api, self.name, self.type, self.types, self.mod = p_utils.getClassFields(wrappedOrName)
     
     -- Make it so that this can be used instead of normal peripherals. (So any dot function should exist)
     local methods = native.getMethods(self.name)

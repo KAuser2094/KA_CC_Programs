@@ -4,7 +4,7 @@
 -- An extension/rewrite of cc.expect but it also allows you to use classes
 -- If "index" is a table then we presume we are calling field instead
 
--- TODO: Change ALL functions to lowercase and the __index meta table to call from lowercase key
+-- TODO:
 -- Add "peripheral" as a type
 
 local type = type
@@ -142,12 +142,27 @@ local function isACallable(value)
     return (t == TYPES.FUNCTION) or (t == TYPES.TABLE and getmetatable(value) and getmetatable(value).__call)
 end
 
+local function makeIsFunction(expectFunction)
+    return function (value, ...) -- The types possibly
+        local success, val_or_err = pcall(expectFunction, "N/A", value, ...)
+        return success and val_or_err or nil -- Return value if the value is what is expected
+    end
+end
+
 local expect = {}
+local is = {}
 
 module.expect = expect
 module.feild = expect
+module.is = is
 
 expect.TYPES = TYPES
+
+-- TODO:
+-- Remake this but instead follow these steps:
+-- - Do the "native" implementation first.
+-- - Check for "callable", if so do that check, then similarly for "peripheral", use the "get_type_names" in the error message. Check simply for "class" is also here
+-- - Check for specific class names
 
 local function call(index_or_table, value_or_key, ...)
     local index, value = getIndexAndValueToCheck(index_or_table, value_or_key)
@@ -177,6 +192,14 @@ end
 setmetatable(expect, { -- lets you call expect()
     __call = function(_, ...)
         call(...)
+    end,
+})
+
+local is_call = makeIsFunction(call)
+
+setmetatable(is, { -- lets you call is(value, types...)
+    __call = function(_, ...)
+        is_call(...)
     end,
 })
 
@@ -212,6 +235,8 @@ end
 
 module.expectNot = expect.NOT
 module.fieldNot = expect.NOT
+is.NOT = makeIsFunction(expect.NOT)
+module.isNot = is.NOT
 
 function expect.ANY(index, value) -- So not nil
     assert(type(value) ~= "nil", index .. " must be a non-nil value")
@@ -242,14 +267,21 @@ local function addSingleTypeExpects(tbl)
             assert(type(value) ~= ty, index .. " must NOT be of " .. ty .. " type")
             return value
         end
-        -- Optional Not doesn't make sense so...no
-        
+
+        -- "OptionalNot" makes no sense, will always end up true
+
         local camelCaseKey = toCamelCase(key)
         module["expect" .. camelCaseKey] = tbl[key]
         module["expectNot" .. camelCaseKey] = tbl["NOT_" .. key]
         module["optional" .. camelCaseKey]= tbl["OPTIONAL_" .. key]
         module["field" .. camelCaseKey] = tbl[key]
         module["fieldNot" .. camelCaseKey] = tbl["NOT_" .. key]
+        if ty ~= "nil" then -- "isNil" makes no sense, always returns nil
+            is[key] = makeIsFunction(tbl[key])
+            module["is" .. camelCaseKey] = is[key]
+        end
+        is["NOT_" .. key] = makeIsFunction(tbl["NOT_" .. key])
+        module["isNot" .. camelCaseKey] = is["NOT_" .. key]
     end
 end
 
@@ -269,13 +301,18 @@ expect["NOT_" .. TYPES.CALLABLE] = function (index, value)
     return value
 end
 
-local camelCaseKey = toCamelCase(TYPES.CALLABLE)
-local key = TYPES.CALLABLE
+local key = getKeyWithValue(TYPES, TYPES.CALLABLE)
+local camelCaseKey = toCamelCase(key)
 module["expect" .. camelCaseKey] = expect[key]
 module["expectNot" .. camelCaseKey] = expect["NOT_" .. key]
 module["optional" .. camelCaseKey]= expect["OPTIONAL_" .. key]
 module["field" .. camelCaseKey] = expect[key]
 module["fieldNot" .. camelCaseKey] = expect["NOT_" .. key]
+
+is[key] = makeIsFunction(expect[key])
+module["is" .. camelCaseKey] = is[key]
+is["NOT_" .. key] = makeIsFunction(expect["NOT_" .. key])
+module["isNot" .. camelCaseKey] = is["NOT_" .. key]
 
 -- CLASS
 expect[TYPES.CLASS] = function (index, value)
@@ -291,15 +328,30 @@ expect["NOT_" .. TYPES.CLASS] = function (index, value)
     return value
 end
 
-camelCaseKey = toCamelCase(TYPES.CLASS)
-key = TYPES.CLASS
+key = getKeyWithValue(TYPES, TYPES.CLASS)
+camelCaseKey = toCamelCase(key)
 module["expect" .. camelCaseKey] = expect[key]
 module["expectNot" .. camelCaseKey] = expect["NOT_" .. key]
 module["optional" .. camelCaseKey]= expect["OPTIONAL_" .. key]
 module["field" .. camelCaseKey] = expect[key]
 module["fieldNot" .. camelCaseKey] = expect["NOT_" .. key]
 
+is[key] = makeIsFunction(expect[key])
+module["is" .. camelCaseKey] = is[key]
+is["NOT_" .. key] = makeIsFunction(expect["NOT_" .. key])
+module["isNot" .. camelCaseKey] = is["NOT_" .. key]
 
+-- Enforce no other args
+
+function expect.NoVargs(index, ...) -- Kind of weird since you need to add a "..." at the end and the add an except after, making the signature look like it DOES accept it
+    local vargs = { ... }
+    assert(#vargs == 0, index .. " has " .. #vargs .. " variable arguments when expecting none")
+    -- return nil
+end
+
+module.expectNoVargs = expect.NoVargs
+
+-- Extras
 
 function module.serialise() -- For printing out since functions hate being turned into strings
     local fields = {}

@@ -47,19 +47,9 @@ function p_utils.getClassFields(wrappedOrName)
         type = native.getType(name)
     end
 
-     -- NOTE: The below does not really work alot of the time...given we are just stripping the before the semicolon. It does work for ic2 however.
-     if types then -- Has a list of types
-        mods = {}
-        for _,v in ipairs(types) do
-            table.insert(mods, v:match("([^:_]+)"))
-        end
-    elseif type then -- Singular Type
-        mod = type:match("([^:_]+)")
-    else
-        error("No Type or Types to extract mod from")
-    end
+    mod = p_utils.getMod(peripheral)
 
-    return peripheral, name, type, types, mod, mods
+    return peripheral, name, type, types, mod
 end
 
 function p_utils.getName(PeripheralOrWrappedOrName)
@@ -72,6 +62,10 @@ function p_utils.getName(PeripheralOrWrappedOrName)
     else
         error("Invalid input")
     end
+end
+
+function p_utils.getMod(Wrapped) -- TODO: actually do the logic to allow a Peripheral or a Name to be passed in. Too lazy right now
+    return Wrapped.getMetadata()["name"]:match(("([^:]+)")) -- From the meta data, get the "name" and strip everything before the first :
 end
 
 return p_utils
